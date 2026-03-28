@@ -1664,12 +1664,14 @@ async function pushVideoToGitHub(){
     const sha = shaData.sha;
     const currentHtml = decodeURIComponent(escape(atob(shaData.content.replace(/\n/g,''))));
 
-    // 2. Inject new entry right after "const vids=["
-    const insertMarker = 'const vids=[';
-    const idx = currentHtml.indexOf(insertMarker);
-    if(idx === -1) throw new Error('Could not find vids array in index.html');
-
-    const insertAt = idx + insertMarker.length;
+    // 2. Find vids array and inject new entry at the top
+    const markers = ['const vids=[\n','const vids=[ \n','const vids = [\n','const vids=['];
+    let insertAt = -1;
+    for(const marker of markers){
+      const idx = currentHtml.indexOf(marker);
+      if(idx !== -1){ insertAt = idx + marker.length; break; }
+    }
+    if(insertAt === -1) throw new Error('Could not find vids array in index.html');
     const newHtml = currentHtml.slice(0, insertAt) + '\n  ' + entry + ',' + currentHtml.slice(insertAt);
 
     // 3. Push back to GitHub
