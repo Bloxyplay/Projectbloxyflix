@@ -865,7 +865,7 @@ select.form-input{cursor:pointer;}
         <div class="git-status">
           <svg viewBox="0 0 24 24" style="color:var(--green);"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
           <div class="git-status-text">
-            <strong>GitHub connected</strong> — changes will be committed to <span style="font-family:var(--mono);">index.html</span> automatically.
+            <strong>Auto mode</strong> — fills in the form, downloads updated <span style="font-family:var(--mono);">index.html</span>, then upload to GitHub.
           </div>
         </div>
 
@@ -1632,74 +1632,51 @@ function buildVideoObj(){
   return entry;
 }
 
-// ─── Push video directly to GitHub ────────
+// ─── Download updated index.html ──────────
 async function pushVideoToGitHub(){
   const entry = buildVideoObj();
   if(!entry) return;
 
-  const owner  = 'Bloxyplay';
-  const repo   = 'Projectbloxyflix';
-  const branch = localStorage.getItem('bf_gh_branch') || 'main';
-  const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
-  const token  = localStorage.getItem('bf_gh_token');
-
-  if(!token){
-    toast('GitHub token required to push — go to GitHub Config','var(--gold)');
-    return;
-  }
-
   const btn = document.getElementById('pushVideoBtn');
   btn.disabled = true;
-  btn.textContent = 'Pushing…';
-  toast('Fetching index.html…','var(--blue)');
+  btn.textContent = 'Generating…';
+  toast('Fetching index.html from GitHub…','var(--blue)');
 
   try{
-    // 1. Fetch current file + SHA
-    const shaRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`,
-      { headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'} }
-    );
-    if(!shaRes.ok) throw new Error('Could not fetch file: HTTP '+shaRes.status);
-    const shaData = await shaRes.json();
-    const sha = shaData.sha;
-    const currentHtml = decodeURIComponent(escape(atob(shaData.content.replace(/\n/g,''))));
-
-    // 2. Find vids array and inject new entry at the top
-    const markers = ['const vids=[\n','const vids=[ \n','const vids = [\n','const vids=['];
-    let insertAt = -1;
-    for(const marker of markers){
-      const idx = currentHtml.indexOf(marker);
-      if(idx !== -1){ insertAt = idx + marker.length; break; }
+    // Fetch the raw index.html from GitHub (no token needed — public repo)
+    const urls = [
+      'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
+      'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
+    ];
+    let currentHtml = null;
+    for(const url of urls){
+      try{
+        const res = await fetch(url);
+        if(res.ok){ currentHtml = await res.text(); break; }
+      } catch(e){}
     }
+    if(!currentHtml) throw new Error('Could not fetch index.html from GitHub');
+
+    // Find vids=[ and inject new entry at the top
+    const marker = 'const vids=[';
+    const insertAt = currentHtml.indexOf(marker);
     if(insertAt === -1) throw new Error('Could not find vids array in index.html');
-    const newHtml = currentHtml.slice(0, insertAt) + '\n  ' + entry + ',' + currentHtml.slice(insertAt);
 
-    // 3. Push back to GitHub
-    toast('Pushing to GitHub…','var(--blue)');
-    const encoded = btoa(unescape(encodeURIComponent(newHtml)));
+    const newHtml = currentHtml.slice(0, insertAt + marker.length) + '\n  ' + entry + ',' + currentHtml.slice(insertAt + marker.length);
+
+    // Download the updated file
+    const blob = new Blob([newHtml], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+
     const title = document.getElementById('newTitle').value.trim();
-    const putRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
-      {
-        method:'PUT',
-        headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-        body: JSON.stringify({
-          message:`Admin: add video — ${title}`,
-          content: encoded,
-          sha, branch
-        })
-      }
-    );
-    if(!putRes.ok){
-      const err = await putRes.json();
-      throw new Error(err.message || 'Push failed: '+putRes.status);
-    }
-
-    toast(`✓ "${title}" added to GitHub!`);
+    toast(`✓ index.html downloaded with "${title}" added!`);
     clearForm();
-    // Refresh local video list
-    await fetchVidsFromGitHub(true);
-    renderDashboard();
 
   } catch(e){
     toast('Error: '+e.message,'var(--red)');
