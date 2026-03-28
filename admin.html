@@ -971,14 +971,15 @@ select.form-input{cursor:pointer;}
             </div>
 
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+              <button class="topbar-btn primary" id="pushVideoBtn" onclick="pushVideoToGitHub()" style="flex:1;justify-content:center;padding:.75rem;">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Add Video to Site
+              </button>
               <button class="topbar-btn" onclick="generateCode()">
                 <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                Generate Code
+                Preview Code
               </button>
-              <button class="topbar-btn primary" onclick="copyCode()">
-                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy Code
-              </button>
+              <button class="topbar-btn" onclick="copyCode()">Copy</button>
               <button class="topbar-btn" onclick="clearForm()">Clear</button>
             </div>
           </div>
@@ -1600,51 +1601,133 @@ function setStreamTab(tab, el){
   if(el) el.classList.add('active');
 }
 
-// ─── Generate Code ────────────────────────
-function generateCode(){
-  const t = document.getElementById('newTitle').value.trim();
-  const tk = document.getElementById('newTitleKr').value.trim();
-  const c = document.getElementById('newCat').value;
-  const y = document.getElementById('newYear').value.trim();
+// ─── Build video object from form ─────────
+function buildVideoObj(){
+  const t   = document.getElementById('newTitle').value.trim();
+  const tk  = document.getElementById('newTitleKr').value.trim();
+  const c   = document.getElementById('newCat').value;
+  const y   = document.getElementById('newYear').value.trim();
   const dur = document.getElementById('newDuration').value.trim();
   const views = document.getElementById('newViews').value.trim()||'0';
-  const desc = document.getElementById('newDesc').value.trim();
+  const desc  = document.getElementById('newDesc').value.trim();
   const thumb = document.getElementById('newThumb').value.trim();
 
-  let urlPart = '';
+  if(!t){ toast('Please enter a title','var(--gold)'); return null; }
+
+  let u = '', extra = '';
   if(activeStreamTab==='mp4'){
-    const u = document.getElementById('newUrl').value.trim();
-    urlPart = `u:'${u}'`;
+    u = document.getElementById('newUrl').value.trim();
+    extra = '';
   } else if(activeStreamTab==='youtube'){
-    let u = document.getElementById('newYtUrl').value.trim();
+    u = document.getElementById('newYtUrl').value.trim();
     const m = u.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
     if(m) u = m[1];
-    urlPart = `u:'${u}',isYouTube:true`;
+    extra = ',isYouTube:true';
   } else {
-    const u = document.getElementById('newM3u8Url').value.trim();
-    urlPart = `u:'${u}',isM3U8:true,isPinned:true`;
+    u = document.getElementById('newM3u8Url').value.trim();
+    extra = ',isM3U8:true,isPinned:true';
   }
 
-  const parts = [
-    `t:'${t.replace(/'/g,"\\'")}' `,
-    tk ? `,tk:'${tk.replace(/'/g,"\\'")}'` : `,tk:''`,
-    `,c:'${c}'`,
-    `,y:'${y}'`,
-    `,duration:'${dur}'`,
-    `,views:'${views}'`,
-    desc ? `,d:'${desc.replace(/'/g,"\\'").slice(0,120)}'` : '',
-    thumb ? `,thumb:'${thumb}'` : '',
-    `,${urlPart}`,
-  ].filter(Boolean).join('');
+  // Build the entry string to inject into vids array
+  const esc = s => s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  let entry = `{t:'${esc(t)}'`;
+  if(tk)    entry += `,tk:'${esc(tk)}'`;
+  if(desc)  entry += `,d:'${esc(desc.slice(0,160))}'`;
+  if(u)     entry += `,u:'${esc(u)}'`;
+  if(y)     entry += `,y:'${y}'`;
+  if(c)     entry += `,c:'${c}'`;
+  if(dur)   entry += `,duration:'${esc(dur)}'`;
+  if(views) entry += `,views:'${esc(views)}'`;
+  if(thumb) entry += `,thumb:'${esc(thumb)}'`;
+  entry += extra + '}';
+  return entry;
+}
 
-  document.getElementById('generatedCode').value = `{${parts}},`;
+// ─── Push video directly to GitHub ────────
+async function pushVideoToGitHub(){
+  const entry = buildVideoObj();
+  if(!entry) return;
+
+  const owner  = 'Bloxyplay';
+  const repo   = 'Projectbloxyflix';
+  const branch = localStorage.getItem('bf_gh_branch') || 'main';
+  const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+  const token  = localStorage.getItem('bf_gh_token');
+
+  if(!token){
+    toast('GitHub token required to push — go to GitHub Config','var(--gold)');
+    return;
+  }
+
+  const btn = document.getElementById('pushVideoBtn');
+  btn.disabled = true;
+  btn.textContent = 'Pushing…';
+  toast('Fetching index.html…','var(--blue)');
+
+  try{
+    // 1. Fetch current file + SHA
+    const shaRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`,
+      { headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'} }
+    );
+    if(!shaRes.ok) throw new Error('Could not fetch file: HTTP '+shaRes.status);
+    const shaData = await shaRes.json();
+    const sha = shaData.sha;
+    const currentHtml = decodeURIComponent(escape(atob(shaData.content.replace(/\n/g,''))));
+
+    // 2. Inject new entry right after "const vids=["
+    const insertMarker = 'const vids=[';
+    const idx = currentHtml.indexOf(insertMarker);
+    if(idx === -1) throw new Error('Could not find vids array in index.html');
+
+    const insertAt = idx + insertMarker.length;
+    const newHtml = currentHtml.slice(0, insertAt) + '\n  ' + entry + ',' + currentHtml.slice(insertAt);
+
+    // 3. Push back to GitHub
+    toast('Pushing to GitHub…','var(--blue)');
+    const encoded = btoa(unescape(encodeURIComponent(newHtml)));
+    const title = document.getElementById('newTitle').value.trim();
+    const putRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
+      {
+        method:'PUT',
+        headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+        body: JSON.stringify({
+          message:`Admin: add video — ${title}`,
+          content: encoded,
+          sha, branch
+        })
+      }
+    );
+    if(!putRes.ok){
+      const err = await putRes.json();
+      throw new Error(err.message || 'Push failed: '+putRes.status);
+    }
+
+    toast(`✓ "${title}" added to GitHub!`);
+    clearForm();
+    // Refresh local video list
+    await fetchVidsFromGitHub(true);
+    renderDashboard();
+
+  } catch(e){
+    toast('Error: '+e.message,'var(--red)');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add Video to Site';
+  }
+}
+
+function generateCode(){
+  const entry = buildVideoObj();
+  if(entry) document.getElementById('generatedCode').value = entry+',';
 }
 
 function copyCode(){
   generateCode();
   const code = document.getElementById('generatedCode').value;
-  if(!code.trim()||code.includes('Fill in')){ toast('Nothing to copy — fill in the form first','var(--gold)'); return; }
-  navigator.clipboard.writeText(code).then(()=>toast('Code copied to clipboard!')).catch(()=>{
+  if(!code.trim()){ toast('Fill in the form first','var(--gold)'); return; }
+  navigator.clipboard.writeText(code).then(()=>toast('Code copied!')).catch(()=>{
     document.getElementById('generatedCode').select();
     document.execCommand('copy');
     toast('Code copied!');
