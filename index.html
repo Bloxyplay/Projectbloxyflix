@@ -5260,7 +5260,7 @@ function renderVideos(filter='all'){
     else if(filter==='new'){
       const badged=vids.filter(v=>v.badge==='new');
       if(badged.length>0) filtered=badged;
-      else filtered=vids.slice(-20); // fallback: show last 20 added
+      else filtered=[...vids].slice(-20).reverse(); // last 20 added, newest first
     }
     else if(filter==='toprated')filtered=[...vids].sort((a,b)=>(b.rating||0)-(a.rating||0));
     else filtered=vids.filter(v=>v.c===filter||v.badge===filter);
@@ -5270,15 +5270,22 @@ function renderVideos(filter='all'){
   const pinned=filtered.filter(v=>v.isPinned);
   const others=filtered.filter(v=>!v.isPinned);
 
-  // Sort non-pinned by year, then by array position (newer entries first)
+  // Sort non-pinned: when newest-first, array position (= order added) is the primary
+  // key so newly added videos always surface at the top regardless of release year.
+  // When oldest-first, sort by year ascending instead.
   const sortedOthers=[...others].sort((a,b)=>{
-    const ya = parseInt(a.y)||0;
-    const yb = parseInt(b.y)||0;
-    if(yb !== ya) return curSortOrder === 'newest' ? yb - ya : ya - yb;
-    // Same year: use original array index as tiebreaker (higher index = added later = newer)
     const ia = vids.indexOf(a);
     const ib = vids.indexOf(b);
-    return curSortOrder === 'newest' ? ib - ia : ia - ib;
+    const ya = parseInt(a.y)||0;
+    const yb = parseInt(b.y)||0;
+    if(curSortOrder === 'newest'){
+      // Most recently added (highest index) comes first
+      return ib - ia;
+    } else {
+      // Oldest year first, tiebreak by array index
+      if(ya !== yb) return ya - yb;
+      return ia - ib;
+    }
   });
 
   const sorted=[...pinned,...sortedOthers];

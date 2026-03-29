@@ -1199,6 +1199,7 @@ select.form-input{cursor:pointer;}
 let LIVE_VIDS = [];
 let ghDataState = 'unconfigured'; // 'unconfigured' | 'loading' | 'ok' | 'error'
 let ghDataMsg = '';
+let _lastGeneratedHtml = null;
 
 // ─── Parse vids[] array from index.html source ─────────────
 function parseVidsFromHTML(html) {
@@ -1660,7 +1661,7 @@ function generateCode(){
   }
 
   const parts = [
-    `t:'${t.replace(/'/g,"\\'")}' `,
+    `t:'${t.replace(/'/g,"\\'")}'`,
     tk ? `,tk:'${tk.replace(/'/g,"\\'")}'` : `,tk:''`,
     `,c:'${c}'`,
     `,y:'${y}'`,
@@ -1693,13 +1694,15 @@ function clearForm(){
   toast('Form cleared','var(--muted)');
 }
 
-// Auto-generate on input
-document.addEventListener('input', e=>{
+// Auto-generate on input/change
+function _autoGen(e){
   if(!document.getElementById('autoGenToggle').classList.contains('on')) return;
   if(['newTitle','newTitleKr','newCat','newYear','newDuration','newViews','newDesc','newUrl','newYtUrl','newM3u8Url','newThumb'].includes(e.target.id)){
     generateCode();
   }
-});
+}
+document.addEventListener('input', _autoGen);
+document.addEventListener('change', _autoGen);
 
 // ─── Set Default File (upload & push) ────
 let _defaultFileContent = null;
