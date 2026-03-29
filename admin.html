@@ -1183,25 +1183,50 @@ let ghDataMsg = '';
 
 // ─── Parse vids[] array from index.html source ─────────────
 function parseVidsFromHTML(html) {
-  // Match: const vids = [...] or let vids = [...] or var vids = [...]
-  // Also handles vids=[...] without spaces
-  const patterns = [
-    /(?:const|let|var)\s+vids\s*=\s*(\[[\s\S]*?\n\]);/,
-    /(?:const|let|var)\s+vids\s*=\s*(\[[\s\S]*?\]);/,
-    /vids\s*=\s*(\[[\s\S]*?\n\]);/,
-    /vids\s*=\s*(\[[\s\S]*?\]);/,
+  // Find the start of the vids array declaration
+  const startPatterns = [
+    /(?:const|let|var)\s+vids\s*=\s*\[/,
+    /vids\s*=\s*\[/,
   ];
-  for (const pat of patterns) {
+
+  for (const pat of startPatterns) {
     const m = html.match(pat);
-    if (m) {
-      try {
-        // Use Function constructor to safely evaluate the array literal
-        // (handles JS object shorthand like {t:'x', isYouTube:true})
-        const arr = (new Function('return ' + m[1]))();
-        if (Array.isArray(arr) && arr.length > 0) return arr;
-      } catch(e) {
-        console.warn('vids parse error:', e);
+    if (!m) continue;
+
+    // startIdx points at the opening [
+    const startIdx = m.index + m[0].length - 1;
+    let depth = 0;
+    let i = startIdx;
+
+    // Walk through characters counting brackets so we find the TRUE closing ]
+    // even when the array is large or contains nested objects/arrays
+    while (i < html.length) {
+      const ch = html[i];
+      if (ch === '[') {
+        depth++;
+      } else if (ch === ']') {
+        depth--;
+        if (depth === 0) break; // found the matching closing ]
+      } else if (ch === '"' || ch === "'" || ch === '`') {
+        // Skip over string literals so brackets inside strings don't count
+        const quote = ch;
+        i++;
+        while (i < html.length && html[i] !== quote) {
+          if (html[i] === '\\') i++; // skip escaped character
+          i++;
+        }
       }
+      i++;
+    }
+
+    const arrayStr = html.slice(startIdx, i + 1);
+    try {
+      // Use Function constructor to safely evaluate the array literal
+      // (handles JS object shorthand like {t:'x', isYouTube:true})
+      const arr = (new Function('return ' + arrayStr))();
+      if (Array.isArray(arr) && arr.length > 0) return arr;
+    } catch(e) {
+      console.warn('vids parse error:', e);
     }
   }
   return null;
