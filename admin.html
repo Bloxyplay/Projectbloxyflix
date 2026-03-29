@@ -129,7 +129,6 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-hei
 .topbar-btn svg{width:14px;height:14px;fill:currentColor;}
 .status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-@keyframes spin{to{transform:rotate(360deg);}}
 
 /* ─── CONTENT AREA ─── */
 .content{padding:1.75rem;flex:1;}
@@ -866,7 +865,7 @@ select.form-input{cursor:pointer;}
         <div class="git-status">
           <svg viewBox="0 0 24 24" style="color:var(--green);"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
           <div class="git-status-text">
-            <strong>Auto mode</strong> — fills in the form, downloads updated <span style="font-family:var(--mono);">index.html</span>, then upload to GitHub.
+            <strong>Download mode</strong> — fills in the form and downloads an updated <span style="font-family:var(--mono);">index.html</span> with your new video already added. Then just upload it to GitHub to go live.
           </div>
         </div>
 
@@ -965,30 +964,13 @@ select.form-input{cursor:pointer;}
             <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
             <input type="hidden" id="generatedCode" />
 
-            <!-- ── Upload updated index.html ── -->
-            <div style="margin-bottom:1.25rem;">
-              <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.75rem;">Add via Updated index.html</div>
-              <div style="border:2px dashed var(--border);border-radius:8px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color .2s;" id="uploadIndexZone" onclick="document.getElementById('uploadIndexInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--blue)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleUploadIndexDrop(event)">
-                <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:var(--muted);display:block;margin:0 auto .6rem;"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-                <div style="font-weight:700;font-size:.88rem;" id="uploadIndexLabel">Tap to upload your index.html</div>
-                <div style="font-size:.75rem;color:var(--muted);margin-top:.25rem;">Upload a local copy — the new video will be injected &amp; you can download the edited file</div>
-                <input type="file" id="uploadIndexInput" accept=".html" style="display:none;" onchange="handleUploadIndexSelect(this)">
-              </div>
-              <div id="uploadIndexStatus" style="display:none;margin-top:.75rem;padding:.65rem 1rem;border-radius:8px;font-size:.83rem;font-weight:600;"></div>
-            </div>
-
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-              <button class="topbar-btn primary" id="downloadFromGhBtn" onclick="downloadFromGitHub()" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
-                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                Fetch from GitHub &amp; Download
-              </button>
-              <button class="topbar-btn" id="downloadUploadedBtn" onclick="downloadUploadedIndex()" style="padding:.85rem 1.25rem;display:none;background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:var(--blue);">
-                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                Download Edited File
+              <button class="topbar-btn primary" id="pushVideoBtn" onclick="pushVideoToGitHub()" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Add Video to Site
               </button>
               <button class="topbar-btn" onclick="clearForm()" style="padding:.85rem 1.25rem;">Clear</button>
             </div>
-            <div id="pushStatus" style="display:none;margin-top:1rem;padding:.75rem 1rem;border-radius:8px;font-size:.83rem;font-weight:600;"></div>
           </div>
         </div>
       </div>
@@ -1173,60 +1155,27 @@ let LIVE_VIDS = [];
 let ghDataState = 'unconfigured'; // 'unconfigured' | 'loading' | 'ok' | 'error'
 let ghDataMsg = '';
 
-// ─── Pre-fill GitHub defaults ─────────────
-(function(){
-  if(!localStorage.getItem('bf_gh_owner'))  localStorage.setItem('bf_gh_owner',  'Bloxyplay');
-  if(!localStorage.getItem('bf_gh_repo'))   localStorage.setItem('bf_gh_repo',   'Projectbloxyflix');
-  if(!localStorage.getItem('bf_gh_branch')) localStorage.setItem('bf_gh_branch', 'main');
-  if(!localStorage.getItem('bf_gh_file'))   localStorage.setItem('bf_gh_file',   'index.html');
-})();
-
 // ─── Parse vids[] array from index.html source ─────────────
 function parseVidsFromHTML(html) {
-  // Find the start of the vids array declaration
-  const startPatterns = [
-    /(?:const|let|var)\s+vids\s*=\s*\[/,
-    /vids\s*=\s*\[/,
+  // Match: const vids = [...] or let vids = [...] or var vids = [...]
+  // Also handles vids=[...] without spaces
+  const patterns = [
+    /(?:const|let|var)\s+vids\s*=\s*(\[[\s\S]*?\n\]);/,
+    /(?:const|let|var)\s+vids\s*=\s*(\[[\s\S]*?\]);/,
+    /vids\s*=\s*(\[[\s\S]*?\n\]);/,
+    /vids\s*=\s*(\[[\s\S]*?\]);/,
   ];
-
-  for (const pat of startPatterns) {
+  for (const pat of patterns) {
     const m = html.match(pat);
-    if (!m) continue;
-
-    // startIdx points at the opening [
-    const startIdx = m.index + m[0].length - 1;
-    let depth = 0;
-    let i = startIdx;
-
-    // Walk through characters counting brackets so we find the TRUE closing ]
-    // even when the array is large or contains nested objects/arrays
-    while (i < html.length) {
-      const ch = html[i];
-      if (ch === '[') {
-        depth++;
-      } else if (ch === ']') {
-        depth--;
-        if (depth === 0) break; // found the matching closing ]
-      } else if (ch === '"' || ch === "'" || ch === '`') {
-        // Skip over string literals so brackets inside strings don't count
-        const quote = ch;
-        i++;
-        while (i < html.length && html[i] !== quote) {
-          if (html[i] === '\\') i++; // skip escaped character
-          i++;
-        }
+    if (m) {
+      try {
+        // Use Function constructor to safely evaluate the array literal
+        // (handles JS object shorthand like {t:'x', isYouTube:true})
+        const arr = (new Function('return ' + m[1]))();
+        if (Array.isArray(arr) && arr.length > 0) return arr;
+      } catch(e) {
+        console.warn('vids parse error:', e);
       }
-      i++;
-    }
-
-    const arrayStr = html.slice(startIdx, i + 1);
-    try {
-      // Use Function constructor to safely evaluate the array literal
-      // (handles JS object shorthand like {t:'x', isYouTube:true})
-      const arr = (new Function('return ' + arrayStr))();
-      if (Array.isArray(arr) && arr.length > 0) return arr;
-    } catch(e) {
-      console.warn('vids parse error:', e);
     }
   }
   return null;
@@ -1683,188 +1632,70 @@ function buildVideoObj(){
   return entry;
 }
 
-// ─── Inject entry into html string ────────
-function injectEntryIntoHtml(currentHtml, entry){
-  // Try marker comment first
-  const markers = [
-    '// NEW STREAMING MP4 VIDEOS',
-    'const vids=[',
-    'const vids = [',
-    'let vids=[',
-    'let vids = [',
-    'var vids=[',
-    'var vids = [',
-  ];
-  for(const marker of markers){
-    const idx = currentHtml.indexOf(marker);
-    if(idx !== -1){
-      const afterMarker = currentHtml.indexOf('[', idx) + 1;
-      return currentHtml.slice(0, afterMarker) + '\n  ' + entry + ',' + currentHtml.slice(afterMarker);
-    }
-  }
-  // Last resort: insert before last ];
-  const lastClose = currentHtml.lastIndexOf('\n];');
-  if(lastClose !== -1) return currentHtml.slice(0,lastClose) + '\n  ' + entry + ',' + currentHtml.slice(lastClose);
-  throw new Error('Could not find vids array insertion point');
-}
-
-// ─── Show/hide push status ─────────────────
-function showPushStatus(msg, color='var(--blue)'){
-  const s = document.getElementById('pushStatus');
-  s.style.display = 'block';
-  const map = {'var(--green)':'rgba(34,197,94,.08)','var(--red)':'rgba(232,38,58,.08)','var(--blue)':'rgba(59,130,246,.08)','var(--gold)':'rgba(201,168,76,.08)'};
-  const bmap = {'var(--green)':'rgba(34,197,94,.2)','var(--red)':'rgba(232,38,58,.2)','var(--blue)':'rgba(59,130,246,.2)','var(--gold)':'rgba(201,168,76,.2)'};
-  s.style.background = map[color]||'rgba(59,130,246,.08)';
-  s.style.border = '1px solid '+(bmap[color]||'rgba(59,130,246,.2)');
-  s.style.color = color;
-  s.textContent = msg;
-}
-
-// ─── Push html to GitHub via API ──────────
-async function pushHtmlToGitHub(htmlContent, commitMsg){
-  const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
-  const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
-  const branch = localStorage.getItem('bf_gh_branch') || 'main';
-  const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
-  const token  = localStorage.getItem('bf_gh_token');
-  if(!token) throw new Error('No GitHub token saved — go to GitHub Config and save your PAT first');
-  const headers = {'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
-  // Get current SHA
-  const shaRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`,{headers});
-  if(!shaRes.ok) throw new Error('Could not get file SHA: HTTP '+shaRes.status);
-  const shaData = await shaRes.json();
-  const sha = shaData.sha;
-  // Push
-  const encoded = btoa(unescape(encodeURIComponent(htmlContent)));
-  const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,{
-    method:'PUT', headers,
-    body: JSON.stringify({message:commitMsg||'Admin: add video', content:encoded, sha, branch})
-  });
-  if(!putRes.ok){
-    const err = await putRes.json();
-    throw new Error(err.message || 'Push failed: HTTP '+putRes.status);
-  }
-  return await putRes.json();
-}
-
-// ─── Helper: trigger browser download of html string ──
-function triggerHtmlDownload(htmlContent, filename){
-  const blob = new Blob([htmlContent], {type:'text/html;charset=utf-8'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = filename || 'index.html';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
-}
-
-// ─── Fetch from GitHub, inject video, download ────────
-async function downloadFromGitHub(){
+// ─── Download updated index.html ──────────
+async function pushVideoToGitHub(){
   const entry = buildVideoObj();
   if(!entry) return;
 
-  const btn = document.getElementById('downloadFromGhBtn');
+  const btn = document.getElementById('pushVideoBtn');
   btn.disabled = true;
-  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;animation:spin .8s linear infinite"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg> Fetching…';
-  document.getElementById('pushStatus').style.display='none';
+  btn.textContent = 'Fetching…';
+  toast('Fetching index.html from GitHub…','var(--blue)');
 
   try{
-    showPushStatus('⏳ Fetching index.html from GitHub…');
+    // Try fetching the live index.html from GitHub raw CDN
+    const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
+    const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
+    const branch = localStorage.getItem('bf_gh_branch') || 'main';
+    const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+
     const urls = [
+      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
+      `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
       'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
       'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
     ];
+
     let currentHtml = null;
     for(const url of urls){
-      try{ const r=await fetch(url+'?t='+Date.now()); if(r.ok){currentHtml=await r.text();break;} }catch(e){}
+      try{
+        const res = await fetch(url);
+        if(res.ok){ currentHtml = await res.text(); break; }
+      } catch(e){}
     }
-    if(!currentHtml) throw new Error('Could not fetch index.html from GitHub');
+    if(!currentHtml) throw new Error('Could not fetch index.html from GitHub. Check your GitHub Config settings.');
 
-    showPushStatus('⏳ Injecting video entry…');
-    const newHtml = injectEntryIntoHtml(currentHtml, entry);
-    const title   = document.getElementById('newTitle').value.trim();
+    // Try both 'const vids=[' and 'const vids = [' formats
+    let marker = 'const vids=[';
+    let insertAt = currentHtml.indexOf(marker);
+    if(insertAt === -1){
+      marker = 'const vids = [';
+      insertAt = currentHtml.indexOf(marker);
+    }
+    if(insertAt === -1) throw new Error('Could not find vids array in index.html');
 
-    triggerHtmlDownload(newHtml, 'index.html');
-    showPushStatus(`✅ "${title}" injected — index.html downloaded! Upload it to GitHub when ready.`,'var(--green)');
-    toast(`✓ index.html with "${title}" downloaded!`);
+    // Inject new entry at the top of the array
+    const newHtml = currentHtml.slice(0, insertAt + marker.length) + '\n  ' + entry + ',' + currentHtml.slice(insertAt + marker.length);
+
+    // Download the updated file to the user's computer
+    const blob = new Blob([newHtml], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+
+    const title = document.getElementById('newTitle').value.trim();
+    toast(`✓ index.html downloaded! Now upload it to GitHub to go live.`);
     clearForm();
 
   } catch(e){
-    showPushStatus('❌ '+e.message,'var(--red)');
     toast('Error: '+e.message,'var(--red)');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Fetch from GitHub &amp; Download';
-  }
-}
-
-// ─── Upload index.html flow ────────────────
-let _uploadedIndexHtml = null;
-
-function handleUploadIndexDrop(e){
-  e.preventDefault();
-  document.getElementById('uploadIndexZone').style.borderColor='var(--border)';
-  const file = e.dataTransfer.files[0];
-  if(file) readUploadedIndex(file);
-}
-function handleUploadIndexSelect(input){
-  const file = input.files[0];
-  if(file) readUploadedIndex(file);
-}
-function readUploadedIndex(file){
-  if(!file.name.endsWith('.html')){ toast('Please select an HTML file','var(--gold)'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    _uploadedIndexHtml = e.target.result;
-    document.getElementById('uploadIndexLabel').textContent = '✓ '+file.name+' loaded — ready';
-    document.getElementById('uploadIndexZone').style.borderColor = 'var(--blue)';
-    document.getElementById('pushUploadedBtn').style.display = 'inline-flex';
-    const s = document.getElementById('uploadIndexStatus');
-    s.style.display='block';
-    s.style.background='rgba(59,130,246,.08)';
-    s.style.border='1px solid rgba(59,130,246,.2)';
-    s.style.color='var(--blue)';
-    s.textContent='File loaded. Fill in the video details above, then click "Download Edited File".';
-  };
-  reader.readAsText(file);
-}
-
-// ─── Upload index.html flow — inject & download ───────
-async function downloadUploadedIndex(){
-  if(!_uploadedIndexHtml){ toast('Upload a file first','var(--gold)'); return; }
-  const entry = buildVideoObj();
-  if(!entry) return;
-
-  const btn = document.getElementById('downloadUploadedBtn');
-  btn.disabled = true;
-  btn.textContent = 'Preparing…';
-  document.getElementById('pushStatus').style.display='none';
-
-  try{
-    showPushStatus('⏳ Injecting video into uploaded file…');
-    const newHtml = injectEntryIntoHtml(_uploadedIndexHtml, entry);
-    const title   = document.getElementById('newTitle').value.trim();
-
-    triggerHtmlDownload(newHtml, 'index.html');
-    showPushStatus(`✅ "${title}" injected — index.html downloaded! Upload it to GitHub when ready.`,'var(--green)');
-    toast(`✓ index.html with "${title}" downloaded!`);
-
-    // Reset upload zone
-    _uploadedIndexHtml = null;
-    document.getElementById('uploadIndexLabel').textContent = 'Tap to upload your index.html';
-    document.getElementById('uploadIndexZone').style.borderColor = 'var(--border)';
-    document.getElementById('uploadIndexStatus').style.display = 'none';
-    document.getElementById('downloadUploadedBtn').style.display = 'none';
-    document.getElementById('uploadIndexInput').value = '';
-    clearForm();
-
-  } catch(e){
-    showPushStatus('❌ '+e.message,'var(--red)');
-    toast('Error: '+e.message,'var(--red)');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Download Edited File';
+    btn.textContent = 'Add Video to Site';
   }
 }
 
