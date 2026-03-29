@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BloxyFlix — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0b0c0f;
+  --panel:#13141a;
+  --panel2:#1a1b23;
+  --border:#2a2b35;
+  --border2:#1e1f28;
+  --text:#d8d9e0;
+  --muted:#6b6d7e;
+  --dim:#3a3b48;
+  --red:#e8263a;
+  --red-hover:#c01e2e;
+  --red-glow:rgba(232,38,58,0.3);
+  --gold:#c9a84c;
+  --green:#22c55e;
+  --blue:#3b82f6;
+  --orange:#f59e0b;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+
+/* ─── LAYOUT ─── */
+.layout{display:flex;min-height:100vh;}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:240px;min-width:240px;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;
+  z-index:50;overflow-y:auto;
+  transition:transform .3s;
+}
+.sidebar-logo{
+  display:flex;align-items:center;gap:.65rem;
+  padding:1.25rem 1.25rem 1rem;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-logo-b{
+  width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,#e8263a,#8b0000);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:1.1rem;color:#fff;flex-shrink:0;
+}
+.sidebar-logo-name{font-weight:800;font-size:1rem;letter-spacing:-.3px;}
+.sidebar-logo-name span{color:var(--red);}
+.sidebar-logo-tag{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-left:auto;background:rgba(232,38,58,.1);border:1px solid rgba(232,38,58,.2);color:var(--red);padding:.2rem .5rem;border-radius:4px;font-weight:700;}
+
+.nav-section{padding:.75rem 0 .25rem;}
+.nav-label{
+  padding:.3rem 1.25rem .2rem;
+  font-size:.65rem;text-transform:uppercase;letter-spacing:1.8px;
+  color:var(--dim);font-weight:700;
+}
+.nav-item{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.6rem 1.25rem;
+  font-size:.875rem;font-weight:500;color:var(--muted);
+  cursor:pointer;transition:all .15s;
+  border-left:2px solid transparent;
+  user-select:none;
+}
+.nav-item:hover{color:var(--text);background:var(--border2);}
+.nav-item.active{color:var(--text);background:rgba(232,38,58,.08);border-left-color:var(--red);}
+.nav-item svg{width:16px;height:16px;fill:currentColor;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:.6rem;font-weight:800;padding:.15rem .45rem;border-radius:99px;min-width:18px;text-align:center;}
+.nav-badge.green{background:var(--green);}
+.nav-badge.blue{background:var(--blue);}
+
+.sidebar-bottom{
+  margin-top:auto;
+  padding:1rem 1.25rem;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:.65rem;
+}
+.admin-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--red),#8b0000);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.85rem;color:#fff;flex-shrink:0;
+}
+.admin-name{font-size:.85rem;font-weight:600;}
+.admin-role{font-size:.7rem;color:var(--muted);}
+
+/* ─── MAIN ─── */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* ─── TOPBAR ─── */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:1rem;
+  padding:.875rem 1.75rem;
+  background:rgba(11,12,15,.92);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+}
+.topbar-title{font-weight:700;font-size:1.05rem;}
+.topbar-subtitle{font-size:.8rem;color:var(--muted);margin-left:.5rem;}
+.topbar-spacer{flex:1;}
+.topbar-search{
+  display:flex;align-items:center;gap:.6rem;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:8px;padding:.5rem .85rem;
+  font-size:.85rem;color:var(--muted);width:220px;cursor:text;
+  transition:border-color .2s;
+}
+.topbar-search:hover{border-color:var(--dim);}
+.topbar-search svg{width:14px;height:14px;fill:var(--muted);flex-shrink:0;}
+.topbar-btn{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:8px;padding:.5rem .9rem;
+  font-size:.82rem;font-weight:600;color:var(--muted);
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.topbar-btn:hover{border-color:var(--dim);color:var(--text);}
+.topbar-btn.primary{background:var(--red);border-color:var(--red);color:#fff;}
+.topbar-btn.primary:hover{background:var(--red-hover);border-color:var(--red-hover);}
+.topbar-btn svg{width:14px;height:14px;fill:currentColor;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ─── CONTENT AREA ─── */
+.content{padding:1.75rem;flex:1;}
+
+/* ─── PAGE HEADER ─── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;gap:1rem;}
+.page-header-left h1{font-size:1.4rem;font-weight:800;letter-spacing:-.4px;}
+.page-header-left p{font-size:.85rem;color:var(--muted);margin-top:.3rem;}
+.page-header-actions{display:flex;align-items:center;gap:.75rem;flex-shrink:0;}
+
+/* ─── STAT CARDS ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem;}
+.stat-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;padding:1.25rem;
+  position:relative;overflow:hidden;
+  transition:border-color .2s;
+}
+.stat-card:hover{border-color:var(--dim);}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent-line,var(--red));
+}
+.stat-card.green-line::before{background:var(--green);}
+.stat-card.blue-line::before{background:var(--blue);}
+.stat-card.gold-line::before{background:var(--gold);}
+.stat-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;margin-bottom:.6rem;}
+.stat-value{font-size:1.9rem;font-weight:800;letter-spacing:-1px;line-height:1;}
+.stat-sub{font-size:.75rem;color:var(--muted);margin-top:.4rem;display:flex;align-items:center;gap:.3rem;}
+.stat-sub .up{color:var(--green);}
+.stat-sub .down{color:var(--red);}
+.stat-icon{
+  position:absolute;top:1.1rem;right:1.1rem;
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:.65;
+}
+.stat-icon svg{width:16px;height:16px;fill:currentColor;}
+
+/* ─── TWO-COL ─── */
+.two-col{display:grid;grid-template-columns:1fr 340px;gap:1.25rem;margin-bottom:1.75rem;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;margin-bottom:1.75rem;}
+
+/* ─── CARD ─── */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);
+}
+.card-head-title{font-size:.9rem;font-weight:700;}
+.card-head-sub{font-size:.75rem;color:var(--muted);margin-top:.15rem;}
+.card-body{padding:1.25rem;}
+.card-action{
+  font-size:.78rem;color:var(--muted);font-weight:600;
+  background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;gap:.35rem;
+  transition:color .15s;
+}
+.card-action:hover{color:var(--text);}
+.card-action svg{width:13px;height:13px;fill:currentColor;}
+
+/* ─── TABLE ─── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.83rem;}
+thead th{
+  padding:.65rem 1rem;text-align:left;
+  font-size:.68rem;text-transform:uppercase;letter-spacing:1.2px;
+  color:var(--muted);font-weight:700;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+tbody td{
+  padding:.75rem 1rem;border-bottom:1px solid var(--border2);
+  vertical-align:middle;
+}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:rgba(255,255,255,.02);}
+.td-title{font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.td-muted{color:var(--muted);font-size:.78rem;}
+.td-mono{font-family:var(--mono);font-size:.78rem;color:var(--muted);}
+
+/* ─── BADGES ─── */
+.badge{
+  display:inline-flex;align-items:center;gap:.3rem;
+  padding:.2rem .55rem;border-radius:4px;
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;
+}
+.badge.red{background:rgba(232,38,58,.12);color:var(--red);border:1px solid rgba(232,38,58,.2);}
+.badge.green{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+.badge.blue{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
+.badge.gold{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.2);}
+.badge.dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border);}
+.badge svg{width:8px;height:8px;fill:currentColor;}
+
+/* ─── MINI CHART (CSS bar chart) ─── */
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:48px;}
+.bar{
+  flex:1;border-radius:3px 3px 0 0;
+  background:rgba(232,38,58,.3);
+  transition:background .2s;min-width:6px;
+}
+.bar:hover{background:var(--red);}
+.bar.today{background:var(--red);}
+
+/* ─── SPARKLINE ─── */
+.sparkline-wrap{height:40px;position:relative;margin-top:.5rem;}
+.sparkline-wrap svg{width:100%;height:100%;}
+
+/* ─── VIDEO ROW ─── */
+.vrow{display:flex;align-items:center;gap:.85rem;padding:.65rem 0;border-bottom:1px solid var(--border2);}
+.vrow:last-child{border-bottom:none;}
+.vrow-thumb{
+  width:58px;height:36px;border-radius:5px;
+  background:var(--panel2);flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;font-weight:800;color:var(--muted);
+  border:1px solid var(--border);
+}
+.vrow-info{flex:1;min-width:0;}
+.vrow-title{font-size:.83rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vrow-meta{font-size:.72rem;color:var(--muted);margin-top:.15rem;}
+.vrow-stat{text-align:right;flex-shrink:0;}
+.vrow-views{font-size:.85rem;font-weight:700;}
+.vrow-label{font-size:.65rem;color:var(--muted);}
+
+/* ─── CATEGORY ROW ─── */
+.cat-row{display:flex;align-items:center;gap:.85rem;padding:.65rem 0;border-bottom:1px solid var(--border2);}
+.cat-row:last-child{border-bottom:none;}
+.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cat-name{flex:1;font-size:.85rem;font-weight:600;}
+.cat-bar-wrap{width:100px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.cat-bar{height:100%;border-radius:3px;}
+.cat-count{font-size:.82rem;font-weight:700;color:var(--muted);min-width:36px;text-align:right;}
+
+/* ─── GITHUB FORM SECTION ─── */
+.form-section{margin-bottom:1.75rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.form-row.single{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:.45rem;}
+.form-label{font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;}
+.form-input{
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:8px;padding:.65rem .9rem;
+  color:var(--text);font-family:var(--font);font-size:.88rem;
+  outline:none;transition:border-color .2s;width:100%;
+}
+.form-input:focus{border-color:var(--red);}
+.form-input::placeholder{color:var(--dim);}
+.form-input.mono{font-family:var(--mono);font-size:.8rem;}
+textarea.form-input{resize:vertical;min-height:90px;}
+select.form-input{cursor:pointer;}
+.form-hint{font-size:.73rem;color:var(--muted);}
+
+/* ─── TOGGLE ─── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border2);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-info{}
+.toggle-name{font-size:.88rem;font-weight:600;}
+.toggle-desc{font-size:.75rem;color:var(--muted);margin-top:.15rem;}
+.toggle{
+  width:42px;height:24px;background:var(--border);
+  border-radius:99px;position:relative;cursor:pointer;
+  transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:var(--red);}
+.toggle::after{
+  content:'';position:absolute;
+  width:18px;height:18px;background:#fff;
+  border-radius:50%;top:3px;left:3px;
+  transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);
+}
+.toggle.on::after{transform:translateX(18px);}
+
+/* ─── LIVE ACTIVITY FEED ─── */
+.activity-item{
+  display:flex;align-items:flex-start;gap:.75rem;
+  padding:.65rem 0;border-bottom:1px solid var(--border2);
+}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:.1rem;
+}
+.activity-dot svg{width:13px;height:13px;fill:currentColor;}
+.activity-dot.red{background:rgba(232,38,58,.12);color:var(--red);}
+.activity-dot.green{background:rgba(34,197,94,.1);color:var(--green);}
+.activity-dot.blue{background:rgba(59,130,246,.1);color:var(--blue);}
+.activity-dot.gold{background:rgba(201,168,76,.1);color:var(--gold);}
+.activity-text{flex:1;font-size:.83rem;}
+.activity-text strong{font-weight:700;}
+.activity-time{font-size:.72rem;color:var(--muted);margin-top:.2rem;}
+
+/* ─── GITHUB SYNC STATUS ─── */
+.git-status{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.85rem 1.1rem;
+  background:rgba(34,197,94,.06);
+  border:1px solid rgba(34,197,94,.15);
+  border-radius:8px;margin-bottom:1.25rem;
+}
+.git-status.error{background:rgba(232,38,58,.06);border-color:rgba(232,38,58,.15);}
+.git-status.warning{background:rgba(201,168,76,.06);border-color:rgba(201,168,76,.2);}
+.git-status svg{width:16px;height:16px;fill:currentColor;flex-shrink:0;}
+.git-status.error svg{color:var(--red);}
+.git-status.warning svg{color:var(--gold);}
+.git-status-text{flex:1;font-size:.83rem;}
+.git-status-text strong{font-weight:700;}
+.git-status-text span{color:var(--muted);font-size:.78rem;}
+.git-btn{
+  display:flex;align-items:center;gap:.4rem;
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:6px;padding:.4rem .8rem;
+  font-size:.78rem;font-weight:700;color:var(--text);
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.git-btn:hover{border-color:var(--green);color:var(--green);}
+.git-btn svg{width:13px;height:13px;fill:currentColor;}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:.15rem;border-bottom:1px solid var(--border);margin-bottom:1.25rem;}
+.tab{
+  padding:.6rem 1rem;font-size:.83rem;font-weight:600;
+  color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:all .15s;
+}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--text);border-bottom-color:var(--red);}
+
+/* ─── PAGES ─── */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--dim);}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1100px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .two-col{grid-template-columns:1fr;}
+  .three-col{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:800px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:none;}
+  .main{margin-left:0;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .three-col{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+}
+@media(max-width:500px){
+  .stats-grid{grid-template-columns:1fr;}
+  .content{padding:1.1rem;}
+}
+
+/* ─── TOAST ─── */
+#toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:8px;padding:.7rem 1.1rem;
+  font-size:.85rem;font-weight:600;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  display:none;align-items:center;gap:.6rem;
+  animation:slideUp .25s ease;
+}
+#toast.show{display:flex;}
+#toast .toast-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+@keyframes slideUp{from{transform:translateY(12px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+/* ─── MOBILE TOGGLE ─── */
+.mobile-menu-btn{
+  display:none;background:none;border:none;cursor:pointer;
+  padding:.4rem;color:var(--text);
+}
+.mobile-menu-btn svg{width:20px;height:20px;fill:currentColor;}
+@media(max-width:800px){.mobile-menu-btn{display:flex;align-items:center;justify-content:center;}}
+
+.overlay{
+  display:none;position:fixed;inset:0;z-index:45;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+}
+.overlay.show{display:block;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN SCREEN ═══════════════ -->
+<style>
+#loginScreen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;background:var(--bg);
+  font-family:var(--font);
+  background-image:radial-gradient(ellipse at 60% 20%, rgba(232,38,58,.07) 0%, transparent 60%),
+                   radial-gradient(ellipse at 20% 80%, rgba(59,130,246,.05) 0%, transparent 50%);
+}
+.login-box{
+  width:100%;max-width:400px;margin:1rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.6);
+}
+.login-header{
+  padding:2rem 2rem 1.5rem;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.login-logo{
+  width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(135deg,#e8263a,#8b0000);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:1.6rem;color:#fff;
+  margin:0 auto 1rem;
+  box-shadow:0 8px 24px rgba(232,38,58,.35);
+}
+.login-title{font-size:1.25rem;font-weight:800;letter-spacing:-.3px;}
+.login-title span{color:var(--red);}
+.login-sub{font-size:.82rem;color:var(--muted);margin-top:.3rem;}
+.login-body{padding:2rem;}
+.login-field{margin-bottom:1.1rem;}
+.login-label{
+  display:block;font-size:.73rem;text-transform:uppercase;
+  letter-spacing:1px;color:var(--muted);font-weight:700;
+  margin-bottom:.45rem;
+}
+.login-input{
+  width:100%;background:var(--panel2);
+  border:1px solid var(--border);border-radius:9px;
+  padding:.72rem 1rem;color:var(--text);
+  font-family:var(--font);font-size:.92rem;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.login-input:focus{
+  border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(232,38,58,.12);
+}
+.login-input::placeholder{color:var(--dim);}
+.login-btn{
+  width:100%;padding:.8rem;margin-top:.25rem;
+  background:var(--red);border:none;border-radius:9px;
+  color:#fff;font-family:var(--font);font-size:.95rem;
+  font-weight:700;cursor:pointer;letter-spacing:.2px;
+  transition:background .15s,transform .1s,box-shadow .15s;
+  box-shadow:0 4px 16px rgba(232,38,58,.35);
+}
+.login-btn:hover{background:var(--red-hover);box-shadow:0 6px 20px rgba(232,38,58,.45);}
+.login-btn:active{transform:scale(.98);}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.login-error{
+  margin-top:.85rem;padding:.65rem .9rem;
+  background:rgba(232,38,58,.08);border:1px solid rgba(232,38,58,.2);
+  border-radius:8px;font-size:.82rem;color:var(--red);
+  display:none;
+}
+.login-error:not(:empty){display:block;}
+.login-footer{
+  padding:.9rem 2rem 1.5rem;
+  text-align:center;font-size:.75rem;color:var(--dim);
+}
+</style>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-logo">B</div>
+      <div class="login-title">Bloxy<span>Flix</span></div>
+      <div class="login-sub">Admin Console — Sign in to continue</div>
+    </div>
+    <div class="login-body">
+      <form id="loginForm" autocomplete="on">
+        <div class="login-field">
+          <label class="login-label" for="loginEmail">Email</label>
+          <input class="login-input" id="loginEmail" type="email"
+            placeholder="admin@bloxyflix.com" autocomplete="email" required />
+        </div>
+        <div class="login-field">
+          <label class="login-label" for="loginPassword">Password</label>
+          <input class="login-input" id="loginPassword" type="password"
+            placeholder="••••••••••••" autocomplete="current-password" required />
+        </div>
+        <button class="login-btn" id="loginBtn" type="submit">Sign In</button>
+        <div class="login-error" id="loginError"></div>
+      </form>
+    </div>
+    <div class="login-footer">Secured with Firebase Authentication</div>
+  </div>
+</div>
+
+<div class="layout" style="display:none;">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-b">B</div>
+      <div>
+        <div class="sidebar-logo-name">Bloxy<span>Flix</span></div>
+        <div style="font-size:.65rem;color:var(--muted);">Admin Console</div>
+      </div>
+      <span class="sidebar-logo-tag">v2</span>
+    </div>
+
+    <nav style="flex:1;overflow-y:auto;">
+      <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <div class="nav-item active" onclick="showPage('dashboard',this)">
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('analytics',this)">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          Analytics
+          <span class="nav-badge blue">Live</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Content</div>
+        <div class="nav-item" onclick="showPage('videos',this)">
+          <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+          Videos
+          <span class="nav-badge" id="videoCountBadge">—</span>
+        </div>
+        <div class="nav-item" onclick="showPage('live',this)">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Live Channels
+          <span class="nav-badge red" style="animation:pulse 1.5s infinite;">LIVE</span>
+        </div>
+        <div class="nav-item" onclick="showPage('add',this)">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Add Content
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">GitHub Sync</div>
+        <div class="nav-item" onclick="showPage('github',this)">
+          <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 002 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/></svg>
+          GitHub Config
+        </div>
+        <div class="nav-item" onclick="showPage('deploy',this)">
+          <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+          Deploy
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">System</div>
+        <div class="nav-item" onclick="showPage('settings',this)">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          Settings
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="admin-avatar">A</div>
+      <div>
+        <div class="admin-name">Admin</div>
+        <div class="admin-role">Bloxy Play Team</div>
+      </div>
+      <button id="logoutBtn" title="Sign out" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;padding:.3rem;border-radius:6px;transition:color .15s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </button>
+      <span class="topbar-title" id="pageTitle">Dashboard</span>
+      <span class="topbar-spacer"></span>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        Search content…
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;" title="GitHub sync active">
+        <div class="status-dot"></div>
+        <span style="font-size:.78rem;color:var(--muted);">Synced</span>
+      </div>
+      <button class="topbar-btn primary" onclick="showPage('add',document.querySelector('[onclick*=add]'))">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Add Video
+      </button>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══════════════════ DASHBOARD PAGE ═══════════════════ -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Dashboard</h1>
+            <p>BloxyFlix — North Korean Cinema Archive</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="topbar-btn" onclick="refreshStats()">
+              <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Videos</div>
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-sub"><span class="up">↑ 12</span> this month</div>
+            <div class="stat-icon" style="color:var(--red);">
+              <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            </div>
+          </div>
+          <div class="stat-card green-line">
+            <div class="stat-label">Live Channels</div>
+            <div class="stat-value" id="statLive">—</div>
+            <div class="stat-sub"><span class="up">●</span> Active now</div>
+            <div class="stat-icon" style="color:var(--green);">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+            </div>
+          </div>
+          <div class="stat-card blue-line">
+            <div class="stat-label">Categories</div>
+            <div class="stat-value" id="statCats">—</div>
+            <div class="stat-sub">Content sections</div>
+            <div class="stat-icon" style="color:var(--blue);">
+              <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11L12 2zm0 3.84L14.6 9h-5.2L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5S15.01 22 17.5 22s4.5-2.01 4.5-4.5S19.99 13 17.5 13zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5S18.88 20 17.5 20zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/></svg>
+            </div>
+          </div>
+          <div class="stat-card gold-line">
+            <div class="stat-label">YouTube Videos</div>
+            <div class="stat-value" id="statYT">—</div>
+            <div class="stat-sub">Embedded streams</div>
+            <div class="stat-icon" style="color:var(--gold);">
+              <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="two-col">
+          <!-- Category Breakdown -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-head-title">Content by Category</div>
+                <div class="card-head-sub">All videos in the archive</div>
+              </div>
+            </div>
+            <div class="card-body" id="categoryBreakdown">
+              <div style="color:var(--muted);font-size:.83rem;">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-head-title">Recent Activity</div>
+                <div class="card-head-sub">System log</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="activity-item">
+                <div class="activity-dot green"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+                <div>
+                  <div class="activity-text"><strong>Video added</strong> — KCTV News archive</div>
+                  <div class="activity-time">2 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot blue"><svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></div>
+                <div>
+                  <div class="activity-text"><strong>GitHub sync</strong> — index.html pushed</div>
+                  <div class="activity-time">14 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot red"><svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 002 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/></svg></div>
+                <div>
+                  <div class="activity-text"><strong>Live stream</strong> — KCTV active</div>
+                  <div class="activity-time">1 hour ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot gold"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+                <div>
+                  <div class="activity-text"><strong>Rating updated</strong> — 4.8 avg across archive</div>
+                  <div class="activity-time">3 hours ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot green"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
+                <div>
+                  <div class="activity-text"><strong>Deploy success</strong> — Netlify live</div>
+                  <div class="activity-time">Yesterday, 22:41</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOP VIDEOS -->
+        <div class="card" style="margin-bottom:1.75rem;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">Top Videos by Views</div>
+              <div class="card-head-sub">Archive highlights</div>
+            </div>
+            <button class="card-action" onclick="showPage('videos',document.querySelector('[onclick*=videos]'))">
+              View all <svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5v10z"/></svg>
+            </button>
+          </div>
+          <div class="card-body" id="topVideosList">
+            <div style="color:var(--muted);font-size:.83rem;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ ANALYTICS PAGE ═══════════════════ -->
+      <div id="page-analytics" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Analytics</h1>
+            <p>Content statistics &amp; viewer insights</p>
+          </div>
+        </div>
+        <div class="three-col">
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Views Distribution</div></div>
+            <div class="card-body" id="analyticsViews">Loading…</div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Content by Year</div></div>
+            <div class="card-body" id="analyticsYears">Loading…</div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Stream Types</div></div>
+            <div class="card-body" id="analyticsTypes">Loading…</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">All Categories — Video Count</div></div>
+          <div class="card-body" id="analyticsAllCats">Loading…</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ VIDEOS PAGE ═══════════════════ -->
+      <div id="page-videos" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Videos</h1>
+            <p id="videosSubtitle">All archived content</p>
+          </div>
+          <div class="page-header-actions">
+            <select class="form-input" style="width:160px;padding:.45rem .8rem;font-size:.82rem;" id="catFilter" onchange="filterVideoTable()">
+              <option value="">All Categories</option>
+            </select>
+            <button class="topbar-btn primary" onclick="showPage('add',document.querySelector('[onclick*=add]'))">
+              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              Add Video
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Year</th>
+                  <th>Views</th>
+                  <th>Duration</th>
+                  <th>Type</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody id="videoTableBody">
+                <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">Loading videos…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ LIVE PAGE ═══════════════════ -->
+      <div id="page-live" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Live Channels</h1>
+            <p>Active streams &amp; TV channels</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Channel</th>
+                  <th>Type</th>
+                  <th>Stream URL</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="liveTableBody">
+                <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ ADD CONTENT PAGE ═══════════════════ -->
+      <div id="page-add" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Add Content</h1>
+            <p>Add a new video to the BloxyFlix archive</p>
+          </div>
+        </div>
+
+        <div class="git-status warning" id="addPageGhBanner">
+          <svg viewBox="0 0 24 24" style="color:var(--gold);"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <div class="git-status-text" id="addPageGhBannerText">
+            <strong>GitHub not configured.</strong> <span>Go to GitHub Config to connect — then use "Save &amp; Push to GitHub" to publish videos directly.</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">Video Details</div></div>
+          <div class="card-body">
+            <div class="form-section">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Title (English)</label>
+                  <input class="form-input" id="newTitle" placeholder="e.g. The Flower Girl (1972)" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Title (Korean) <span style="color:var(--dim);">optional</span></label>
+                  <input class="form-input" id="newTitleKr" placeholder="e.g. 꽃파는 처녀" style="font-family:'Noto Sans KR',var(--font);" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Category</label>
+                  <select class="form-input" id="newCat">
+                    <option value="film">Film</option>
+                    <option value="documentary">Documentary</option>
+                    <option value="performance">Performance</option>
+                    <option value="news">News</option>
+                    <option value="animation">Animation</option>
+                    <option value="sport">Sport</option>
+                    <option value="tv">TV</option>
+                    <option value="live">Live</option>
+                    <option value="radio">Radio</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Year</label>
+                  <input class="form-input" id="newYear" placeholder="e.g. 1972" type="number" min="1940" max="2030" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Duration</label>
+                  <input class="form-input" id="newDuration" placeholder="e.g. 1:42:00" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Views</label>
+                  <input class="form-input" id="newViews" placeholder="e.g. 12K" />
+                </div>
+              </div>
+              <div class="form-row single">
+                <div class="form-group">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-input" id="newDesc" placeholder="Brief description of the content…"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
+
+            <div class="form-section">
+              <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:1rem;">Stream Source</div>
+
+              <div class="tabs" style="margin-bottom:1rem;">
+                <div class="tab active" onclick="setStreamTab('mp4',this)">MP4 / Direct</div>
+                <div class="tab" onclick="setStreamTab('youtube',this)">YouTube</div>
+                <div class="tab" onclick="setStreamTab('m3u8',this)">M3U8 / Live</div>
+              </div>
+
+              <div id="streamTab-mp4">
+                <div class="form-group">
+                  <label class="form-label">Video URL</label>
+                  <input class="form-input mono" id="newUrl" placeholder="https://…/video.mp4" />
+                  <div class="form-hint">Direct MP4 or video file URL. Must be publicly accessible.</div>
+                </div>
+              </div>
+              <div id="streamTab-youtube" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">YouTube Video ID or URL</label>
+                  <input class="form-input mono" id="newYtUrl" placeholder="dQw4w9WgXcQ  or  https://youtube.com/watch?v=…" />
+                  <div class="form-hint">Paste the YouTube video ID or full URL. Will be embedded as <code style="background:var(--border2);padding:.1rem .3rem;border-radius:3px;font-size:.78rem;">isYouTube: true</code></div>
+                </div>
+              </div>
+              <div id="streamTab-m3u8" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">M3U8 Stream URL</label>
+                  <input class="form-input mono" id="newM3u8Url" placeholder="https://…/stream.m3u8" />
+                  <div class="form-hint">HLS live stream. Will be flagged as <code style="background:var(--border2);padding:.1rem .3rem;border-radius:3px;font-size:.78rem;">isM3U8: true</code> and <code style="background:var(--border2);padding:.1rem .3rem;border-radius:3px;font-size:.78rem;">isPinned: true</code></div>
+                </div>
+              </div>
+
+              <div style="margin-top:1rem;" class="form-group">
+                <label class="form-label">Thumbnail URL <span style="color:var(--dim);">optional</span></label>
+                <input class="form-input mono" id="newThumb" placeholder="https://…/thumb.jpg  (leave blank for auto-generated)" />
+              </div>
+            </div>
+
+            <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
+
+            <!-- Generated Code Preview -->
+            <div class="form-group" style="margin-bottom:1.25rem;">
+              <label class="form-label">Generated Code (copy to vids array)</label>
+              <textarea class="form-input mono" id="generatedCode" style="min-height:110px;" readonly placeholder="Fill in the fields above to generate code…"></textarea>
+              <div class="form-hint">This entry is ready to paste into the <strong>vids</strong> array in <code style="background:var(--border2);padding:.1rem .3rem;border-radius:3px;font-size:.78rem;">index.html</code></div>
+            </div>
+
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+              <button class="topbar-btn" onclick="generateCode()">
+                <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                Generate Code
+              </button>
+              <button class="topbar-btn primary" onclick="copyCode()">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy Code
+              </button>
+              <button class="topbar-btn" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green);" onclick="downloadUpdatedIndex()">
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
+                Download Updated index.html
+              </button>
+              <button id="setDefaultBtn" class="topbar-btn" style="display:none;background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.3);color:var(--gold);" onclick="setAsDefault()">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                Set as New Default File
+              </button>
+              <button class="topbar-btn" onclick="clearForm()">Clear</button>
+            </div>
+
+            <!-- Download status -->
+            <div id="downloadStatus" style="display:none;margin-top:1rem;padding:.75rem 1rem;border-radius:8px;font-size:.83rem;font-weight:600;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ GITHUB PAGE ═══════════════════ -->
+      <div id="page-github" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>GitHub Configuration</h1>
+            <p>Connect to your GitHub repository to sync changes</p>
+          </div>
+        </div>
+
+        <div class="git-status warning" id="ghStatusBanner">
+          <svg viewBox="0 0 24 24" style="color:var(--gold);"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <div class="git-status-text">
+            <strong>Token not configured.</strong> <span>Enter your GitHub Personal Access Token below to enable auto-sync.</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head"><div class="card-head-title">Repository Settings</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">GitHub Owner / Username</label>
+                <input class="form-input mono" id="ghOwner" placeholder="e.g. bloxyplay" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Repository Name</label>
+                <input class="form-input mono" id="ghRepo" placeholder="e.g. bloxyflix" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Branch</label>
+                <input class="form-input mono" id="ghBranch" placeholder="main" value="main" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">File Path</label>
+                <input class="form-input mono" id="ghFile" placeholder="index.html" value="index.html" />
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label class="form-label">Personal Access Token (PAT)</label>
+                <input class="form-input mono" id="ghToken" type="password" placeholder="ghp_…" autocomplete="new-password" />
+                <div class="form-hint">Needs <strong>repo</strong> scope. Token is stored in your browser only — never sent anywhere except GitHub's API.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
+              <button class="topbar-btn primary" onclick="saveGithubConfig()">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                Save Config
+              </button>
+              <button class="topbar-btn" onclick="testGithubConnection()">
+                <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 002 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/></svg>
+                Test Connection
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">Set Default File</div>
+              <div class="card-head-sub">Upload your updated index.html and push it to GitHub as the new source</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="border:2px dashed var(--border);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s;" id="uploadDropZone" onclick="document.getElementById('defaultFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleDefaultFileDrop(event)">
+              <svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:var(--muted);display:block;margin:0 auto .75rem;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
+              <div style="font-weight:700;margin-bottom:.3rem;" id="uploadDropLabel">Tap to select your index.html</div>
+              <div style="font-size:.78rem;color:var(--muted);">or drag and drop it here</div>
+              <input type="file" id="defaultFileInput" accept=".html" style="display:none;" onchange="handleDefaultFileSelect(this)">
+            </div>
+            <div id="defaultFileStatus" style="display:none;margin-top:1rem;padding:.75rem 1rem;border-radius:8px;font-size:.83rem;font-weight:600;"></div>
+            <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+              <button class="topbar-btn primary" id="pushDefaultBtn" style="display:none;" onclick="pushDefaultFile()">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                Push as New Default
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">Manual Commit</div></div>
+          <div class="card-body">
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label">Commit Message</label>
+              <input class="form-input" id="ghCommitMsg" placeholder="Add new video: …" value="Admin: update video library" />
+            </div>
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label">Paste updated index.html content here</label>
+              <textarea class="form-input mono" id="ghContent" style="min-height:140px;" placeholder="Paste the full updated index.html content to push to GitHub…"></textarea>
+            </div>
+            <button class="topbar-btn primary" onclick="pushToGithub()">
+              <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              Push to GitHub
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ DEPLOY PAGE ═══════════════════ -->
+      <div id="page-deploy" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Deploy</h1>
+            <p>Netlify &amp; hosting status</p>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head"><div class="card-head-title">Netlify Deploy Status</div></div>
+          <div class="card-body">
+            <div class="git-status" style="margin-bottom:1.25rem;">
+              <svg viewBox="0 0 24 24" style="color:var(--green);"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+              <div class="git-status-text">
+                <strong>Last deploy successful</strong> <span>— site live at bloxyplaytv.netlify.app</span>
+              </div>
+              <a href="https://bloxyplaytv.netlify.app" target="_blank" class="git-btn">
+                <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                Visit Site
+              </a>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-name">Auto-deploy on push</div>
+                <div class="toggle-desc">Netlify auto-deploys when GitHub branch is updated</div>
+              </div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-name">Deploy previews</div>
+                <div class="toggle-desc">Generate preview URLs for pull requests</div>
+              </div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">Deploy Log</div></div>
+          <div class="card-body">
+            <div style="font-family:var(--mono);font-size:.78rem;line-height:1.8;color:var(--muted);">
+              <span style="color:var(--green);">✓</span> Build started — 2025-03-26 22:41 UTC<br>
+              <span style="color:var(--green);">✓</span> Site deploy in progress<br>
+              <span style="color:var(--green);">✓</span> Deploy completed in 3.2s<br>
+              <span style="color:var(--green);">✓</span> Live URL: https://bloxyplaytv.netlify.app<br>
+              <span style="color:var(--green);">✓</span> PWA manifest generated<br>
+              <span style="color:var(--muted);">— Waiting for next commit…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ SETTINGS PAGE ═══════════════════ -->
+      <div id="page-settings" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Settings</h1>
+            <p>Admin panel preferences</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">General</div></div>
+          <div class="card-body">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-name">Dark theme</div>
+                <div class="toggle-desc">Always-on dark mode matching BloxyFlix</div>
+              </div>
+              <div class="toggle on"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-name">Auto-generate code on input</div>
+                <div class="toggle-desc">Live code preview while filling in Add Content form</div>
+              </div>
+              <div class="toggle on" id="autoGenToggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-name">Show raw video URLs in table</div>
+                <div class="toggle-desc">Display full URLs in the videos list</div>
+              </div>
+              <div class="toggle" id="showUrlsToggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /layout -->
+
+<div id="toast"><div class="toast-dot"></div><span id="toastMsg">Copied!</span></div>
+
+<script>
+// ═══════════════════════════════════════════
+//  LIVE DATA — fetched from GitHub index.html
+// ═══════════════════════════════════════════
+let LIVE_VIDS = [];
+let ghDataState = 'unconfigured'; // 'unconfigured' | 'loading' | 'ok' | 'error'
+let ghDataMsg = '';
+
+// ─── Parse vids[] array from index.html source ─────────────
+function parseVidsFromHTML(html) {
+  // Match: const vids = [...] or let vids = [...] or var vids = [...]
+  // Also handles vids=[...] without spaces
+  const patterns = [
+    /(?:const|let|var)\s+vids\s*=\s*(\[[\s\S]*?\n\]);/,
+    /(?:const|let|var)\s+vids\s*=\s*(\[[\s\S]*?\]);/,
+    /vids\s*=\s*(\[[\s\S]*?\n\]);/,
+    /vids\s*=\s*(\[[\s\S]*?\]);/,
+  ];
+  for (const pat of patterns) {
+    const m = html.match(pat);
+    if (m) {
+      try {
+        // Use Function constructor to safely evaluate the array literal
+        // (handles JS object shorthand like {t:'x', isYouTube:true})
+        const arr = (new Function('return ' + m[1]))();
+        if (Array.isArray(arr) && arr.length > 0) return arr;
+      } catch(e) {
+        console.warn('vids parse error:', e);
+      }
+    }
+  }
+  return null;
+}
+
+// ─── Fetch videos from GitHub ──────────────────────────────
+async function fetchVidsFromGitHub(silent = false) {
+  const owner = localStorage.getItem('bf_gh_owner');
+  const repo  = localStorage.getItem('bf_gh_repo');
+  const branch= localStorage.getItem('bf_gh_branch') || 'main';
+  const file  = localStorage.getItem('bf_gh_file')   || 'index.html';
+  const token = localStorage.getItem('bf_gh_token');
+
+  if (!owner || !repo) {
+    ghDataState = 'unconfigured';
+    ghDataMsg = 'GitHub not configured yet.';
+    updateSyncStatus();
+    return false;
+  }
+
+  ghDataState = 'loading';
+  updateSyncStatus();
+  if (!silent) toast('Fetching index.html from GitHub…', 'var(--blue)');
+
+  try {
+    const headers = { 'Accept': 'application/vnd.github.v3.raw' };
+    if (token) headers['Authorization'] = 'token ' + token;
+
+    // Try raw content endpoint first (no auth needed for public repos)
+    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`;
+    let res = await fetch(rawUrl, { headers });
+
+    // Fallback: contents API with base64 decode
+    if (!res.ok) {
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`;
+      const apiHeaders = { 'Accept': 'application/vnd.github.v3+json' };
+      if (token) apiHeaders['Authorization'] = 'token ' + token;
+      res = await fetch(apiUrl, { headers: apiHeaders });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const html = decodeURIComponent(escape(atob(json.content.replace(/\n/g,''))));
+      const vids = parseVidsFromHTML(html);
+      if (!vids) throw new Error('Could not find vids[] array in file');
+      LIVE_VIDS = vids;
+    } else {
+      const html = await res.text();
+      const vids = parseVidsFromHTML(html);
+      if (!vids) throw new Error('Could not find vids[] array in index.html');
+      LIVE_VIDS = vids;
+    }
+
+    ghDataState = 'ok';
+    ghDataMsg = `Loaded ${LIVE_VIDS.length} videos from ${owner}/${repo}`;
+    const now = new Date();
+    localStorage.setItem('bf_last_sync', now.toISOString());
+    updateSyncStatus();
+    updateVideoCountBadge();
+    if (!silent) toast(`Loaded ${LIVE_VIDS.length} videos from GitHub!`);
+    return true;
+  } catch(e) {
+    ghDataState = 'error';
+    ghDataMsg = e.message;
+    updateSyncStatus();
+    if (!silent) toast('Failed: ' + e.message, 'var(--red)');
+    return false;
+  }
+}
+
+function updateSyncStatus() {
+  const dot  = document.querySelector('.status-dot');
+  const label= document.querySelector('.topbar .status-dot + span');
+  if (!dot || !label) return;
+  if (ghDataState === 'ok') {
+    dot.style.background = 'var(--green)';
+    label.textContent = 'Synced';
+  } else if (ghDataState === 'loading') {
+    dot.style.background = 'var(--blue)';
+    label.textContent = 'Loading…';
+  } else if (ghDataState === 'error') {
+    dot.style.background = 'var(--red)';
+    label.textContent = 'Error';
+  } else {
+    dot.style.background = 'var(--muted)';
+    label.textContent = 'Not configured';
+  }
+  // Also update GitHub page status banner
+  updateGitHubPageBanner();
+}
+
+function updateGitHubPageBanner() {
+  const banner = document.getElementById('ghStatusBanner');
+  if (!banner) return;
+  if (ghDataState === 'ok') {
+    banner.className = 'git-status';
+    banner.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--green);"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      <div class="git-status-text"><strong>Connected &amp; synced.</strong> <span>${ghDataMsg} — Last sync: ${lastSyncLabel()}</span></div>
+      <button class="git-btn" onclick="refreshStats()"><svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>Refresh</button>`;
+  } else if (ghDataState === 'error') {
+    banner.className = 'git-status error';
+    banner.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--red);"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+      <div class="git-status-text"><strong>Fetch error.</strong> <span>${ghDataMsg}</span></div>`;
+  } else if (ghDataState === 'loading') {
+    banner.className = 'git-status';
+    banner.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--blue);"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+      <div class="git-status-text"><strong>Fetching data…</strong></div>`;
+  } else {
+    banner.className = 'git-status warning';
+    banner.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--gold);"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+      <div class="git-status-text"><strong>Token not configured.</strong> <span>Enter your GitHub credentials below and save to enable auto-sync.</span></div>`;
+  }
+}
+
+function lastSyncLabel() {
+  const s = localStorage.getItem('bf_last_sync');
+  if (!s) return 'never';
+  const d = new Date(s);
+  const diff = Math.floor((Date.now() - d) / 1000);
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  return d.toLocaleTimeString();
+}
+
+function updateVideoCountBadge() {
+  const badge = document.getElementById('videoCountBadge');
+  if (badge) badge.textContent = LIVE_VIDS.length || '—';
+}
+
+// ─── Page switching ───────────────────────
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const page = document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('pageTitle').textContent = {
+    dashboard:'Dashboard',analytics:'Analytics',videos:'Videos',
+    live:'Live Channels',add:'Add Content',github:'GitHub Config',
+    deploy:'Deploy',settings:'Settings'
+  }[id]||id;
+  closeSidebar();
+  if(id==='dashboard') renderDashboard();
+  if(id==='analytics') renderAnalytics();
+  if(id==='videos') renderVideoTable();
+  if(id==='live') renderLiveTable();
+  if(id==='add') updateAddPageBanner();
+}
+
+function updateAddPageBanner(){
+  const banner = document.getElementById('addPageGhBanner');
+  const text   = document.getElementById('addPageGhBannerText');
+  if(!banner || !text) return;
+  const owner = localStorage.getItem('bf_gh_owner');
+  const repo  = localStorage.getItem('bf_gh_repo');
+  const token = localStorage.getItem('bf_gh_token');
+  if(owner && repo && token){
+    banner.className = 'git-status';
+    banner.querySelector('svg').style.color = 'var(--green)';
+    banner.querySelector('svg').innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>';
+    text.innerHTML = `<strong>GitHub connected</strong> — <span>Fill in the form, then click <strong>Download Updated index.html</strong>. Upload it to GitHub to publish.</span>`;
+  } else {
+    banner.className = 'git-status warning';
+    banner.querySelector('svg').style.color = 'var(--gold)';
+    banner.querySelector('svg').innerHTML = '<path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>';
+    text.innerHTML = `<strong>GitHub not configured.</strong> <span>Go to <strong>GitHub Config</strong> and save your credentials first — needed to fetch and update index.html.</span>`;
+  }
+}
+
+// ─── Sidebar mobile ───────────────────────
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ─── Toast ────────────────────────────────
+function toast(msg, color){
+  const t = document.getElementById('toast');
+  const dot = t.querySelector('.toast-dot');
+  document.getElementById('toastMsg').textContent = msg;
+  if(dot) dot.style.background = color||'var(--green)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ─── Stats calculations ───────────────────
+function calcStats(){
+  const total = LIVE_VIDS.length;
+  const live = LIVE_VIDS.filter(v=>v.isM3U8).length;
+  const cats = [...new Set(LIVE_VIDS.map(v=>v.c))].length;
+  const yt = LIVE_VIDS.filter(v=>v.isYouTube).length;
+  return {total,live,cats,yt};
+}
+
+async function refreshStats(){
+  const ok = await fetchVidsFromGitHub(false);
+  if(ok){
+    const s = calcStats();
+    document.getElementById('statTotal').textContent = s.total;
+    document.getElementById('statLive').textContent = s.live;
+    document.getElementById('statCats').textContent = s.cats;
+    document.getElementById('statYT').textContent = s.yt;
+    document.getElementById('videoCountBadge').textContent = s.total;
+    renderDashboard();
+    if(document.getElementById('page-analytics').classList.contains('active')) renderAnalytics();
+    if(document.getElementById('page-videos').classList.contains('active')) renderVideoTable();
+    if(document.getElementById('page-live').classList.contains('active')) renderLiveTable();
+  }
+}
+
+// ─── Dashboard ────────────────────────────
+function renderDashboard(){
+  // Stats display (use whatever LIVE_VIDS currently holds)
+  const s = calcStats();
+  document.getElementById('statTotal').textContent = s.total||'—';
+  document.getElementById('statLive').textContent  = s.live||'—';
+  document.getElementById('statCats').textContent  = s.cats||'—';
+  document.getElementById('statYT').textContent    = s.yt||'—';
+  updateVideoCountBadge();
+
+  if(!LIVE_VIDS.length){
+    const noData = `<div style="text-align:center;padding:2rem 1rem;color:var(--muted);">
+      <svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:var(--dim);display:block;margin:0 auto .75rem;">
+        <path d="M12 2A10 10 0 002 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/>
+      </svg>
+      <div style="font-weight:700;margin-bottom:.4rem;">No data loaded</div>
+      <div style="font-size:.8rem;">Configure GitHub in the sidebar, then click <strong>Refresh</strong>.</div>
+    </div>`;
+    document.getElementById('categoryBreakdown').innerHTML = noData;
+    document.getElementById('topVideosList').innerHTML = noData;
+    return;
+  }
+
+  // Category breakdown
+  const catMap = {};
+  LIVE_VIDS.forEach(v=>{
+    catMap[v.c] = (catMap[v.c]||0)+1;
+  });
+  const catColors = {film:'#e8263a',documentary:'#3b82f6',performance:'#c9a84c',
+    news:'#22c55e',animation:'#a855f7',sport:'#f59e0b',live:'#ef4444',
+    radio:'#06b6d4',tv:'#8b5cf6',other:'#6b7280'};
+  const sorted = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0][1];
+  document.getElementById('categoryBreakdown').innerHTML = sorted.map(([cat,count])=>`
+    <div class="cat-row">
+      <div class="cat-dot" style="background:${catColors[cat]||'#6b7280'}"></div>
+      <div class="cat-name">${cat.charAt(0).toUpperCase()+cat.slice(1)}</div>
+      <div class="cat-bar-wrap"><div class="cat-bar" style="width:${(count/max*100).toFixed(0)}%;background:${catColors[cat]||'#6b7280'}"></div></div>
+      <div class="cat-count">${count}</div>
+    </div>
+  `).join('');
+
+  // Top videos by views
+  const top = [...LIVE_VIDS].sort((a,b)=>(parseInt(b.views)||0)-(parseInt(a.views)||0)).slice(0,6);
+  document.getElementById('topVideosList').innerHTML = top.map(v=>`
+    <div class="vrow">
+      <div class="vrow-thumb">${v.c.slice(0,3).toUpperCase()}</div>
+      <div class="vrow-info">
+        <div class="vrow-title">${v.t}</div>
+        <div class="vrow-meta">${v.c} · ${v.y} · ${v.duration}</div>
+      </div>
+      <div class="vrow-stat">
+        <div class="vrow-views">${fmtViews(v.views)}</div>
+        <div class="vrow-label">views</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function fmtViews(n){
+  n = parseInt(n)||0;
+  if(n>=1000) return (n/1000).toFixed(n%1000===0?0:1)+'K';
+  return n+'';
+}
+
+// ─── Analytics ────────────────────────────
+function renderAnalytics(){
+  // Views distribution
+  const views = LIVE_VIDS.map(v=>parseInt(v.views)||0);
+  const buckets = [{label:'0–499',min:0,max:499},{label:'500–999',min:500,max:999},{label:'1K–2.9K',min:1000,max:2999},{label:'3K+',min:3000,max:Infinity}];
+  const bCounts = buckets.map(b=>({...b,count:views.filter(v=>v>=b.min&&v<=b.max).length}));
+  const bMax = Math.max(...bCounts.map(b=>b.count));
+  document.getElementById('analyticsViews').innerHTML = bCounts.map(b=>`
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;">
+      <div style="width:70px;font-size:.75rem;color:var(--muted);">${b.label}</div>
+      <div style="flex:1;height:22px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${bMax?b.count/bMax*100:0}%;background:var(--red);border-radius:3px;transition:width .6s;"></div>
+      </div>
+      <div style="width:20px;text-align:right;font-size:.82rem;font-weight:700;">${b.count}</div>
+    </div>
+  `).join('');
+
+  // Content by year
+  const yearMap = {};
+  LIVE_VIDS.forEach(v=>{ if(v.y) yearMap[v.y]=(yearMap[v.y]||0)+1; });
+  const years = Object.entries(yearMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  const yMax = Math.max(...years.map(y=>y[1]));
+  document.getElementById('analyticsYears').innerHTML = years.map(([yr,count])=>`
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;">
+      <div style="width:40px;font-size:.73rem;color:var(--muted);font-family:var(--mono);">${yr}</div>
+      <div style="flex:1;height:18px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${yMax?count/yMax*100:0}%;background:var(--blue);border-radius:3px;"></div>
+      </div>
+      <div style="width:16px;text-align:right;font-size:.78rem;font-weight:700;">${count}</div>
+    </div>
+  `).join('');
+
+  // Stream types
+  const types = [
+    {label:'MP4 / Direct',count:LIVE_VIDS.filter(v=>!v.isYouTube&&!v.isM3U8).length,color:'var(--red)'},
+    {label:'YouTube',count:LIVE_VIDS.filter(v=>v.isYouTube).length,color:'#ff0000'},
+    {label:'M3U8 / Live',count:LIVE_VIDS.filter(v=>v.isM3U8).length,color:'var(--green)'},
+  ];
+  const tMax = Math.max(...types.map(t=>t.count));
+  document.getElementById('analyticsTypes').innerHTML = types.map(t=>`
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.65rem;">
+      <div style="width:90px;font-size:.75rem;color:var(--muted);">${t.label}</div>
+      <div style="flex:1;height:22px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${tMax?t.count/tMax*100:0}%;background:${t.color};border-radius:3px;"></div>
+      </div>
+      <div style="width:20px;text-align:right;font-size:.82rem;font-weight:700;">${t.count}</div>
+    </div>
+  `).join('');
+
+  // All categories
+  const catMap={};
+  LIVE_VIDS.forEach(v=>{catMap[v.c]=(catMap[v.c]||0)+1;});
+  const catColors={film:'#e8263a',documentary:'#3b82f6',performance:'#c9a84c',news:'#22c55e',animation:'#a855f7',sport:'#f59e0b',live:'#ef4444',radio:'#06b6d4',tv:'#8b5cf6',other:'#6b7280'};
+  const allSorted=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const allMax=allSorted[0][1];
+  document.getElementById('analyticsAllCats').innerHTML='<div style="display:flex;flex-wrap:wrap;gap:1.5rem;">'+
+    allSorted.map(([c,n])=>`
+      <div style="min-width:160px;flex:1;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;">
+          <span style="font-size:.82rem;font-weight:700;">${c.charAt(0).toUpperCase()+c.slice(1)}</span>
+          <span style="font-size:.82rem;color:var(--muted);">${n}</span>
+        </div>
+        <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:${(n/allMax*100).toFixed(0)}%;background:${catColors[c]||'#6b7280'};border-radius:4px;"></div>
+        </div>
+      </div>
+    `).join('')+'</div>';
+}
+
+// ─── Videos Table ─────────────────────────
+let catFilter = '';
+function renderVideoTable(){
+  // populate filter dropdown
+  const cats = [...new Set(LIVE_VIDS.map(v=>v.c))].sort();
+  const sel = document.getElementById('catFilter');
+  if(sel.options.length<=1){
+    cats.forEach(c=>{
+      const o=document.createElement('option');
+      o.value=c;o.textContent=c.charAt(0).toUpperCase()+c.slice(1);
+      sel.appendChild(o);
+    });
+  }
+  filterVideoTable();
+}
+function filterVideoTable(){
+  catFilter = document.getElementById('catFilter').value;
+  const filtered = catFilter ? LIVE_VIDS.filter(v=>v.c===catFilter) : LIVE_VIDS;
+  document.getElementById('videosSubtitle').textContent = `${filtered.length} video${filtered.length!==1?'s':''}${catFilter?' in '+catFilter:''}`;
+  const catColors={film:'var(--red)',documentary:'var(--blue)',performance:'var(--gold)',news:'var(--green)',animation:'#a855f7',sport:'var(--orange)',live:'var(--red)',radio:'#06b6d4',tv:'#8b5cf6',other:'var(--muted)'};
+  document.getElementById('videoTableBody').innerHTML = filtered.map((v,i)=>`
+    <tr>
+      <td class="td-mono">${i+1}</td>
+      <td>
+        <div class="td-title" title="${v.t}">${v.t}</div>
+        <div class="td-muted">${v.tk||'—'}</div>
+      </td>
+      <td><span class="badge" style="background:${catColors[v.c]||'var(--muted)'}18;color:${catColors[v.c]||'var(--muted)'};border-color:${catColors[v.c]||'var(--muted)'}30;">${v.c}</span></td>
+      <td class="td-mono">${v.y}</td>
+      <td style="font-weight:700;">${fmtViews(v.views)}</td>
+      <td class="td-mono">${v.duration}</td>
+      <td>
+        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':'<span class="badge dim">MP4</span>'}
+        ${v.isPinned?'<span class="badge red" style="margin-left:.25rem;">Live</span>':''}
+      </td>
+      <td>${v.rating?`<span style="color:var(--gold);font-weight:700;">★ ${v.rating}</span>`:'<span style="color:var(--dim);">—</span>'}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── Live Table ───────────────────────────
+function renderLiveTable(){
+  const live = LIVE_VIDS.filter(v=>v.isM3U8||v.isPinned);
+  document.getElementById('liveTableBody').innerHTML = live.length ? live.map(v=>`
+    <tr>
+      <td>
+        <div style="font-weight:700;">${v.t}</div>
+        <div class="td-muted">${v.tk||''}</div>
+      </td>
+      <td><span class="badge ${v.isM3U8?'green':'blue'}">${v.isM3U8?'M3U8 HLS':'Pinned'}</span></td>
+      <td class="td-mono" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.u||'—'}</td>
+      <td><span class="badge red"><svg viewBox="0 0 24 24" style="width:7px;height:7px;fill:currentColor;display:inline-block;margin-right:2px;"><circle cx="12" cy="12" r="10"/></svg>LIVE</span></td>
+    </tr>
+  `).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;">No live channels found.</td></tr>';
+}
+
+// ─── Add Content — stream tabs ────────────
+let activeStreamTab = 'mp4';
+function setStreamTab(tab, el){
+  activeStreamTab = tab;
+  ['mp4','youtube','m3u8'].forEach(t=>{
+    document.getElementById('streamTab-'+t).style.display = t===tab?'':'none';
+  });
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+// ─── Generate Code ────────────────────────
+function generateCode(){
+  const t = document.getElementById('newTitle').value.trim();
+  const tk = document.getElementById('newTitleKr').value.trim();
+  const c = document.getElementById('newCat').value;
+  const y = document.getElementById('newYear').value.trim();
+  const dur = document.getElementById('newDuration').value.trim();
+  const views = document.getElementById('newViews').value.trim()||'0';
+  const desc = document.getElementById('newDesc').value.trim();
+  const thumb = document.getElementById('newThumb').value.trim();
+
+  let urlPart = '';
+  if(activeStreamTab==='mp4'){
+    const u = document.getElementById('newUrl').value.trim();
+    urlPart = `u:'${u}'`;
+  } else if(activeStreamTab==='youtube'){
+    let u = document.getElementById('newYtUrl').value.trim();
+    const m = u.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    if(m) u = m[1];
+    urlPart = `u:'${u}',isYouTube:true`;
+  } else {
+    const u = document.getElementById('newM3u8Url').value.trim();
+    urlPart = `u:'${u}',isM3U8:true,isPinned:true`;
+  }
+
+  const parts = [
+    `t:'${t.replace(/'/g,"\\'")}' `,
+    tk ? `,tk:'${tk.replace(/'/g,"\\'")}'` : `,tk:''`,
+    `,c:'${c}'`,
+    `,y:'${y}'`,
+    `,duration:'${dur}'`,
+    `,views:'${views}'`,
+    desc ? `,d:'${desc.replace(/'/g,"\\'").slice(0,120)}'` : '',
+    thumb ? `,thumb:'${thumb}'` : '',
+    `,${urlPart}`,
+  ].filter(Boolean).join('');
+
+  document.getElementById('generatedCode').value = `{${parts}},`;
+}
+
+function copyCode(){
+  generateCode();
+  const code = document.getElementById('generatedCode').value;
+  if(!code.trim()||code.includes('Fill in')){ toast('Nothing to copy — fill in the form first','var(--gold)'); return; }
+  navigator.clipboard.writeText(code).then(()=>toast('Code copied to clipboard!')).catch(()=>{
+    document.getElementById('generatedCode').select();
+    document.execCommand('copy');
+    toast('Code copied!');
+  });
+}
+
+function clearForm(){
+  ['newTitle','newTitleKr','newYear','newDuration','newViews','newDesc','newUrl','newYtUrl','newM3u8Url','newThumb','generatedCode'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value='';
+  });
+  toast('Form cleared','var(--muted)');
+}
+
+// Auto-generate on input
+document.addEventListener('input', e=>{
+  if(!document.getElementById('autoGenToggle').classList.contains('on')) return;
+  if(['newTitle','newTitleKr','newCat','newYear','newDuration','newViews','newDesc','newUrl','newYtUrl','newM3u8Url','newThumb'].includes(e.target.id)){
+    generateCode();
+  }
+});
+
+// ─── Set Default File (upload & push) ────
+let _defaultFileContent = null;
+
+function handleDefaultFileDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadDropZone').style.borderColor = 'var(--border)';
+  const file = e.dataTransfer.files[0];
+  if(file) readDefaultFile(file);
+}
+
+function handleDefaultFileSelect(input){
+  const file = input.files[0];
+  if(file) readDefaultFile(file);
+}
+
+function readDefaultFile(file){
+  if(!file.name.endsWith('.html')){ toast('Please select an HTML file','var(--gold)'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    _defaultFileContent = e.target.result;
+    document.getElementById('uploadDropLabel').textContent = '✓ ' + file.name + ' — ready to push';
+    document.getElementById('uploadDropZone').style.borderColor = 'var(--green)';
+    document.getElementById('pushDefaultBtn').style.display = 'inline-flex';
+    const s = document.getElementById('defaultFileStatus');
+    s.style.display = 'block';
+    s.style.background = 'rgba(34,197,94,.08)';
+    s.style.border = '1px solid rgba(34,197,94,.2)';
+    s.style.color = 'var(--green)';
+    s.textContent = '✅ File loaded — click "Push as New Default" to upload to GitHub.';
+  };
+  reader.readAsText(file);
+}
+
+async function pushDefaultFile(){
+  if(!_defaultFileContent){ toast('Select a file first','var(--gold)'); return; }
+
+  const owner  = localStorage.getItem('bf_gh_owner');
+  const repo   = localStorage.getItem('bf_gh_repo');
+  const branch = localStorage.getItem('bf_gh_branch') || 'main';
+  const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+  const token  = localStorage.getItem('bf_gh_token');
+
+  if(!owner || !repo || !token){ toast('Configure GitHub credentials first','var(--gold)'); return; }
+
+  const s = document.getElementById('defaultFileStatus');
+  const show = (msg, color='var(--blue)') => {
+    s.style.display = 'block';
+    s.style.background = color==='var(--green)'?'rgba(34,197,94,.08)':color==='var(--red)'?'rgba(232,38,58,.08)':'rgba(59,130,246,.08)';
+    s.style.border = `1px solid ${color==='var(--green)'?'rgba(34,197,94,.2)':color==='var(--red)'?'rgba(232,38,58,.2)':'rgba(59,130,246,.2)'}`;
+    s.style.color = color;
+    s.textContent = msg;
+  };
+
+  show('⏳ Fetching current SHA…');
+
+  try {
+    const apiHeaders = {'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'};
+    const shaRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`, {headers:apiHeaders});
+    if(!shaRes.ok) throw new Error('HTTP ' + shaRes.status);
+    const shaData = await shaRes.json();
+    const sha = shaData.sha;
+
+    show('⏳ Pushing to GitHub…');
+
+    const encoded = btoa(unescape(encodeURIComponent(_defaultFileContent)));
+    const putRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
+      {
+        method:'PUT',
+        headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+        body: JSON.stringify({
+          message:'Admin: set new default index.html',
+          content: encoded,
+          sha,
+          branch
+        })
+      }
+    );
+    if(!putRes.ok){
+      const err = await putRes.json();
+      throw new Error(err.message || putRes.status);
+    }
+
+    await fetchVidsFromGitHub(true);
+    show('✅ Done! This is now the default file. All future video additions will build on it.','var(--green)');
+    toast('New default file pushed to GitHub!');
+    document.getElementById('pushDefaultBtn').style.display = 'none';
+    document.getElementById('uploadDropZone').style.borderColor = 'var(--border)';
+    document.getElementById('uploadDropLabel').textContent = 'Tap to select your index.html';
+    _defaultFileContent = null;
+
+  } catch(e) {
+    show('❌ Push failed: ' + e.message,'var(--red)');
+    toast('Push failed: ' + e.message,'var(--red)');
+  }
+}
+
+// ─── Set as Default (push to GitHub) ─────
+async function setAsDefault(){
+  if(!_lastGeneratedHtml){
+    toast('Download the updated file first','var(--gold)'); return;
+  }
+
+  const owner  = localStorage.getItem('bf_gh_owner');
+  const repo   = localStorage.getItem('bf_gh_repo');
+  const branch = localStorage.getItem('bf_gh_branch') || 'main';
+  const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+  const token  = localStorage.getItem('bf_gh_token');
+
+  if(!token){ toast('GitHub token required — go to GitHub Config','var(--gold)'); return; }
+
+  const status = document.getElementById('downloadStatus');
+  const show = (msg, color='var(--blue)') => {
+    status.style.display = 'block';
+    status.style.background = color === 'var(--green)' ? 'rgba(34,197,94,.08)' : color === 'var(--red)' ? 'rgba(232,38,58,.08)' : 'rgba(59,130,246,.08)';
+    status.style.border = `1px solid ${color === 'var(--green)' ? 'rgba(34,197,94,.2)' : color === 'var(--red)' ? 'rgba(232,38,58,.2)' : 'rgba(59,130,246,.2)'}`;
+    status.style.color = color;
+    status.textContent = msg;
+  };
+
+  show('⏳ Pushing to GitHub…');
+
+  try {
+    // Get current SHA of the file
+    const shaRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`,
+      {headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}}
+    );
+    if(!shaRes.ok) throw new Error('Could not fetch file SHA: ' + shaRes.status);
+    const shaData = await shaRes.json();
+    const sha = shaData.sha;
+
+    // Push updated content
+    const encoded = btoa(unescape(encodeURIComponent(_lastGeneratedHtml)));
+    const putRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
+      {
+        method:'PUT',
+        headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+        body: JSON.stringify({
+          message:'Admin: set updated index.html as new default',
+          content: encoded,
+          sha,
+          branch
+        })
+      }
+    );
+    if(!putRes.ok){
+      const err = await putRes.json();
+      throw new Error(err.message || putRes.status);
+    }
+
+    // Refresh local vids cache from the new file
+    await fetchVidsFromGitHub(true);
+    show('✅ Done! Panel will now use this file as the default for all future video additions.','var(--green)');
+    toast('Default file updated on GitHub!');
+    // Hide the button — it's been applied
+    document.getElementById('setDefaultBtn').style.display = 'none';
+    _lastGeneratedHtml = null;
+
+  } catch(e) {
+    show('❌ Push failed: ' + e.message, 'var(--red)');
+    toast('Push failed: ' + e.message, 'var(--red)');
+  }
+}
+
+// ─── Download Updated index.html ─────────
+async function downloadUpdatedIndex(){
+  generateCode();
+  const newEntry = document.getElementById('generatedCode').value.trim();
+  if(!newEntry || newEntry.includes('Fill in')){
+    toast('Generate the video code first','var(--gold)'); return;
+  }
+
+  const status = document.getElementById('downloadStatus');
+  const show = (msg, color='var(--blue)') => {
+    status.style.display = 'block';
+    status.style.background = color === 'var(--green)' ? 'rgba(34,197,94,.08)' : color === 'var(--red)' ? 'rgba(232,38,58,.08)' : 'rgba(59,130,246,.08)';
+    status.style.border = `1px solid ${color === 'var(--green)' ? 'rgba(34,197,94,.2)' : color === 'var(--red)' ? 'rgba(232,38,58,.2)' : 'rgba(59,130,246,.2)'}`;
+    status.style.color = color;
+    status.textContent = msg;
+  };
+
+  show('⏳ Fetching index.html from GitHub…');
+
+  const owner  = localStorage.getItem('bf_gh_owner');
+  const repo   = localStorage.getItem('bf_gh_repo');
+  const branch = localStorage.getItem('bf_gh_branch') || 'main';
+  const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+  const token  = localStorage.getItem('bf_gh_token');
+
+  if(!owner || !repo){ toast('Configure GitHub credentials first','var(--gold)'); show('⚠ GitHub not configured.','var(--gold)'); return; }
+
+  let html = '';
+  try {
+    const headers = {'Accept':'application/vnd.github.v3.raw'};
+    if(token) headers['Authorization'] = 'token ' + token;
+    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`;
+    let res = await fetch(rawUrl, {headers, cache:'no-store'});
+    if(!res.ok){
+      // fallback: contents API
+      const apiHeaders = {'Accept':'application/vnd.github.v3+json'};
+      if(token) apiHeaders['Authorization'] = 'token ' + token;
+      const apiRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`, {headers:apiHeaders});
+      if(!apiRes.ok) throw new Error('HTTP ' + apiRes.status);
+      const json = await apiRes.json();
+      html = decodeURIComponent(escape(atob(json.content.replace(/\n/g,''))));
+    } else {
+      html = await res.text();
+    }
+  } catch(e) {
+    show('❌ Failed to fetch index.html: ' + e.message, 'var(--red)');
+    return;
+  }
+
+  // ── Inject new video entry before the closing ]; of the vids array ──────────
+  // Find the last }; or }, before the closing ]; and insert after it
+  const insertMarkers = [
+    '// NEW STREAMING MP4 VIDEOS - Added March 2026\n\n\n',
+    '// NEW STREAMING MP4 VIDEOS - Added March 2026\n\n',
+    '// NEW STREAMING MP4 VIDEOS - Added March 2026\n',
+  ];
+  let injected = false;
+  for(const marker of insertMarkers){
+    if(html.includes(marker)){
+      html = html.replace(marker, marker + '  ' + newEntry + '\n');
+      injected = true; break;
+    }
+  }
+
+  // Fallback: insert before the closing ]; of the vids array
+  if(!injected){
+    // Find the last video entry line and insert after it
+    const closeMatch = html.match(/(\{[^{}]*isPinned[^{}]*\}[,]?\s*\n\];)/);
+    if(closeMatch){
+      html = html.replace(closeMatch[0], closeMatch[0].replace('\n];', '\n  ' + newEntry + '\n];'));
+      injected = true;
+    }
+  }
+  if(!injected){
+    // Last resort: find ];\n and insert before
+    const lastClose = html.lastIndexOf('\n];');
+    if(lastClose !== -1){
+      html = html.slice(0,lastClose) + '\n  ' + newEntry + html.slice(lastClose);
+      injected = true;
+    }
+  }
+
+  if(!injected){ show('❌ Could not find vids array insertion point.','var(--red)'); return; }
+
+  // ── Apply the 3 bug fixes ────────────────────────────────────────────────────
+
+  // Fix 1: KCTV News section — match all title formats
+  html = html.replace(
+    /\.filter\(v\s*=>\s*v\.t\.startsWith\('KCTV News -'\)\)/g,
+    ".filter(v => /kctv\\s*news/i.test(v.t) || (v.c === 'news' && /kctv|korean central television/i.test(v.t)))"
+  );
+
+  // Fix 2: "New" filter tab — fallback to last 20 if no badge:'new' videos
+  html = html.replace(
+    /else if\(filter==='new'\)filtered=vids\.filter\(v=>v\.badge==='new'\);/g,
+    "else if(filter==='new'){const badged=vids.filter(v=>v.badge==='new');if(badged.length>0)filtered=badged;else filtered=vids.slice(-20);}"
+  );
+
+  // Fix 3: setFilter title count — show correct filtered count
+  html = html.replace(
+    /const titles=\{all:'All Content',trending:'Trending',new:'New Releases',movies:'Movies',performances:'Performances',documentaries:'Documentaries',news:'News & Reports',youtube:'YouTube Archive',toprated:'Top Rated'\};\s*document\.getElementById\('contentTitle'\)\.innerHTML=`\$\{titles\[filter\]\} <span>\(\$\{vids\.length\}\)<\/span>`;/g,
+    "const titles={all:'All Content',trending:'Trending',new:'New Releases',movies:'Movies',performances:'Performances',documentaries:'Documentaries',news:'News & Reports',youtube:'YouTube Archive',toprated:'Top Rated',cctv:'CCTV News Archive'};const count=document.getElementById('videoGrid').querySelectorAll('.video-card').length;document.getElementById('contentTitle').innerHTML=`${titles[filter]||filter} <span>(${filter==='all'?vids.length:count})</span>`;"
+  );
+
+  // ── Store for "Set as Default" ───────────────────────────────────────────────
+  _lastGeneratedHtml = html;
+  document.getElementById('setDefaultBtn').style.display = 'inline-flex';
+
+  // ── Trigger download ─────────────────────────────────────────────────────────
+  const blob = new Blob([html], {type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'index.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+
+  show('✅ Downloaded! Upload this index.html to GitHub to publish your changes.', 'var(--green)');
+  toast('index.html downloaded — ready to upload!');
+}
+
+// ─── GitHub ───────────────────────────────
+function saveGithubConfig(){
+  const owner  = document.getElementById('ghOwner').value.trim();
+  const repo   = document.getElementById('ghRepo').value.trim();
+  const branch = document.getElementById('ghBranch').value.trim()||'main';
+  const file   = document.getElementById('ghFile').value.trim()||'index.html';
+  const token  = document.getElementById('ghToken').value.trim()
+               || localStorage.getItem('bf_gh_token'); // keep existing token if field blank
+  if(!owner||!repo){ toast('Please fill in Owner and Repo','var(--gold)'); return; }
+  if(!token){ toast('Please enter your GitHub Personal Access Token','var(--gold)'); return; }
+  localStorage.setItem('bf_gh_owner', owner);
+  localStorage.setItem('bf_gh_repo',  repo);
+  localStorage.setItem('bf_gh_branch',branch);
+  localStorage.setItem('bf_gh_file',  file);
+  localStorage.setItem('bf_gh_token', token);
+  toast('GitHub config saved!');
+  updateGitHubPageBanner();
+  // Auto-fetch videos after saving
+  fetchVidsFromGitHub(false).then(ok=>{
+    if(ok){ renderDashboard(); }
+  });
+}
+
+function loadGithubConfig(){
+  const fields = {
+    ghOwner:'bf_gh_owner', ghRepo:'bf_gh_repo',
+    ghBranch:'bf_gh_branch', ghFile:'bf_gh_file'
+  };
+  Object.entries(fields).forEach(([id,key])=>{
+    const v = localStorage.getItem(key);
+    if(v) document.getElementById(id).value = v;
+  });
+  // Show token placeholder if already saved (don't reveal it)
+  const savedToken = localStorage.getItem('bf_gh_token');
+  const tokenField = document.getElementById('ghToken');
+  if(savedToken && tokenField){
+    tokenField.placeholder = '✓ Token saved — paste new one to replace';
+  }
+  updateGitHubPageBanner();
+}
+
+async function testGithubConnection(){
+  const owner = document.getElementById('ghOwner').value.trim() || localStorage.getItem('bf_gh_owner');
+  const repo = document.getElementById('ghRepo').value.trim() || localStorage.getItem('bf_gh_repo');
+  const token = document.getElementById('ghToken').value.trim() || localStorage.getItem('bf_gh_token');
+  if(!owner||!repo||!token){ toast('Fill in GitHub credentials first','var(--gold)'); return; }
+  toast('Testing connection…','var(--blue)');
+  try{
+    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}`,{
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(r.ok){
+      const d = await r.json();
+      toast(`Connected! Repo: ${d.full_name}`);
+    } else {
+      toast('Connection failed: '+r.status,'var(--red)');
+    }
+  } catch(e){
+    toast('Network error: '+e.message,'var(--red)');
+  }
+}
+
+async function pushToGithub(){
+  const owner = document.getElementById('ghOwner').value.trim() || localStorage.getItem('bf_gh_owner');
+  const repo = document.getElementById('ghRepo').value.trim() || localStorage.getItem('bf_gh_repo');
+  const branch = document.getElementById('ghBranch').value.trim() || localStorage.getItem('bf_gh_branch') || 'main';
+  const file = document.getElementById('ghFile').value.trim() || localStorage.getItem('bf_gh_file') || 'index.html';
+  const token = document.getElementById('ghToken').value.trim() || localStorage.getItem('bf_gh_token');
+  const msg = document.getElementById('ghCommitMsg').value.trim() || 'Admin: update video library';
+  const content = document.getElementById('ghContent').value;
+
+  if(!owner||!repo||!token){ toast('Configure GitHub credentials first','var(--gold)'); return; }
+  if(!content.trim()){ toast('Paste the file content first','var(--gold)'); return; }
+
+  toast('Fetching current SHA…','var(--blue)');
+  try{
+    const shaRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`,{
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!shaRes.ok){ toast('Could not fetch file SHA: '+shaRes.status,'var(--red)'); return; }
+    const shaData = await shaRes.json();
+    const sha = shaData.sha;
+
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+    const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,{
+      method:'PUT',
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body: JSON.stringify({message:msg,content:encoded,sha,branch})
+    });
+    if(putRes.ok){
+      toast('Pushed to GitHub successfully!');
+    } else {
+      const err = await putRes.json();
+      toast('Push failed: '+(err.message||putRes.status),'var(--red)');
+    }
+  } catch(e){
+    toast('Error: '+e.message,'var(--red)');
+  }
+}
+
+// ─── Sidebar / page helpers (safe to call before login) ───
+function _initApp(){
+  loadGithubConfig();
+  (async ()=>{
+    const owner = localStorage.getItem('bf_gh_owner');
+    const repo  = localStorage.getItem('bf_gh_repo');
+    if(owner && repo){
+      const ok = await fetchVidsFromGitHub(true);
+      if(ok){
+        const s = calcStats();
+        document.getElementById('statTotal').textContent = s.total;
+        document.getElementById('statLive').textContent  = s.live;
+        document.getElementById('statCats').textContent  = s.cats;
+        document.getElementById('statYT').textContent    = s.yt;
+        updateVideoCountBadge();
+      }
+    }
+    renderDashboard();
+  })();
+}
+</script>
+
+<!-- ═══════════════ FIREBASE AUTH ═══════════════ -->
+<script type="module">
+import { initializeApp }        from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyAXXMMQH7lbAARD7KZthb9_jTbNmCKVEU8",
+  authDomain:        "bloxyflix.firebaseapp.com",
+  projectId:         "bloxyflix",
+  storageBucket:     "bloxyflix.firebasestorage.app",
+  messagingSenderId: "882442273352",
+  appId:             "1:882442273352:web:2eefad1b40975279c60e7d"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// ── Logout button wired up ──────────────────────────
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  signOut(auth).then(()=>{ location.reload(); });
+});
+
+// ── Login form submit ───────────────────────────────
+document.getElementById('loginForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  const btn      = document.getElementById('loginBtn');
+
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent  = 'Signing in…';
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged will handle showing the app
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+    const msgs = {
+      'auth/invalid-credential':   'Wrong email or password.',
+      'auth/user-not-found':       'No account found with that email.',
+      'auth/wrong-password':       'Incorrect password.',
+      'auth/invalid-email':        'Enter a valid email address.',
+      'auth/too-many-requests':    'Too many attempts. Try again later.',
+    };
+    errEl.textContent = msgs[err.code] || 'Login failed: ' + err.message;
+  }
+});
+
+// ── Auth state — show login or app ─────────────────
+onAuthStateChanged(auth, user => {
+  const loginScreen = document.getElementById('loginScreen');
+  const layout      = document.querySelector('.layout');
+  const toastEl     = document.getElementById('toast');
+
+  if(user){
+    // Logged in — show app
+    loginScreen.style.display = 'none';
+    layout.style.display      = 'flex';
+    toastEl.style.display     = '';
+    // Update admin name in sidebar
+    const nameEl = document.querySelector('.admin-name');
+    if(nameEl) nameEl.textContent = user.email.split('@')[0];
+    // Boot the app
+    if(typeof _initApp === 'function') _initApp();
+  } else {
+    // Not logged in — show login screen
+    loginScreen.style.display = 'flex';
+    layout.style.display      = 'none';
+    toastEl.style.display     = 'none';
+  }
+});
+</script>
+
+</body>
+</html>
