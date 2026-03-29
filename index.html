@@ -5257,7 +5257,11 @@ function renderVideos(filter='all'){
   
   if(filter!=='all'){
     if(filter==='trending')filtered=vids.filter(v=>parseInt(v.views)>50||v.views>50);
-    else if(filter==='new')filtered=vids.filter(v=>v.badge==='new');
+    else if(filter==='new'){
+      const badged=vids.filter(v=>v.badge==='new');
+      if(badged.length>0) filtered=badged;
+      else filtered=vids.slice(-20); // fallback: show last 20 added
+    }
     else if(filter==='toprated')filtered=[...vids].sort((a,b)=>(b.rating||0)-(a.rating||0));
     else filtered=vids.filter(v=>v.c===filter||v.badge===filter);
   }
@@ -5328,7 +5332,7 @@ function renderKctvNews(){
   if(!grid) return;
   // Filter only KCTV daily news broadcasts, sorted newest first
   const newsVids = vids
-    .filter(v => v.t.startsWith('KCTV News -'))
+    .filter(v => /kctv\s*news/i.test(v.t) || (v.c === 'news' && /kctv|korean central television/i.test(v.t)))
     .sort((a,b) => b.t.localeCompare(a.t));
   if(!newsVids.length){ grid.innerHTML=''; return; }
   grid.innerHTML = newsVids.map(v => {
@@ -5374,8 +5378,9 @@ function setFilter(filter){
   document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
   event.target.classList.add('active');
   renderVideos(filter);
-  const titles={all:'All Content',trending:'Trending',new:'New Releases',movies:'Movies',performances:'Performances',documentaries:'Documentaries',news:'News & Reports',youtube:'YouTube Archive',toprated:'Top Rated'};
-  document.getElementById('contentTitle').innerHTML=`${titles[filter]} <span>(${vids.length})</span>`;
+  const titles={all:'All Content',trending:'Trending',new:'New Releases',movies:'Movies',performances:'Performances',documentaries:'Documentaries',news:'News & Reports',youtube:'YouTube Archive',toprated:'Top Rated',cctv:'CCTV News Archive'};
+  const count=document.getElementById('videoGrid').querySelectorAll('.video-card').length;
+  document.getElementById('contentTitle').innerHTML=`${titles[filter]||filter} <span>(${filter==='all'?vids.length:count})</span>`;
 }
 
 function filterCategory(cat){
