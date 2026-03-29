@@ -1201,6 +1201,14 @@ let ghDataState = 'unconfigured'; // 'unconfigured' | 'loading' | 'ok' | 'error'
 let ghDataMsg = '';
 let _lastGeneratedHtml = null;
 
+// ─── Pre-fill GitHub defaults if not already saved ───────────
+(function(){
+  if(!localStorage.getItem('bf_gh_owner'))  localStorage.setItem('bf_gh_owner',  'Bloxyplay');
+  if(!localStorage.getItem('bf_gh_repo'))   localStorage.setItem('bf_gh_repo',   'Projectbloxyflix');
+  if(!localStorage.getItem('bf_gh_branch')) localStorage.setItem('bf_gh_branch', 'main');
+  if(!localStorage.getItem('bf_gh_file'))   localStorage.setItem('bf_gh_file',   'index.html');
+})();
+
 // ─── Parse vids[] array from index.html source ─────────────
 function parseVidsFromHTML(html) {
   // Match: const vids = [...] or let vids = [...] or var vids = [...]
