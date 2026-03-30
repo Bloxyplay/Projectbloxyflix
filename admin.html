@@ -564,6 +564,10 @@ select.form-input{cursor:pointer;}
           <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           Add Content
         </div>
+        <div class="nav-item" onclick="showPage('editor',this)">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          Video Editor
+        </div>
       </div>
 
       <div class="nav-section">
@@ -575,6 +579,20 @@ select.form-input{cursor:pointer;}
         <div class="nav-item" onclick="showPage('deploy',this)">
           <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
           Deploy
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Categories</div>
+        <div class="nav-item" onclick="showPage('cat-all',this)">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+          All Videos
+          <span class="nav-badge green" id="catAllBadge">—</span>
+        </div>
+        <div class="nav-item" onclick="showPage('cat-nonfilm',this)">
+          <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11L12 2zm0 3.84L14.6 9h-5.2L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5S15.01 22 17.5 22s4.5-2.01 4.5-4.5S19.99 13 17.5 13zm0 7c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5S18.88 20 17.5 20zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/></svg>
+          All Except Films
+          <span class="nav-badge blue" id="catNonFilmBadge">—</span>
         </div>
       </div>
 
@@ -964,11 +982,26 @@ select.form-input{cursor:pointer;}
             <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
             <input type="hidden" id="generatedCode" />
 
+            <!-- Local HTML upload area (hidden until file is loaded) -->
+            <div id="localHtmlBox" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--blue);flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+                <span style="font-size:.8rem;font-weight:700;color:var(--blue);" id="localHtmlName">No file loaded</span>
+                <button onclick="clearLocalHtml()" title="Remove file" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:.75rem;font-weight:700;padding:.2rem .5rem;border-radius:4px;transition:color .15s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">✕ Remove</button>
+              </div>
+              <div style="font-size:.75rem;color:var(--muted);">This local file will be used instead of fetching from GitHub. The new video will be injected into it and downloaded.</div>
+            </div>
+
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
               <button class="topbar-btn primary" id="pushVideoBtn" onclick="pushVideoToGitHub()" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
                 <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                 Add Video to Site
               </button>
+              <button class="topbar-btn" onclick="triggerLocalHtmlUpload()" title="Load a local index.html to edit instead of fetching from GitHub" style="padding:.85rem 1rem;gap:.5rem;">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                Load Local HTML
+              </button>
+              <input type="file" id="localHtmlInput" accept=".html,text/html" style="display:none;" onchange="handleLocalHtmlUpload(this)" />
               <button class="topbar-btn" onclick="clearForm()" style="padding:.85rem 1.25rem;">Clear</button>
             </div>
           </div>
@@ -1137,6 +1170,222 @@ select.form-input{cursor:pointer;}
               </div>
               <div class="toggle" id="showUrlsToggle" onclick="this.classList.toggle('on')"></div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ VIDEO EDITOR PAGE ═══════════════════ -->
+      <div id="page-editor" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Video Editor</h1>
+            <p>Search for a video, edit its fields, then download the updated index.html</p>
+          </div>
+        </div>
+
+        <!-- Step 1: Search & Select -->
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">Step 1 — Find a Video</div>
+              <div class="card-head-sub">Search by title or Korean title</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;gap:.75rem;align-items:center;">
+              <input class="form-input" id="editorSearch" placeholder="Type to search videos…" oninput="editorSearch()" style="flex:1;" />
+              <button class="topbar-btn" onclick="editorClearSelection()" style="white-space:nowrap;">✕ Clear</button>
+            </div>
+            <div id="editorSearchResults" style="margin-top:.85rem;max-height:260px;overflow-y:auto;"></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Edit form (hidden until a video is selected) -->
+        <div id="editorFormWrap" style="display:none;">
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head">
+              <div>
+                <div class="card-head-title">Step 2 — Edit Video</div>
+                <div class="card-head-sub" id="editorFormSub">Editing: —</div>
+              </div>
+              <span class="badge blue" id="editorIndexBadge">index —</span>
+            </div>
+            <div class="card-body">
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Title (English)</label>
+                    <input class="form-input" id="edTitle" placeholder="e.g. The Flower Girl (1972)" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Title (Korean) <span style="color:var(--dim);">optional</span></label>
+                    <input class="form-input" id="edTitleKr" placeholder="e.g. 꽃파는 처녀" style="font-family:'Noto Sans KR',var(--font);" />
+                  </div>
+                </div>
+                <div class="form-row single">
+                  <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" id="edDesc" placeholder="Brief description…" style="min-height:80px;"></textarea>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-input" id="edCat">
+                      <option value="film">Film</option>
+                      <option value="documentary">Documentary</option>
+                      <option value="performance">Performance</option>
+                      <option value="news">News</option>
+                      <option value="animation">Animation</option>
+                      <option value="sport">Sport</option>
+                      <option value="tv">TV</option>
+                      <option value="live">Live</option>
+                      <option value="radio">Radio</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Year</label>
+                    <input class="form-input" id="edYear" placeholder="e.g. 1972" type="number" min="1940" max="2030" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Duration</label>
+                    <input class="form-input" id="edDuration" placeholder="e.g. 1:42:00" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Views</label>
+                    <input class="form-input" id="edViews" placeholder="e.g. 12K" />
+                  </div>
+                </div>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
+
+              <div class="form-section">
+                <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:1rem;">Stream Links</div>
+                <div class="form-row single">
+                  <div class="form-group">
+                    <label class="form-label">Main Stream URL <span style="color:var(--dim);">(MP4 / M3U8 / YouTube ID)</span></label>
+                    <input class="form-input mono" id="edUrl" placeholder="https://…/video.mp4  or  YouTube ID  or  M3U8 URL" />
+                  </div>
+                </div>
+                <div class="form-row single">
+                  <div class="form-group">
+                    <label class="form-label">Thumbnail URL <span style="color:var(--dim);">optional</span></label>
+                    <input class="form-input mono" id="edThumb" placeholder="https://…/thumb.jpg" />
+                  </div>
+                </div>
+                <div style="display:flex;gap:1.5rem;margin-top:.5rem;">
+                  <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;">
+                    <input type="checkbox" id="edIsYouTube" style="accent-color:var(--red);width:15px;height:15px;" onchange="edStreamTypeChanged(this,'yt')"> isYouTube
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;">
+                    <input type="checkbox" id="edIsM3U8" style="accent-color:var(--green);width:15px;height:15px;" onchange="edStreamTypeChanged(this,'m3u8')"> isM3U8 / Live
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;">
+                    <input type="checkbox" id="edIsPinned" style="accent-color:var(--gold);width:15px;height:15px;"> isPinned
+                  </label>
+                </div>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
+
+              <!-- Local HTML loader for editor -->
+              <div id="editorLocalBox" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
+                <div style="display:flex;align-items:center;gap:.6rem;">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--blue);flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+                  <span style="font-size:.8rem;font-weight:700;color:var(--blue);" id="editorLocalName">No file loaded</span>
+                  <button onclick="clearEditorLocal()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:.75rem;font-weight:700;padding:.2rem .5rem;border-radius:4px;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">✕ Remove</button>
+                </div>
+                <div style="font-size:.75rem;color:var(--muted);margin-top:.4rem;">This local file will be edited and downloaded.</div>
+              </div>
+
+              <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+                <button class="topbar-btn primary" id="editorSaveBtn" onclick="editorSaveAndDownload()" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
+                  <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                  Save Changes &amp; Download
+                </button>
+                <button class="topbar-btn" onclick="triggerEditorLocalUpload()" style="padding:.85rem 1rem;gap:.5rem;">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                  Load Local HTML
+                </button>
+                <input type="file" id="editorLocalInput" accept=".html,text/html" style="display:none;" onchange="handleEditorLocalUpload(this)" />
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ ALL VIDEOS PAGE ═══════════════════ -->
+      <div id="page-cat-all" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>All Videos</h1>
+            <p id="catAllSubtitle">Every video in the archive</p>
+          </div>
+          <div class="page-header-actions">
+            <input class="form-input" id="catAllSearch" placeholder="🔍 Search…" style="width:200px;padding:.45rem .8rem;font-size:.82rem;" oninput="renderCatAll()" />
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Year</th>
+                  <th>Views</th>
+                  <th>Duration</th>
+                  <th>Type</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody id="catAllBody">
+                <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ ALL EXCEPT FILMS PAGE ═══════════════════ -->
+      <div id="page-cat-nonfilm" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>All Except Films</h1>
+            <p id="catNonFilmSubtitle">Everything except the film category</p>
+          </div>
+          <div class="page-header-actions">
+            <select class="form-input" id="nonFilmCatFilter" style="width:160px;padding:.45rem .8rem;font-size:.82rem;" onchange="renderCatNonFilm()">
+              <option value="">All Non-Film</option>
+            </select>
+            <input class="form-input" id="catNonFilmSearch" placeholder="🔍 Search…" style="width:200px;padding:.45rem .8rem;font-size:.82rem;" oninput="renderCatNonFilm()" />
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Year</th>
+                  <th>Views</th>
+                  <th>Duration</th>
+                  <th>Type</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody id="catNonFilmBody">
+                <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">Loading…</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1323,6 +1572,10 @@ function lastSyncLabel() {
 function updateVideoCountBadge() {
   const badge = document.getElementById('videoCountBadge');
   if (badge) badge.textContent = LIVE_VIDS.length || '—';
+  const catAll = document.getElementById('catAllBadge');
+  if (catAll) catAll.textContent = LIVE_VIDS.length || '—';
+  const catNF = document.getElementById('catNonFilmBadge');
+  if (catNF) catNF.textContent = LIVE_VIDS.filter(v=>v.c!=='film').length || '—';
 }
 
 // ─── Page switching ───────────────────────
@@ -1335,13 +1588,17 @@ function showPage(id, el){
   document.getElementById('pageTitle').textContent = {
     dashboard:'Dashboard',analytics:'Analytics',videos:'Videos',
     live:'Live Channels',add:'Add Content',github:'GitHub Config',
-    deploy:'Deploy',settings:'Settings'
+    deploy:'Deploy',settings:'Settings',
+    'cat-all':'All Videos','cat-nonfilm':'All Except Films',
+    'editor':'Video Editor'
   }[id]||id;
   closeSidebar();
   if(id==='dashboard') renderDashboard();
   if(id==='analytics') renderAnalytics();
   if(id==='videos') renderVideoTable();
   if(id==='live') renderLiveTable();
+  if(id==='cat-all') renderCatAll();
+  if(id==='cat-nonfilm') renderCatNonFilm();
 }
 
 // ─── Sidebar mobile ───────────────────────
@@ -1563,6 +1820,327 @@ function filterVideoTable(){
   `).join('');
 }
 
+// ─── Video Editor ─────────────────────────
+let editorSelectedIndex = -1;
+let editorLocalHtml = null;
+
+function editorSearch(){
+  const q = document.getElementById('editorSearch').value.toLowerCase().trim();
+  const resultsEl = document.getElementById('editorSearchResults');
+  if(!LIVE_VIDS.length){
+    resultsEl.innerHTML = '<div style="color:var(--muted);font-size:.83rem;">No videos loaded. Go to Dashboard and hit Refresh first.</div>';
+    return;
+  }
+  if(!q){
+    resultsEl.innerHTML = '<div style="color:var(--muted);font-size:.83rem;">Start typing to search…</div>';
+    return;
+  }
+  const matches = LIVE_VIDS.map((v,i)=>({v,i})).filter(({v})=>
+    v.t.toLowerCase().includes(q) || (v.tk||'').toLowerCase().includes(q) || (v.c||'').toLowerCase().includes(q)
+  ).slice(0,30);
+
+  if(!matches.length){
+    resultsEl.innerHTML = '<div style="color:var(--muted);font-size:.83rem;">No videos match that search.</div>';
+    return;
+  }
+
+  const catColors={film:'var(--red)',documentary:'var(--blue)',performance:'var(--gold)',news:'var(--green)',animation:'#a855f7',sport:'var(--orange)',live:'var(--red)',radio:'#06b6d4',tv:'#8b5cf6',other:'var(--muted)'};
+  resultsEl.innerHTML = matches.map(({v,i})=>`
+    <div onclick="editorSelectVideo(${i})" style="
+      display:flex;align-items:center;gap:.85rem;
+      padding:.65rem .9rem;border-radius:8px;cursor:pointer;
+      border:1px solid var(--border);margin-bottom:.4rem;
+      background:var(--panel2);transition:border-color .15s;
+      ${editorSelectedIndex===i?'border-color:var(--red);background:rgba(232,38,58,.06);':''}
+    " onmouseover="this.style.borderColor='var(--dim)'" onmouseout="this.style.borderColor='${editorSelectedIndex===i?'var(--red)':'var(--border)'}'">
+      <div style="width:42px;height:28px;border-radius:4px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:var(--muted);flex-shrink:0;">${(v.c||'?').slice(0,3).toUpperCase()}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.t}</div>
+        <div style="font-size:.72rem;color:var(--muted);">${v.tk||''} ${v.tk&&v.y?'·':''} ${v.y||''} ${v.y&&v.c?'·':''} ${v.c||''}</div>
+      </div>
+      <span class="badge" style="background:${catColors[v.c]||'var(--muted)'}18;color:${catColors[v.c]||'var(--muted)'};border-color:${catColors[v.c]||'var(--muted)'}30;flex-shrink:0;">${v.c||'?'}</span>
+      <span style="font-size:.72rem;color:var(--dim);flex-shrink:0;">#${i+1}</span>
+    </div>
+  `).join('');
+}
+
+function editorSelectVideo(index){
+  editorSelectedIndex = index;
+  const v = LIVE_VIDS[index];
+  if(!v) return;
+
+  // Fill form
+  document.getElementById('edTitle').value    = v.t   || '';
+  document.getElementById('edTitleKr').value  = v.tk  || '';
+  document.getElementById('edDesc').value     = v.d   || '';
+  document.getElementById('edYear').value     = v.y   || '';
+  document.getElementById('edDuration').value = v.duration || '';
+  document.getElementById('edViews').value    = v.views    || '';
+  document.getElementById('edUrl').value      = v.u   || '';
+  document.getElementById('edThumb').value    = v.thumb|| '';
+  document.getElementById('edIsYouTube').checked = !!v.isYouTube;
+  document.getElementById('edIsM3U8').checked    = !!v.isM3U8;
+  document.getElementById('edIsPinned').checked  = !!v.isPinned;
+
+  // Set category
+  const catSel = document.getElementById('edCat');
+  catSel.value = v.c || 'film';
+
+  // Update header
+  document.getElementById('editorFormSub').textContent = 'Editing: ' + v.t;
+  document.getElementById('editorIndexBadge').textContent = 'index #' + (index+1);
+
+  // Show form
+  document.getElementById('editorFormWrap').style.display = 'block';
+  document.getElementById('editorFormWrap').scrollIntoView({behavior:'smooth',block:'start'});
+
+  toast(`Selected: ${v.t}`, 'var(--blue)');
+  // Re-render search results to highlight selection
+  editorSearch();
+}
+
+function editorClearSelection(){
+  editorSelectedIndex = -1;
+  document.getElementById('editorSearch').value = '';
+  document.getElementById('editorSearchResults').innerHTML = '';
+  document.getElementById('editorFormWrap').style.display = 'none';
+}
+
+function edStreamTypeChanged(cb, type){
+  // Uncheck the other stream type if this one is checked
+  if(cb.checked){
+    if(type==='yt')   document.getElementById('edIsM3U8').checked   = false;
+    if(type==='m3u8') document.getElementById('edIsYouTube').checked = false;
+  }
+}
+
+// Local HTML for editor
+function triggerEditorLocalUpload(){
+  document.getElementById('editorLocalInput').click();
+}
+function handleEditorLocalUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    editorLocalHtml = e.target.result;
+    document.getElementById('editorLocalName').textContent = '📄 ' + file.name;
+    document.getElementById('editorLocalBox').style.display = 'block';
+    toast('Local HTML loaded for editor.','var(--blue)');
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+function clearEditorLocal(){
+  editorLocalHtml = null;
+  document.getElementById('editorLocalName').textContent = 'No file loaded';
+  document.getElementById('editorLocalBox').style.display = 'none';
+  toast('Local file removed — will fetch from GitHub.','var(--muted)');
+}
+
+async function editorSaveAndDownload(){
+  if(editorSelectedIndex < 0){ toast('Select a video first.','var(--gold)'); return; }
+
+  const btn = document.getElementById('editorSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Working…';
+
+  try{
+    // Get source HTML
+    let sourceHtml = null;
+    if(editorLocalHtml){
+      sourceHtml = editorLocalHtml;
+      toast('Using local HTML…','var(--blue)');
+    } else {
+      toast('Fetching index.html from GitHub…','var(--blue)');
+      const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
+      const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
+      const branch = localStorage.getItem('bf_gh_branch') || 'main';
+      const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+      const urls = [
+        `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
+        `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
+      ];
+      for(const url of urls){
+        try{ const r=await fetch(url); if(r.ok){sourceHtml=await r.text();break;} }catch(e){}
+      }
+      if(!sourceHtml) throw new Error('Could not fetch index.html. Try using "Load Local HTML".');
+    }
+
+    // Parse the vids array from source
+    const parsed = parseVidsFromHTML(sourceHtml);
+    if(!parsed) throw new Error('Could not find vids[] array in the HTML file.');
+
+    // Build updated video object from form
+    const esc = s => s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const t    = document.getElementById('edTitle').value.trim();
+    const tk   = document.getElementById('edTitleKr').value.trim();
+    const desc = document.getElementById('edDesc').value.trim();
+    const cat  = document.getElementById('edCat').value;
+    const year = document.getElementById('edYear').value.trim();
+    const dur  = document.getElementById('edDuration').value.trim();
+    const views= document.getElementById('edViews').value.trim();
+    const url  = document.getElementById('edUrl').value.trim();
+    const thumb= document.getElementById('edThumb').value.trim();
+    const isYT = document.getElementById('edIsYouTube').checked;
+    const isM3 = document.getElementById('edIsM3U8').checked;
+    const isPin= document.getElementById('edIsPinned').checked;
+
+    if(!t){ toast('Title cannot be empty.','var(--gold)'); btn.disabled=false; btn.textContent='Save Changes & Download'; return; }
+
+    // Build updated entry string
+    let entry = `{t:'${esc(t)}'`;
+    if(tk)    entry += `,tk:'${esc(tk)}'`;
+    if(desc)  entry += `,d:'${esc(desc.slice(0,200))}'`;
+    if(url)   entry += `,u:'${esc(url)}'`;
+    if(year)  entry += `,y:'${year}'`;
+    if(cat)   entry += `,c:'${cat}'`;
+    if(dur)   entry += `,duration:'${esc(dur)}'`;
+    if(views) entry += `,views:'${esc(views)}'`;
+    if(thumb) entry += `,thumb:'${esc(thumb)}'`;
+    if(isYT)  entry += `,isYouTube:true`;
+    if(isM3)  entry += `,isM3U8:true`;
+    if(isPin) entry += `,isPinned:true`;
+    entry += '}';
+
+    // Replace the old entry in the source HTML
+    // Strategy: rebuild the full vids array with the updated entry at the same index
+    parsed[editorSelectedIndex] = entry; // temporarily use string marker
+
+    // Find and replace the entire vids array block in the HTML
+    let marker = 'const vids=[';
+    let start = sourceHtml.indexOf(marker);
+    if(start === -1){ marker = 'const vids = ['; start = sourceHtml.indexOf(marker); }
+    if(start === -1) throw new Error('Could not locate vids array in the file.');
+
+    // Find the matching closing bracket of the array
+    let depth = 0, end = start + marker.length - 1;
+    for(let i = start + marker.length - 1; i < sourceHtml.length; i++){
+      if(sourceHtml[i]==='[') depth++;
+      if(sourceHtml[i]===']'){ depth--; if(depth===0){end=i;break;} }
+    }
+
+    // Re-serialize: use the parsed array but replace the target index entry with the new entry string
+    // We rebuild by using the original array items but replacing index editorSelectedIndex
+    const originalEntries = parsed.map((item,idx)=>{
+      if(idx === editorSelectedIndex) return '\n  ' + entry;
+      // Re-serialize the object back to JS object literal
+      const esc2 = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      let e2 = `{t:'${esc2(item.t)}'`;
+      if(item.tk)         e2 += `,tk:'${esc2(item.tk)}'`;
+      if(item.d)          e2 += `,d:'${esc2(item.d)}'`;
+      if(item.u)          e2 += `,u:'${esc2(item.u)}'`;
+      if(item.y)          e2 += `,y:'${esc2(item.y)}'`;
+      if(item.c)          e2 += `,c:'${esc2(item.c)}'`;
+      if(item.duration)   e2 += `,duration:'${esc2(item.duration)}'`;
+      if(item.views)      e2 += `,views:'${esc2(item.views)}'`;
+      if(item.thumb)      e2 += `,thumb:'${esc2(item.thumb)}'`;
+      if(item.rating)     e2 += `,rating:${item.rating}`;
+      if(item.isYouTube)  e2 += `,isYouTube:true`;
+      if(item.isM3U8)     e2 += `,isM3U8:true`;
+      if(item.isPinned)   e2 += `,isPinned:true`;
+      e2 += '}';
+      return '\n  ' + e2;
+    });
+
+    const newArrayContent = marker + originalEntries.join(',') + '\n]';
+    const newHtml = sourceHtml.slice(0, start) + newArrayContent + sourceHtml.slice(end + 1);
+
+    // Download
+    const blob = new Blob([newHtml], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+
+    // Update LIVE_VIDS in memory too so the UI reflects changes
+    LIVE_VIDS[editorSelectedIndex] = {
+      t, tk, d:desc, u:url, y:year, c:cat,
+      duration:dur, views, thumb,
+      ...(isYT  ? {isYouTube:true}  : {}),
+      ...(isM3  ? {isM3U8:true}     : {}),
+      ...(isPin ? {isPinned:true}   : {}),
+    };
+
+    toast(`✓ "${t}" saved! Upload index.html to GitHub to go live.`);
+    document.getElementById('editorFormSub').textContent = 'Editing: ' + t;
+
+  } catch(e){
+    toast('Error: '+e.message,'var(--red)');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Changes & Download';
+  }
+}
+
+// ─── Shared table row builder ─────────────
+function buildVideoRows(list){
+  const catColors={film:'var(--red)',documentary:'var(--blue)',performance:'var(--gold)',news:'var(--green)',animation:'#a855f7',sport:'var(--orange)',live:'var(--red)',radio:'#06b6d4',tv:'#8b5cf6',other:'var(--muted)'};
+  if(!list.length) return '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">No videos found.</td></tr>';
+  return list.map((v,i)=>`
+    <tr>
+      <td class="td-mono">${i+1}</td>
+      <td>
+        <div class="td-title" title="${v.t}">${v.t}</div>
+        <div class="td-muted">${v.tk||'—'}</div>
+      </td>
+      <td><span class="badge" style="background:${catColors[v.c]||'var(--muted)'}18;color:${catColors[v.c]||'var(--muted)'};border-color:${catColors[v.c]||'var(--muted)'}30;">${v.c}</span></td>
+      <td class="td-mono">${v.y||'—'}</td>
+      <td style="font-weight:700;">${fmtViews(v.views)}</td>
+      <td class="td-mono">${v.duration||'—'}</td>
+      <td>
+        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':'<span class="badge dim">MP4</span>'}
+        ${v.isPinned?'<span class="badge red" style="margin-left:.25rem;">Live</span>':''}
+      </td>
+      <td>${v.rating?`<span style="color:var(--gold);font-weight:700;">★ ${v.rating}</span>`:'<span style="color:var(--dim);">—</span>'}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── All Videos ───────────────────────────
+function renderCatAll(){
+  const q = (document.getElementById('catAllSearch')?.value||'').toLowerCase();
+  const list = LIVE_VIDS.filter(v=>!q || v.t.toLowerCase().includes(q) || (v.tk||'').toLowerCase().includes(q) || (v.c||'').toLowerCase().includes(q));
+  document.getElementById('catAllSubtitle').textContent = `${list.length} video${list.length!==1?'s':''} total${q?' matching "'+q+'"':''}`;
+  document.getElementById('catAllBody').innerHTML = buildVideoRows(list);
+  // update sidebar badge
+  const b = document.getElementById('catAllBadge');
+  if(b) b.textContent = LIVE_VIDS.length || '—';
+}
+
+// ─── All Except Films ─────────────────────
+function renderCatNonFilm(){
+  // populate sub-category filter (once)
+  const sel = document.getElementById('nonFilmCatFilter');
+  if(sel && sel.options.length <= 1){
+    const cats = [...new Set(LIVE_VIDS.filter(v=>v.c!=='film').map(v=>v.c))].sort();
+    cats.forEach(c=>{
+      const o = document.createElement('option');
+      o.value=c; o.textContent=c.charAt(0).toUpperCase()+c.slice(1);
+      sel.appendChild(o);
+    });
+  }
+  const subCat = sel?.value || '';
+  const q = (document.getElementById('catNonFilmSearch')?.value||'').toLowerCase();
+  const list = LIVE_VIDS.filter(v=>{
+    if(v.c==='film') return false;
+    if(subCat && v.c!==subCat) return false;
+    if(q && !v.t.toLowerCase().includes(q) && !(v.tk||'').toLowerCase().includes(q) && !(v.c||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const nonFilmTotal = LIVE_VIDS.filter(v=>v.c!=='film').length;
+  document.getElementById('catNonFilmSubtitle').textContent = `${list.length} video${list.length!==1?'s':''}${subCat?' in '+subCat:''}${q?' matching "'+q+'"':''} (${nonFilmTotal} total non-film)`;
+  document.getElementById('catNonFilmBody').innerHTML = buildVideoRows(list);
+  // update sidebar badge
+  const b = document.getElementById('catNonFilmBadge');
+  if(b) b.textContent = nonFilmTotal || '—';
+}
+
 // ─── Live Table ───────────────────────────
 function renderLiveTable(){
   const live = LIVE_VIDS.filter(v=>v.isM3U8||v.isPinned);
@@ -1632,6 +2210,35 @@ function buildVideoObj(){
   return entry;
 }
 
+// ─── Local HTML upload helpers ────────────
+let localHtmlContent = null;
+
+function triggerLocalHtmlUpload(){
+  document.getElementById('localHtmlInput').click();
+}
+
+function handleLocalHtmlUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    localHtmlContent = e.target.result;
+    document.getElementById('localHtmlName').textContent = '📄 ' + file.name;
+    document.getElementById('localHtmlBox').style.display = 'block';
+    toast('Local HTML loaded — "Add Video to Site" will now use this file.','var(--blue)');
+  };
+  reader.readAsText(file);
+  // Reset input so same file can be re-selected if needed
+  input.value = '';
+}
+
+function clearLocalHtml(){
+  localHtmlContent = null;
+  document.getElementById('localHtmlName').textContent = 'No file loaded';
+  document.getElementById('localHtmlBox').style.display = 'none';
+  toast('Local file removed — will fetch from GitHub instead.','var(--muted)');
+}
+
 // ─── Download updated index.html ──────────
 async function pushVideoToGitHub(){
   const entry = buildVideoObj();
@@ -1639,31 +2246,39 @@ async function pushVideoToGitHub(){
 
   const btn = document.getElementById('pushVideoBtn');
   btn.disabled = true;
-  btn.textContent = 'Fetching…';
-  toast('Fetching index.html from GitHub…','var(--blue)');
+  btn.textContent = 'Working…';
 
   try{
-    // Try fetching the live index.html from GitHub raw CDN
-    const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
-    const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
-    const branch = localStorage.getItem('bf_gh_branch') || 'main';
-    const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
-
-    const urls = [
-      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
-      `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
-      'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
-      'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
-    ];
-
     let currentHtml = null;
-    for(const url of urls){
-      try{
-        const res = await fetch(url);
-        if(res.ok){ currentHtml = await res.text(); break; }
-      } catch(e){}
+
+    if(localHtmlContent){
+      // Use the locally uploaded file
+      currentHtml = localHtmlContent;
+      toast('Using your local HTML file…','var(--blue)');
+    } else {
+      // Fetch from GitHub raw CDN
+      btn.textContent = 'Fetching…';
+      toast('Fetching index.html from GitHub…','var(--blue)');
+      const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
+      const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
+      const branch = localStorage.getItem('bf_gh_branch') || 'main';
+      const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+
+      const urls = [
+        `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
+        `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
+      ];
+
+      for(const url of urls){
+        try{
+          const res = await fetch(url);
+          if(res.ok){ currentHtml = await res.text(); break; }
+        } catch(e){}
+      }
+      if(!currentHtml) throw new Error('Could not fetch index.html from GitHub. Try using "Load Local HTML" instead.');
     }
-    if(!currentHtml) throw new Error('Could not fetch index.html from GitHub. Check your GitHub Config settings.');
 
     // Try both 'const vids=[' and 'const vids = [' formats
     let marker = 'const vids=[';
