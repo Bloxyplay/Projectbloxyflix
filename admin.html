@@ -1946,7 +1946,7 @@ async function editorSaveAndDownload(){
   btn.textContent = 'Working…';
 
   try{
-    // Get source HTML
+    // ── 1. Get source HTML ──────────────────────────────────────
     let sourceHtml = null;
     if(editorLocalHtml){
       sourceHtml = editorLocalHtml;
@@ -1969,12 +1969,8 @@ async function editorSaveAndDownload(){
       if(!sourceHtml) throw new Error('Could not fetch index.html. Try using "Load Local HTML".');
     }
 
-    // Parse the vids array from source
-    const parsed = parseVidsFromHTML(sourceHtml);
-    if(!parsed) throw new Error('Could not find vids[] array in the HTML file.');
-
-    // Build updated video object from form
-    const esc = s => s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    // ── 2. Read form values ─────────────────────────────────────
+    const esc  = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     const t    = document.getElementById('edTitle').value.trim();
     const tk   = document.getElementById('edTitleKr').value.trim();
     const desc = document.getElementById('edDesc').value.trim();
@@ -1990,65 +1986,63 @@ async function editorSaveAndDownload(){
 
     if(!t){ toast('Title cannot be empty.','var(--gold)'); btn.disabled=false; btn.textContent='Save Changes & Download'; return; }
 
-    // Build updated entry string
-    let entry = `{t:'${esc(t)}'`;
-    if(tk)    entry += `,tk:'${esc(tk)}'`;
-    if(desc)  entry += `,d:'${esc(desc.slice(0,200))}'`;
-    if(url)   entry += `,u:'${esc(url)}'`;
-    if(year)  entry += `,y:'${year}'`;
-    if(cat)   entry += `,c:'${cat}'`;
-    if(dur)   entry += `,duration:'${esc(dur)}'`;
-    if(views) entry += `,views:'${esc(views)}'`;
-    if(thumb) entry += `,thumb:'${esc(thumb)}'`;
-    if(isYT)  entry += `,isYouTube:true`;
-    if(isM3)  entry += `,isM3U8:true`;
-    if(isPin) entry += `,isPinned:true`;
-    entry += '}';
+    // ── 3. Build the new entry string ───────────────────────────
+    let newEntry = `{t:'${esc(t)}'`;
+    if(tk)    newEntry += `,tk:'${esc(tk)}'`;
+    if(desc)  newEntry += `,d:'${esc(desc.slice(0,200))}'`;
+    if(url)   newEntry += `,u:'${esc(url)}'`;
+    if(year)  newEntry += `,y:'${year}'`;
+    if(cat)   newEntry += `,c:'${cat}'`;
+    if(dur)   newEntry += `,duration:'${esc(dur)}'`;
+    if(views) newEntry += `,views:'${esc(views)}'`;
+    if(thumb) newEntry += `,thumb:'${esc(thumb)}'`;
+    if(isYT)  newEntry += `,isYouTube:true`;
+    if(isM3)  newEntry += `,isM3U8:true`;
+    if(isPin) newEntry += `,isPinned:true`;
+    newEntry += '}';
 
-    // Replace the old entry in the source HTML
-    // Strategy: rebuild the full vids array with the updated entry at the same index
-    parsed[editorSelectedIndex] = entry; // temporarily use string marker
+    // ── 4. Locate the vids array boundaries in raw HTML ─────────
+    let arrMarker = 'const vids=[';
+    let arrStart  = sourceHtml.indexOf(arrMarker);
+    if(arrStart === -1){ arrMarker = 'const vids = ['; arrStart = sourceHtml.indexOf(arrMarker); }
+    if(arrStart === -1) throw new Error('Could not find vids array in the HTML file.');
 
-    // Find and replace the entire vids array block in the HTML
-    let marker = 'const vids=[';
-    let start = sourceHtml.indexOf(marker);
-    if(start === -1){ marker = 'const vids = ['; start = sourceHtml.indexOf(marker); }
-    if(start === -1) throw new Error('Could not locate vids array in the file.');
-
-    // Find the matching closing bracket of the array
-    let depth = 0, end = start + marker.length - 1;
-    for(let i = start + marker.length - 1; i < sourceHtml.length; i++){
+    // Walk forward to find the matching ] for the array open [
+    const arrayOpenPos = arrStart + arrMarker.length - 1; // position of '['
+    let depth = 0, arrayClosePos = -1;
+    for(let i = arrayOpenPos; i < sourceHtml.length; i++){
       if(sourceHtml[i]==='[') depth++;
-      if(sourceHtml[i]===']'){ depth--; if(depth===0){end=i;break;} }
+      else if(sourceHtml[i]===']'){ depth--; if(depth===0){ arrayClosePos=i; break; } }
     }
+    if(arrayClosePos === -1) throw new Error('Could not find closing ] of vids array.');
 
-    // Re-serialize: use the parsed array but replace the target index entry with the new entry string
-    // We rebuild by using the original array items but replacing index editorSelectedIndex
-    const originalEntries = parsed.map((item,idx)=>{
-      if(idx === editorSelectedIndex) return '\n  ' + entry;
-      // Re-serialize the object back to JS object literal
-      const esc2 = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      let e2 = `{t:'${esc2(item.t)}'`;
-      if(item.tk)         e2 += `,tk:'${esc2(item.tk)}'`;
-      if(item.d)          e2 += `,d:'${esc2(item.d)}'`;
-      if(item.u)          e2 += `,u:'${esc2(item.u)}'`;
-      if(item.y)          e2 += `,y:'${esc2(item.y)}'`;
-      if(item.c)          e2 += `,c:'${esc2(item.c)}'`;
-      if(item.duration)   e2 += `,duration:'${esc2(item.duration)}'`;
-      if(item.views)      e2 += `,views:'${esc2(item.views)}'`;
-      if(item.thumb)      e2 += `,thumb:'${esc2(item.thumb)}'`;
-      if(item.rating)     e2 += `,rating:${item.rating}`;
-      if(item.isYouTube)  e2 += `,isYouTube:true`;
-      if(item.isM3U8)     e2 += `,isM3U8:true`;
-      if(item.isPinned)   e2 += `,isPinned:true`;
-      e2 += '}';
-      return '\n  ' + e2;
-    });
+    const arrayInner = sourceHtml.slice(arrayOpenPos + 1, arrayClosePos); // raw text between [ and ]
 
-    const newArrayContent = marker + originalEntries.join(',') + '\n]';
-    const newHtml = sourceHtml.slice(0, start) + newArrayContent + sourceHtml.slice(end + 1);
+    // ── 5. Find the Nth object in the raw array text ─────────────
+    // Walk char-by-char tracking brace depth to find each top-level {...} entry
+    let entryStart = -1, entryEnd = -1;
+    let objDepth = 0, entryCount = -1, inStr = false, strChar='', escape = false;
+    for(let i = 0; i < arrayInner.length; i++){
+      const ch = arrayInner[i];
+      if(escape){ escape=false; continue; }
+      if(ch==='\\'){ escape=true; continue; }
+      if(inStr){ if(ch===strChar) inStr=false; continue; }
+      if(ch==='"'||ch==="'"){ inStr=true; strChar=ch; continue; }
+      if(ch==='{'){
+        if(objDepth===0){ entryCount++; if(entryCount===editorSelectedIndex) entryStart=i; }
+        objDepth++;
+      } else if(ch==='}'){
+        objDepth--;
+        if(objDepth===0 && entryCount===editorSelectedIndex){ entryEnd=i; break; }
+      }
+    }
+    if(entryStart===-1||entryEnd===-1) throw new Error(`Could not locate entry #${editorSelectedIndex+1} in vids array.`);
 
-    // Download
+    // ── 6. Surgically splice — only the one entry changes ────────
+    const newArrayInner = arrayInner.slice(0, entryStart) + newEntry + arrayInner.slice(entryEnd + 1);
+    const newHtml = sourceHtml.slice(0, arrayOpenPos + 1) + newArrayInner + sourceHtml.slice(arrayClosePos);
+
+    // ── 7. Download ──────────────────────────────────────────────
     const blob = new Blob([newHtml], {type:'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -2058,13 +2052,14 @@ async function editorSaveAndDownload(){
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
 
-    // Update LIVE_VIDS in memory too so the UI reflects changes
+    // Update LIVE_VIDS in memory so the admin UI reflects the edit
     LIVE_VIDS[editorSelectedIndex] = {
+      ...LIVE_VIDS[editorSelectedIndex],
       t, tk, d:desc, u:url, y:year, c:cat,
       duration:dur, views, thumb,
-      ...(isYT  ? {isYouTube:true}  : {}),
-      ...(isM3  ? {isM3U8:true}     : {}),
-      ...(isPin ? {isPinned:true}   : {}),
+      isYouTube: isYT||undefined,
+      isM3U8:    isM3||undefined,
+      isPinned:  isPin||undefined,
     };
 
     toast(`✓ "${t}" saved! Upload index.html to GitHub to go live.`);
