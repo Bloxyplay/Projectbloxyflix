@@ -887,6 +887,44 @@ select.form-input{cursor:pointer;}
           </div>
         </div>
 
+        <!-- ── Archive Browser ── -->
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head" style="cursor:pointer;" onclick="toggleAddBrowser()">
+            <div>
+              <div class="card-head-title">📂 Browse Archive</div>
+              <div class="card-head-sub">Check what's already added before submitting</div>
+            </div>
+            <span id="addBrowserChevron" style="font-size:1.1rem;color:var(--muted);transition:transform .2s;">▼</span>
+          </div>
+          <div id="addBrowserPanel" style="display:none;">
+            <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+              <!-- Filter tabs -->
+              <div style="display:flex;gap:.25rem;">
+                <button id="addBrowserTabAll" onclick="setAddBrowserTab('all')" style="padding:.35rem .85rem;border-radius:6px;border:1px solid var(--red);background:var(--red);color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;">All</button>
+                <button id="addBrowserTabNonFilm" onclick="setAddBrowserTab('nonfilm')" style="padding:.35rem .85rem;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.78rem;font-weight:700;cursor:pointer;">All Except Films</button>
+              </div>
+              <input id="addBrowserSearch" class="form-input" placeholder="🔍 Search…" oninput="renderAddBrowser()" style="flex:1;min-width:160px;padding:.35rem .75rem;font-size:.82rem;" />
+              <span id="addBrowserCount" style="font-size:.75rem;color:var(--muted);white-space:nowrap;"></span>
+            </div>
+            <div style="max-height:300px;overflow-y:auto;" id="addBrowserTableWrap">
+              <table style="width:100%;border-collapse:collapse;font-size:.8rem;">
+                <thead>
+                  <tr>
+                    <th style="padding:.5rem .9rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--panel);">#</th>
+                    <th style="padding:.5rem .9rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--panel);">Title</th>
+                    <th style="padding:.5rem .9rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--panel);">Category</th>
+                    <th style="padding:.5rem .9rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--panel);">Year</th>
+                    <th style="padding:.5rem .9rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--panel);">Type</th>
+                  </tr>
+                </thead>
+                <tbody id="addBrowserBody">
+                  <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem;">No videos loaded yet. Hit Refresh on the Dashboard first.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-head"><div class="card-head-title">Video Details</div></div>
           <div class="card-body">
@@ -2150,6 +2188,66 @@ function renderLiveTable(){
       <td><span class="badge red"><svg viewBox="0 0 24 24" style="width:7px;height:7px;fill:currentColor;display:inline-block;margin-right:2px;"><circle cx="12" cy="12" r="10"/></svg>LIVE</span></td>
     </tr>
   `).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;">No live channels found.</td></tr>';
+}
+
+// ─── Add Content — archive browser ───────
+let addBrowserTab = 'all';
+
+function toggleAddBrowser(){
+  const panel = document.getElementById('addBrowserPanel');
+  const chevron = document.getElementById('addBrowserChevron');
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? 'block' : 'none';
+  chevron.style.transform = open ? 'rotate(180deg)' : '';
+  if(open) renderAddBrowser();
+}
+
+function setAddBrowserTab(tab){
+  addBrowserTab = tab;
+  const allBtn     = document.getElementById('addBrowserTabAll');
+  const nonFilmBtn = document.getElementById('addBrowserTabNonFilm');
+  const activeStyle  = 'padding:.35rem .85rem;border-radius:6px;border:1px solid var(--red);background:var(--red);color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;';
+  const inactiveStyle= 'padding:.35rem .85rem;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.78rem;font-weight:700;cursor:pointer;';
+  allBtn.style.cssText     = tab==='all'     ? activeStyle : inactiveStyle;
+  nonFilmBtn.style.cssText = tab==='nonfilm' ? activeStyle : inactiveStyle;
+  renderAddBrowser();
+}
+
+function renderAddBrowser(){
+  const q = (document.getElementById('addBrowserSearch')?.value||'').toLowerCase();
+  let list = addBrowserTab==='nonfilm' ? LIVE_VIDS.filter(v=>v.c!=='film') : LIVE_VIDS;
+  if(q) list = list.filter(v=>
+    (v.t||'').toLowerCase().includes(q) ||
+    (v.tk||'').toLowerCase().includes(q) ||
+    (v.c||'').toLowerCase().includes(q)
+  );
+
+  document.getElementById('addBrowserCount').textContent = `${list.length} video${list.length!==1?'s':''}`;
+
+  const catColors={film:'var(--red)',documentary:'var(--blue)',performance:'var(--gold)',news:'var(--green)',animation:'#a855f7',sport:'var(--orange)',live:'var(--red)',radio:'#06b6d4',tv:'#8b5cf6',other:'var(--muted)'};
+
+  if(!list.length){
+    document.getElementById('addBrowserBody').innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem;">${LIVE_VIDS.length?'No videos match.':'No videos loaded — go to Dashboard and hit Refresh.'}</td></tr>`;
+    return;
+  }
+
+  document.getElementById('addBrowserBody').innerHTML = list.map((v,i)=>`
+    <tr style="border-bottom:1px solid var(--border2);" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background=''">
+      <td style="padding:.5rem .9rem;color:var(--dim);font-family:var(--mono);font-size:.75rem;">${i+1}</td>
+      <td style="padding:.5rem .9rem;max-width:240px;">
+        <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.t}</div>
+        ${v.tk?`<div style="font-size:.7rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.tk}</div>`:''}
+      </td>
+      <td style="padding:.5rem .9rem;">
+        <span class="badge" style="background:${catColors[v.c]||'var(--muted)'}18;color:${catColors[v.c]||'var(--muted)'};border-color:${catColors[v.c]||'var(--muted)'}30;">${v.c||'—'}</span>
+      </td>
+      <td style="padding:.5rem .9rem;font-family:var(--mono);font-size:.78rem;color:var(--muted);">${v.y||'—'}</td>
+      <td style="padding:.5rem .9rem;">
+        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':'<span class="badge dim">MP4</span>'}
+      </td>
+    </tr>
+  `).join('');
 }
 
 // ─── Add Content — stream tabs ────────────
