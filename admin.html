@@ -2033,7 +2033,11 @@ async function editorSaveAndDownload(){
     }
 
     // ── 2. Read form values ─────────────────────────────────────
-    const esc  = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const esc  = s => String(s)
+      .replace(/\\/g,'\\\\')
+      .replace(/'/g,"\\'")
+      .replace(/\r?\n/g,' ')
+      .replace(/\r/g,' ');
     const t    = document.getElementById('edTitle').value.trim();
     const tk   = document.getElementById('edTitleKr').value.trim();
     const desc = document.getElementById('edDesc').value.trim();
@@ -2321,8 +2325,12 @@ function buildVideoObj(){
     extra = ',isM3U8:true,isPinned:true';
   }
 
-  // Escape single quotes and backslashes safely
-  const esc = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  // Escape single quotes, backslashes, and strip newlines safely
+  const esc = s => String(s)
+    .replace(/\\/g,'\\\\')
+    .replace(/'/g,"\\'")
+    .replace(/\r?\n/g,' ')
+    .replace(/\r/g,' ');
 
   // Always include t, u, y, c, duration, views — required by home screen
   let entry = `{t:'${esc(t)}'`;
