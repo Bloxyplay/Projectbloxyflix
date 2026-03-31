@@ -609,6 +609,10 @@ select.form-input{cursor:pointer;}
 
       <div class="nav-section">
         <div class="nav-label">System</div>
+        <div class="nav-item" onclick="showPage('texteditor',this)">
+          <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
+          Text Editor
+        </div>
         <div class="nav-item" onclick="showPage('settings',this)">
           <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
           Settings
@@ -1134,6 +1138,57 @@ select.form-input{cursor:pointer;}
             </button>
           </div>
         </div>
+
+        <!-- ── Local HTML Adder ── -->
+        <div class="card" style="margin-top:1.25rem;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">📁 Local HTML Adder</div>
+              <div class="card-head-sub">When GitHub fetch is glitching — upload your local file and push directly</div>
+            </div>
+            <span class="badge gold">Offline Mode</span>
+          </div>
+          <div class="card-body">
+
+            <div class="git-status warning" id="localAdderStatus" style="margin-bottom:1.25rem;">
+              <svg viewBox="0 0 24 24" style="color:var(--gold);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+              <div class="git-status-text"><strong>No file loaded.</strong> <span>Upload your local index.html below.</span></div>
+            </div>
+
+            <!-- Step 1: Upload -->
+            <div style="margin-bottom:1.25rem;">
+              <div class="form-label" style="margin-bottom:.5rem;">Step 1 — Upload your local index.html</div>
+              <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                <button class="topbar-btn primary" onclick="document.getElementById('localAdderInput').click()">
+                  <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                  Choose File
+                </button>
+                <span id="localAdderFileName" style="font-size:.82rem;color:var(--muted);">No file chosen</span>
+                <input type="file" id="localAdderInput" accept=".html,text/html" style="display:none;" onchange="localAdderLoad(this)" />
+              </div>
+            </div>
+
+            <!-- Step 2: Commit message -->
+            <div class="form-group" style="margin-bottom:1.25rem;">
+              <label class="form-label">Step 2 — Commit Message</label>
+              <input class="form-input" id="localAdderMsg" placeholder="Update site" value="Admin: upload updated index.html" />
+            </div>
+
+            <!-- Step 3: Push -->
+            <div style="margin-bottom:.5rem;">
+              <div class="form-label" style="margin-bottom:.5rem;">Step 3 — Push to GitHub</div>
+              <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+                <button class="topbar-btn primary" id="localAdderPushBtn" onclick="localAdderPush()" style="flex:1;justify-content:center;padding:.8rem;">
+                  <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                  Push Local File to GitHub
+                </button>
+                <button class="topbar-btn" onclick="localAdderClear()" style="padding:.8rem 1rem;">Clear</button>
+              </div>
+            </div>
+            <div class="form-hint">Uses your saved GitHub config (owner, repo, branch, token). Make sure those are saved above first.</div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ═══════════════════ DEPLOY PAGE ═══════════════════ -->
@@ -1222,6 +1277,131 @@ select.form-input{cursor:pointer;}
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- ═══════════════════ TEXT EDITOR PAGE ═══════════════════ -->
+      <div id="page-texteditor" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Text Editor</h1>
+            <p>Edit Terms &amp; Conditions, About, Privacy Policy and other site text</p>
+          </div>
+        </div>
+
+        <!-- Local HTML loader -->
+        <div class="git-status warning" id="teStatusBanner">
+          <svg viewBox="0 0 24 24" style="color:var(--gold);"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <div class="git-status-text"><strong>Load your index.html first</strong> <span>— fetch from GitHub or upload a local file below.</span></div>
+        </div>
+
+        <!-- Source buttons -->
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+          <button class="topbar-btn primary" onclick="teFetchFromGitHub()" id="teFetchBtn">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            Fetch from GitHub
+          </button>
+          <button class="topbar-btn" onclick="document.getElementById('teLocalInput').click()">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+            Load Local HTML
+          </button>
+          <input type="file" id="teLocalInput" accept=".html,text/html" style="display:none;" onchange="teLoadLocal(this)" />
+        </div>
+
+        <!-- Section picker -->
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head">
+            <div class="card-head-title">Select Section to Edit</div>
+            <div class="card-head-sub">Choose which text block to edit from your site</div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;flex-wrap:wrap;gap:.5rem;" id="teSectionPills">
+              <button class="cat-pill active-pill" onclick="tePickSection('terms',this)">Terms &amp; Conditions</button>
+              <button class="cat-pill" onclick="tePickSection('privacy',this)">Privacy Policy</button>
+              <button class="cat-pill" onclick="tePickSection('about',this)">About</button>
+              <button class="cat-pill" onclick="tePickSection('contact',this)">Contact</button>
+              <button class="cat-pill" onclick="tePickSection('custom',this)">Custom ID</button>
+            </div>
+            <div id="teCustomIdWrap" style="display:none;margin-top:.85rem;">
+              <div class="form-group">
+                <label class="form-label">HTML Element ID</label>
+                <input class="form-input mono" id="teCustomId" placeholder="e.g. about-text, footer-note, disclaimer" />
+                <div class="form-hint">The id="..." of the element in your index.html you want to edit.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor -->
+        <div class="card" id="teEditorCard" style="margin-bottom:1.25rem;display:none;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title" id="teEditorTitle">Editing: —</div>
+              <div class="card-head-sub" id="teEditorSub">Element not found yet</div>
+            </div>
+            <div style="display:flex;gap:.5rem;">
+              <button class="topbar-btn" onclick="teToggleMode()" id="teModeBtn" style="font-size:.75rem;padding:.4rem .75rem;">Switch to HTML</button>
+              <button class="topbar-btn" onclick="teFindElement()" style="font-size:.75rem;padding:.4rem .75rem;">
+                <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor;"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                Find
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Plain text mode -->
+            <div id="teTextMode">
+              <textarea class="form-input" id="teTextArea" style="min-height:260px;font-size:.88rem;line-height:1.7;" placeholder="The text content of the selected element will appear here…"></textarea>
+            </div>
+            <!-- HTML source mode -->
+            <div id="teHtmlMode" style="display:none;">
+              <textarea class="form-input mono" id="teHtmlArea" style="min-height:260px;font-size:.78rem;line-height:1.6;" placeholder="Raw inner HTML of the selected element…"></textarea>
+            </div>
+            <div style="margin-top:.75rem;padding:.65rem .9rem;background:var(--panel2);border:1px solid var(--border);border-radius:6px;font-size:.75rem;color:var(--muted);" id="tePreviewLabel">
+              💡 Tip: Use <strong>Plain Text</strong> mode for simple edits. Switch to <strong>HTML</strong> mode to add links, bold, or line breaks.
+            </div>
+          </div>
+        </div>
+
+        <!-- Save / Download -->
+        <div id="teSaveWrap" style="display:none;">
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+            <button class="topbar-btn primary" onclick="teSaveAndDownload()" id="teSaveBtn" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              Save &amp; Download index.html
+            </button>
+            <button class="topbar-btn" onclick="teAddNewSection()" style="padding:.85rem 1rem;">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              Add New Section
+            </button>
+          </div>
+        </div>
+
+        <!-- Add New Section panel (hidden) -->
+        <div id="teNewSectionPanel" style="display:none;margin-top:1.25rem;">
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">Add New Text Section</div></div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Section ID</label>
+                  <input class="form-input mono" id="teNewId" placeholder="e.g. terms-text" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Insert before element ID <span style="color:var(--dim);">optional</span></label>
+                  <input class="form-input mono" id="teNewBefore" placeholder="e.g. footer" />
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:1rem;">
+                <label class="form-label">Content</label>
+                <textarea class="form-input" id="teNewContent" style="min-height:120px;" placeholder="Enter the text or HTML for this new section…"></textarea>
+              </div>
+              <div style="display:flex;gap:.75rem;">
+                <button class="topbar-btn primary" onclick="teInsertNewSection()">Insert &amp; Download</button>
+                <button class="topbar-btn" onclick="document.getElementById('teNewSectionPanel').style.display='none'">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ═══════════════════ VIDEO EDITOR PAGE ═══════════════════ -->
@@ -1649,7 +1829,7 @@ function showPage(id, el){
     live:'Live Channels',add:'Add Content',github:'GitHub Config',
     deploy:'Deploy',settings:'Settings',
     'cat-all':'All Videos','cat-nonfilm':'All Except Films',
-    'editor':'Video Editor'
+    'editor':'Video Editor','texteditor':'Text Editor'
   }[id]||id;
   closeSidebar();
   if(id==='dashboard') renderDashboard();
@@ -1877,6 +2057,368 @@ function filterVideoTable(){
       <td>${v.rating?`<span style="color:var(--gold);font-weight:700;">★ ${v.rating}</span>`:'<span style="color:var(--dim);">—</span>'}</td>
     </tr>
   `).join('');
+}
+
+// ─── Local HTML Adder ─────────────────────
+let localAdderContent = null;
+
+function localAdderLoad(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    localAdderContent = e.target.result;
+    document.getElementById('localAdderFileName').textContent = '📄 ' + file.name + ' (' + (localAdderContent.length/1024).toFixed(1) + ' KB)';
+    const status = document.getElementById('localAdderStatus');
+    status.className = 'git-status';
+    status.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--green);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      <div class="git-status-text"><strong>File ready:</strong> <span>${file.name} — ${(localAdderContent.length/1024).toFixed(1)} KB loaded. Fill commit message and push.</span></div>`;
+    toast('File loaded — ready to push!', 'var(--green)');
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function localAdderClear(){
+  localAdderContent = null;
+  document.getElementById('localAdderFileName').textContent = 'No file chosen';
+  document.getElementById('localAdderInput').value = '';
+  const status = document.getElementById('localAdderStatus');
+  status.className = 'git-status warning';
+  status.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--gold);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+    <div class="git-status-text"><strong>No file loaded.</strong> <span>Upload your local index.html below.</span></div>`;
+  toast('Cleared', 'var(--muted)');
+}
+
+async function localAdderPush(){
+  if(!localAdderContent){ toast('Choose a file first', 'var(--gold)'); return; }
+
+  const owner  = localStorage.getItem('bf_gh_owner')  || document.getElementById('ghOwner').value.trim();
+  const repo   = localStorage.getItem('bf_gh_repo')   || document.getElementById('ghRepo').value.trim();
+  const branch = localStorage.getItem('bf_gh_branch') || document.getElementById('ghBranch').value.trim() || 'main';
+  const file   = localStorage.getItem('bf_gh_file')   || document.getElementById('ghFile').value.trim()   || 'index.html';
+  const token  = localStorage.getItem('bf_gh_token')  || document.getElementById('ghToken').value.trim();
+  const msg    = document.getElementById('localAdderMsg').value.trim() || 'Admin: upload updated index.html';
+
+  if(!owner||!repo){ toast('Set Owner and Repo in GitHub Config above first', 'var(--gold)'); return; }
+  if(!token){ toast('Save your GitHub Token in GitHub Config above first', 'var(--gold)'); return; }
+
+  const btn = document.getElementById('localAdderPushBtn');
+  btn.disabled = true; btn.textContent = 'Pushing…';
+
+  const statusEl = document.getElementById('localAdderStatus');
+  statusEl.className = 'git-status';
+  statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--blue);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+    <div class="git-status-text"><strong>Fetching current file SHA…</strong></div>`;
+
+  const apiHeaders = {
+    'Authorization': 'token ' + token,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  };
+
+  try{
+    // Step 1: Get current file SHA
+    const shaRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${file}?ref=${branch}`,
+      { headers: apiHeaders }
+    );
+    if(!shaRes.ok){
+      const e = await shaRes.json();
+      throw new Error('Could not get file SHA: ' + (e.message || shaRes.status));
+    }
+    const shaData = await shaRes.json();
+    const sha = shaData.sha;
+
+    statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--blue);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+      <div class="git-status-text"><strong>Uploading file…</strong></div>`;
+
+    // Step 2: Push the file
+    const encoded = btoa(unescape(encodeURIComponent(localAdderContent)));
+    const putRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
+      {
+        method: 'PUT',
+        headers: apiHeaders,
+        body: JSON.stringify({ message: msg, content: encoded, sha, branch })
+      }
+    );
+    if(!putRes.ok){
+      const e = await putRes.json();
+      throw new Error('Push failed: ' + (e.message || putRes.status));
+    }
+
+    statusEl.className = 'git-status';
+    statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--green);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      <div class="git-status-text"><strong>✓ Pushed successfully!</strong> <span>Your local file is now live on GitHub. Netlify will redeploy shortly.</span></div>`;
+    toast('✓ Local file pushed to GitHub!');
+
+  } catch(e){
+    statusEl.className = 'git-status error';
+    statusEl.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--red);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+      <div class="git-status-text"><strong>Push failed.</strong> <span>${e.message}</span></div>`;
+    toast('Error: ' + e.message, 'var(--red)');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Push Local File to GitHub';
+  }
+}
+
+// ─── Text Editor ─────────────────────────
+let teSourceHtml = null;
+let teSection    = 'terms';
+let teMode       = 'text'; // 'text' | 'html'
+
+// Known section IDs to search for in index.html
+const TE_SECTIONS = {
+  terms:   ['terms','terms-text','termsText','terms-content','termsContent','terms-and-conditions','termsAndConditions','terms_text'],
+  privacy: ['privacy','privacy-text','privacyText','privacy-policy','privacyPolicy','privacy-content','privacy_text'],
+  about:   ['about','about-text','aboutText','about-content','aboutContent','about-us','aboutUs','about_text'],
+  contact: ['contact','contact-text','contactText','contact-info','contactInfo','contact-content','contact_text'],
+};
+
+function tePickSection(sec, btn){
+  teSection = sec;
+  document.querySelectorAll('#teSectionPills .cat-pill').forEach(b=>b.classList.remove('active-pill'));
+  btn.classList.add('active-pill');
+  document.getElementById('teCustomIdWrap').style.display = sec==='custom' ? 'block' : 'none';
+  if(teSourceHtml) teFindElement();
+}
+
+function teToggleMode(){
+  const textMode = document.getElementById('teTextMode');
+  const htmlMode = document.getElementById('teHtmlMode');
+  const btn      = document.getElementById('teModeBtn');
+  if(teMode==='text'){
+    // switching to HTML — copy text→html
+    const txt = document.getElementById('teTextArea').value;
+    document.getElementById('teHtmlArea').value = txt.replace(/\n/g,'<br>');
+    teMode='html';
+    textMode.style.display='none';
+    htmlMode.style.display='block';
+    btn.textContent='Switch to Plain Text';
+  } else {
+    // switching to text — strip tags
+    const html = document.getElementById('teHtmlArea').value;
+    document.getElementById('teTextArea').value = html.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'');
+    teMode='text';
+    textMode.style.display='block';
+    htmlMode.style.display='none';
+    btn.textContent='Switch to HTML';
+  }
+}
+
+function teSetStatus(msg, type='ok'){
+  const banner = document.getElementById('teStatusBanner');
+  const colors = {ok:'var(--green)',warning:'var(--gold)',error:'var(--red)',blue:'var(--blue)'};
+  const icons  = {
+    ok:`<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>`,
+    warning:`<path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>`,
+    error:`<path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>`,
+    blue:`<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>`,
+  };
+  banner.className = 'git-status' + (type==='error'?' error':type==='warning'?' warning':'');
+  banner.innerHTML = `<svg viewBox="0 0 24 24" style="color:${colors[type]||colors.ok};width:16px;height:16px;fill:currentColor;flex-shrink:0;">${icons[type]||icons.ok}</svg>
+    <div class="git-status-text">${msg}</div>`;
+}
+
+async function teFetchFromGitHub(){
+  const btn = document.getElementById('teFetchBtn');
+  btn.disabled=true; btn.textContent='Fetching…';
+  teSetStatus('<strong>Fetching index.html from GitHub…</strong>','blue');
+  const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
+  const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
+  const branch = localStorage.getItem('bf_gh_branch') || 'main';
+  const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+  const urls = [
+    `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
+    `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
+    'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
+    'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
+  ];
+  let html=null;
+  for(const url of urls){
+    try{ const r=await fetch(url); if(r.ok){html=await r.text();break;} }catch(e){}
+  }
+  btn.disabled=false; btn.textContent='Fetch from GitHub';
+  if(!html){ teSetStatus('<strong>Could not fetch.</strong> <span>Try loading a local file instead.</span>','error'); return; }
+  teSourceHtml = html;
+  teSetStatus(`<strong>Loaded from GitHub.</strong> <span>${owner}/${repo} — ${html.length.toLocaleString()} chars</span>`);
+  teFindElement();
+}
+
+function teLoadLocal(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    teSourceHtml = e.target.result;
+    teSetStatus(`<strong>Loaded local file:</strong> <span>${file.name} — ${teSourceHtml.length.toLocaleString()} chars</span>`);
+    teFindElement();
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+function teFindElement(){
+  if(!teSourceHtml){ toast('Load a file first','var(--gold)'); return; }
+
+  // Determine which IDs to try
+  let idsToTry = [];
+  if(teSection==='custom'){
+    const customId = document.getElementById('teCustomId').value.trim();
+    if(!customId){ toast('Enter a custom element ID','var(--gold)'); return; }
+    idsToTry = [customId];
+  } else {
+    idsToTry = TE_SECTIONS[teSection] || [];
+  }
+
+  // Try to find element in raw HTML by id="..." or id='...'
+  let foundId = null, innerContent = null, isHtmlContent = false;
+  for(const id of idsToTry){
+    // Match both id="x" and id='x', then grab innerHTML
+    const patterns = [
+      new RegExp(`id="${id}"[^>]*>([\\s\\S]*?)<\\/`, 'i'),
+      new RegExp(`id='${id}'[^>]*>([\\s\\S]*?)<\\/`, 'i'),
+    ];
+    for(const pat of patterns){
+      const m = teSourceHtml.match(pat);
+      if(m){
+        foundId = id;
+        innerContent = m[1];
+        isHtmlContent = /<[a-z]/i.test(innerContent);
+        break;
+      }
+    }
+    if(foundId) break;
+  }
+
+  document.getElementById('teEditorCard').style.display = 'block';
+  document.getElementById('teSaveWrap').style.display   = 'block';
+
+  if(!foundId){
+    const sectionName = teSection==='custom' ? idsToTry[0] : teSection;
+    document.getElementById('teEditorTitle').textContent = 'Section not found';
+    document.getElementById('teEditorSub').textContent   = `No element with id matching "${sectionName}" found. You can add a new section below.`;
+    document.getElementById('teTextArea').value = '';
+    document.getElementById('teHtmlArea').value = '';
+    document.getElementById('teNewSectionPanel').style.display = 'block';
+    return;
+  }
+
+  // Strip HTML tags for plain text mode
+  const plainText = innerContent.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').trim();
+  document.getElementById('teEditorTitle').textContent = `Editing: ${foundId}`;
+  document.getElementById('teEditorSub').textContent   = isHtmlContent
+    ? 'Contains HTML — use HTML mode to preserve formatting'
+    : 'Plain text content';
+  document.getElementById('teTextArea').value = plainText;
+  document.getElementById('teHtmlArea').value = innerContent.trim();
+
+  // Auto-switch mode based on content
+  if(isHtmlContent && teMode==='text'){
+    teMode='html';
+    document.getElementById('teTextMode').style.display='none';
+    document.getElementById('teHtmlMode').style.display='block';
+    document.getElementById('teModeBtn').textContent='Switch to Plain Text';
+  }
+
+  toast(`Found element: #${foundId}`,'var(--green)');
+}
+
+function teSaveAndDownload(){
+  if(!teSourceHtml){ toast('No file loaded','var(--gold)'); return; }
+
+  // Determine which IDs to try
+  let idsToTry = [];
+  if(teSection==='custom'){
+    const customId = document.getElementById('teCustomId').value.trim();
+    if(!customId){ toast('Enter a custom element ID','var(--gold)'); return; }
+    idsToTry = [customId];
+  } else {
+    idsToTry = TE_SECTIONS[teSection] || [];
+  }
+
+  // Get new content
+  const newContent = teMode==='html'
+    ? document.getElementById('teHtmlArea').value
+    : document.getElementById('teTextArea').value.replace(/\n/g,'<br>');
+
+  let newHtml = teSourceHtml;
+  let replaced = false;
+
+  for(const id of idsToTry){
+    // Replace innerHTML of matching element
+    const patterns = [
+      new RegExp(`(id="${id}"[^>]*>)[\\s\\S]*?(<\\/)`, 'i'),
+      new RegExp(`(id='${id}'[^>]*>)[\\s\\S]*?(<\\/)`, 'i'),
+    ];
+    for(const pat of patterns){
+      if(pat.test(newHtml)){
+        newHtml = newHtml.replace(pat, `$1${newContent}$2`);
+        replaced = true;
+        break;
+      }
+    }
+    if(replaced) break;
+  }
+
+  if(!replaced){
+    toast('Could not find the element to replace. Try "Add New Section".','var(--red)');
+    return;
+  }
+
+  // Download
+  const blob = new Blob([newHtml],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  teSourceHtml = newHtml; // update in memory
+  toast('✓ index.html downloaded with your text changes!');
+}
+
+function teAddNewSection(){
+  document.getElementById('teNewSectionPanel').style.display =
+    document.getElementById('teNewSectionPanel').style.display==='none' ? 'block' : 'none';
+}
+
+function teInsertNewSection(){
+  if(!teSourceHtml){ toast('No file loaded','var(--gold)'); return; }
+  const newId      = document.getElementById('teNewId').value.trim();
+  const beforeId   = document.getElementById('teNewBefore').value.trim();
+  const content    = document.getElementById('teNewContent').value;
+  if(!newId){ toast('Enter a section ID','var(--gold)'); return; }
+
+  const newEl = `\n<div id="${newId}" style="padding:1rem;">\n  ${content}\n</div>\n`;
+
+  let newHtml = teSourceHtml;
+  if(beforeId){
+    // Insert before the element with beforeId
+    const pat = new RegExp(`(<[^>]+id="${beforeId}")`,'i');
+    if(pat.test(newHtml)){
+      newHtml = newHtml.replace(pat, newEl+'$1');
+    } else {
+      // fallback: insert before </body>
+      newHtml = newHtml.replace('</body>', newEl+'</body>');
+    }
+  } else {
+    newHtml = newHtml.replace('</body>', newEl+'</body>');
+  }
+
+  const blob = new Blob([newHtml],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  teSourceHtml = newHtml;
+  toast(`✓ Section #${newId} added and downloaded!`);
+  document.getElementById('teNewSectionPanel').style.display='none';
 }
 
 // ─── Video Editor ─────────────────────────
