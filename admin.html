@@ -957,18 +957,15 @@ select.form-input{cursor:pointer;}
               <div class="form-row single">
                 <div class="form-group">
                   <label class="form-label">Category</label>
-                  <input type="hidden" id="newCat" value="film" />
+                  <input type="hidden" id="newCat" value="movies" />
                   <div style="display:flex;flex-wrap:wrap;gap:.4rem;" id="newCatPills">
-                    <button type="button" onclick="pickCat('newCat','film',this)"        class="cat-pill active-pill">Film</button>
-                    <button type="button" onclick="pickCat('newCat','documentary',this)" class="cat-pill">Documentary</button>
-                    <button type="button" onclick="pickCat('newCat','performance',this)" class="cat-pill">Performance</button>
-                    <button type="button" onclick="pickCat('newCat','news',this)"        class="cat-pill">News</button>
-                    <button type="button" onclick="pickCat('newCat','animation',this)"   class="cat-pill">Animation</button>
-                    <button type="button" onclick="pickCat('newCat','sport',this)"       class="cat-pill">Sport</button>
-                    <button type="button" onclick="pickCat('newCat','tv',this)"          class="cat-pill">TV</button>
-                    <button type="button" onclick="pickCat('newCat','live',this)"        class="cat-pill">Live</button>
-                    <button type="button" onclick="pickCat('newCat','radio',this)"       class="cat-pill">Radio</button>
-                    <button type="button" onclick="pickCat('newCat','other',this)"       class="cat-pill">Other</button>
+                    <button type="button" onclick="pickCat('newCat','movies',this)"        class="cat-pill active-pill">Movies</button>
+                    <button type="button" onclick="pickCat('newCat','performances',this)"  class="cat-pill">Performances</button>
+                    <button type="button" onclick="pickCat('newCat','documentaries',this)" class="cat-pill">Documentaries</button>
+                    <button type="button" onclick="pickCat('newCat','news',this)"          class="cat-pill">News</button>
+                    <button type="button" onclick="pickCat('newCat','cctv',this)"          class="cat-pill">CCTV</button>
+                    <button type="button" onclick="pickCat('newCat','live',this)"          class="cat-pill">Live</button>
+                    <button type="button" onclick="pickCat('newCat','other',this)"         class="cat-pill">Other</button>
                   </div>
                 </div>
               </div>
@@ -990,6 +987,28 @@ select.form-input{cursor:pointer;}
                 <div class="form-group">
                   <label class="form-label">Description</label>
                   <textarea class="form-input" id="newDesc" placeholder="Brief description of the content…"></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Type Label <span style="color:var(--dim);">shown on card</span></label>
+                  <input class="form-input" id="newTy" placeholder="e.g. Movie, News Report, Full Broadcast" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Creator / Channel</label>
+                  <input class="form-input" id="newCreator" placeholder="e.g. KCTV, Bloxy Play TV, CCTV" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Badge</label>
+                  <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+                    <button type="button" onclick="pickCat('newBadge','new',this)"  class="cat-pill active-pill">new</button>
+                    <button type="button" onclick="pickCat('newBadge','live',this)" class="cat-pill">live</button>
+                    <button type="button" onclick="pickCat('newBadge','soon',this)" class="cat-pill">soon</button>
+                    <button type="button" onclick="pickCat('newBadge','',this)"     class="cat-pill">none</button>
+                  </div>
+                  <input type="hidden" id="newBadge" value="new" />
                 </div>
               </div>
             </div>
@@ -1461,23 +1480,30 @@ select.form-input{cursor:pointer;}
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label">Category</label>
-                    <input type="hidden" id="edCat" value="film" />
+                    <input type="hidden" id="edCat" value="movies" />
                     <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
-                      <button type="button" onclick="pickCat('edCat','film',this)"        class="cat-pill active-pill">Film</button>
-                      <button type="button" onclick="pickCat('edCat','documentary',this)" class="cat-pill">Documentary</button>
-                      <button type="button" onclick="pickCat('edCat','performance',this)" class="cat-pill">Performance</button>
-                      <button type="button" onclick="pickCat('edCat','news',this)"        class="cat-pill">News</button>
-                      <button type="button" onclick="pickCat('edCat','animation',this)"   class="cat-pill">Animation</button>
-                      <button type="button" onclick="pickCat('edCat','sport',this)"       class="cat-pill">Sport</button>
-                      <button type="button" onclick="pickCat('edCat','tv',this)"          class="cat-pill">TV</button>
-                      <button type="button" onclick="pickCat('edCat','live',this)"        class="cat-pill">Live</button>
-                      <button type="button" onclick="pickCat('edCat','radio',this)"       class="cat-pill">Radio</button>
-                      <button type="button" onclick="pickCat('edCat','other',this)"       class="cat-pill">Other</button>
+                      <button type="button" onclick="pickCat('edCat','movies',this)"        class="cat-pill active-pill">Movies</button>
+                      <button type="button" onclick="pickCat('edCat','performances',this)"  class="cat-pill">Performances</button>
+                      <button type="button" onclick="pickCat('edCat','documentaries',this)" class="cat-pill">Documentaries</button>
+                      <button type="button" onclick="pickCat('edCat','news',this)"          class="cat-pill">News</button>
+                      <button type="button" onclick="pickCat('edCat','cctv',this)"          class="cat-pill">CCTV</button>
+                      <button type="button" onclick="pickCat('edCat','live',this)"          class="cat-pill">Live</button>
+                      <button type="button" onclick="pickCat('edCat','other',this)"         class="cat-pill">Other</button>
                     </div>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Year</label>
-                    <input class="form-input" id="edYear" placeholder="e.g. 1972" type="number" min="1940" max="2030" />
+                    <input class="form-input" id="edYear" placeholder="e.g. 2026" type="number" min="1940" max="2030" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Type Label <span style="color:var(--dim);">shown on card</span></label>
+                    <input class="form-input" id="edTy" placeholder="e.g. Movie, News Report, Full Broadcast" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Creator / Channel</label>
+                    <input class="form-input" id="edCreator" placeholder="e.g. KCTV, Bloxy Play TV" />
                   </div>
                 </div>
                 <div class="form-row">
@@ -2166,14 +2192,14 @@ async function localAdderPush(){
 // ─── Text Editor ─────────────────────────
 let teSourceHtml = null;
 let teSection    = 'terms';
-let teMode       = 'text'; // 'text' | 'html'
+let teMode       = 'html'; // always HTML mode since content is rich HTML
 
-// Known section IDs to search for in index.html
-const TE_SECTIONS = {
-  terms:   ['terms','terms-text','termsText','terms-content','termsContent','terms-and-conditions','termsAndConditions','terms_text'],
-  privacy: ['privacy','privacy-text','privacyText','privacy-policy','privacyPolicy','privacy-content','privacy_text'],
-  about:   ['about','about-text','aboutText','about-content','aboutContent','about-us','aboutUs','about_text'],
-  contact: ['contact','contact-text','contactText','contact-info','contactInfo','contact-content','contact_text'],
+// Maps section pill → the page id and the inner content container class
+const TE_MAP = {
+  terms:   { pageId: 'page-terms',   label: 'Terms of Service' },
+  privacy: { pageId: 'page-privacy', label: 'Privacy Policy' },
+  about:   { pageId: 'page-about',   label: 'About' },
+  contact: { pageId: 'page-contact', label: 'Contact' },
 };
 
 function tePickSection(sec, btn){
@@ -2185,25 +2211,30 @@ function tePickSection(sec, btn){
 }
 
 function teToggleMode(){
+  // Both modes show HTML — toggle is now just visual label swap, we keep one textarea
+  const btn = document.getElementById('teModeBtn');
   const textMode = document.getElementById('teTextMode');
   const htmlMode = document.getElementById('teHtmlMode');
-  const btn      = document.getElementById('teModeBtn');
-  if(teMode==='text'){
-    // switching to HTML — copy text→html
-    const txt = document.getElementById('teTextArea').value;
-    document.getElementById('teHtmlArea').value = txt.replace(/\n/g,'<br>');
-    teMode='html';
-    textMode.style.display='none';
-    htmlMode.style.display='block';
-    btn.textContent='Switch to Plain Text';
-  } else {
-    // switching to text — strip tags
+  if(teMode==='html'){
+    // plain text view — strip tags for reading only
     const html = document.getElementById('teHtmlArea').value;
-    document.getElementById('teTextArea').value = html.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'');
+    document.getElementById('teTextArea').value = html
+      .replace(/<br\s*\/?>/gi,'\n')
+      .replace(/<\/p>/gi,'\n\n')
+      .replace(/<\/li>/gi,'\n')
+      .replace(/<[^>]+>/g,'')
+      .replace(/\n{3,}/g,'\n\n')
+      .trim();
     teMode='text';
     textMode.style.display='block';
     htmlMode.style.display='none';
     btn.textContent='Switch to HTML';
+  } else {
+    // back to HTML
+    teMode='html';
+    textMode.style.display='none';
+    htmlMode.style.display='block';
+    btn.textContent='Switch to Plain Text';
   }
 }
 
@@ -2259,115 +2290,115 @@ function teLoadLocal(input){
   input.value='';
 }
 
+// Extract innerHTML of element with given id, handling deeply nested HTML
+function teExtractInnerHTML(html, id){
+  // Find the opening tag with this id
+  const openRe = new RegExp(`<([a-z][a-z0-9]*)([^>]*\\bid=["']${id}["'][^>]*)>`, 'i');
+  const m = openRe.exec(html);
+  if(!m) return null;
+
+  const tag = m[1];
+  const startIdx = m.index + m[0].length; // position right after the opening tag
+
+  // Walk forward tracking tag depth to find the matching closing tag
+  let depth = 1, i = startIdx;
+  const openTag  = new RegExp(`<${tag}[\\s>]`, 'gi');
+  const closeTag = new RegExp(`<\\/${tag}>`, 'gi');
+
+  while(i < html.length && depth > 0){
+    openTag.lastIndex  = i;
+    closeTag.lastIndex = i;
+    const nextOpen  = openTag.exec(html);
+    const nextClose = closeTag.exec(html);
+    if(!nextClose) break;
+    if(nextOpen && nextOpen.index < nextClose.index){
+      depth++;
+      i = nextOpen.index + 1;
+    } else {
+      depth--;
+      if(depth === 0){
+        return {
+          inner: html.slice(startIdx, nextClose.index),
+          fullStart: m.index,
+          innerStart: startIdx,
+          innerEnd: nextClose.index,
+          closeEnd: nextClose.index + nextClose[0].length,
+          openTag: m[0],
+          tag,
+        };
+      }
+      i = nextClose.index + 1;
+    }
+  }
+  return null;
+}
+
 function teFindElement(){
   if(!teSourceHtml){ toast('Load a file first','var(--gold)'); return; }
 
-  // Determine which IDs to try
-  let idsToTry = [];
-  if(teSection==='custom'){
-    const customId = document.getElementById('teCustomId').value.trim();
-    if(!customId){ toast('Enter a custom element ID','var(--gold)'); return; }
-    idsToTry = [customId];
+  let targetId, label;
+  if(teSection === 'custom'){
+    targetId = document.getElementById('teCustomId').value.trim();
+    if(!targetId){ toast('Enter a custom element ID','var(--gold)'); return; }
+    label = '#' + targetId;
   } else {
-    idsToTry = TE_SECTIONS[teSection] || [];
+    const map = TE_MAP[teSection];
+    if(!map){ toast('Unknown section','var(--gold)'); return; }
+    targetId = map.pageId;
+    label    = map.label;
   }
 
-  // Try to find element in raw HTML by id="..." or id='...'
-  let foundId = null, innerContent = null, isHtmlContent = false;
-  for(const id of idsToTry){
-    // Match both id="x" and id='x', then grab innerHTML
-    const patterns = [
-      new RegExp(`id="${id}"[^>]*>([\\s\\S]*?)<\\/`, 'i'),
-      new RegExp(`id='${id}'[^>]*>([\\s\\S]*?)<\\/`, 'i'),
-    ];
-    for(const pat of patterns){
-      const m = teSourceHtml.match(pat);
-      if(m){
-        foundId = id;
-        innerContent = m[1];
-        isHtmlContent = /<[a-z]/i.test(innerContent);
-        break;
-      }
-    }
-    if(foundId) break;
-  }
+  const extracted = teExtractInnerHTML(teSourceHtml, targetId);
 
   document.getElementById('teEditorCard').style.display = 'block';
   document.getElementById('teSaveWrap').style.display   = 'block';
+  // always HTML mode for rich content
+  document.getElementById('teTextMode').style.display = 'none';
+  document.getElementById('teHtmlMode').style.display = 'block';
+  document.getElementById('teModeBtn').textContent = 'Switch to Plain Text';
+  teMode = 'html';
 
-  if(!foundId){
-    const sectionName = teSection==='custom' ? idsToTry[0] : teSection;
-    document.getElementById('teEditorTitle').textContent = 'Section not found';
-    document.getElementById('teEditorSub').textContent   = `No element with id matching "${sectionName}" found. You can add a new section below.`;
-    document.getElementById('teTextArea').value = '';
+  if(!extracted){
+    document.getElementById('teEditorTitle').textContent = 'Not found: #' + targetId;
+    document.getElementById('teEditorSub').textContent   = 'Element not found in this file. Check the ID or try another section.';
     document.getElementById('teHtmlArea').value = '';
-    document.getElementById('teNewSectionPanel').style.display = 'block';
     return;
   }
 
-  // Strip HTML tags for plain text mode
-  const plainText = innerContent.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').trim();
-  document.getElementById('teEditorTitle').textContent = `Editing: ${foundId}`;
-  document.getElementById('teEditorSub').textContent   = isHtmlContent
-    ? 'Contains HTML — use HTML mode to preserve formatting'
-    : 'Plain text content';
-  document.getElementById('teTextArea').value = plainText;
-  document.getElementById('teHtmlArea').value = innerContent.trim();
-
-  // Auto-switch mode based on content
-  if(isHtmlContent && teMode==='text'){
-    teMode='html';
-    document.getElementById('teTextMode').style.display='none';
-    document.getElementById('teHtmlMode').style.display='block';
-    document.getElementById('teModeBtn').textContent='Switch to Plain Text';
-  }
-
-  toast(`Found element: #${foundId}`,'var(--green)');
+  document.getElementById('teEditorTitle').textContent = `Editing: ${label}`;
+  document.getElementById('teEditorSub').textContent   = `Element: <${extracted.tag} id="${targetId}"> — ${extracted.inner.length.toLocaleString()} chars`;
+  document.getElementById('teHtmlArea').value = extracted.inner;
+  toast(`Loaded ${label}`, 'var(--green)');
 }
 
 function teSaveAndDownload(){
   if(!teSourceHtml){ toast('No file loaded','var(--gold)'); return; }
 
-  // Determine which IDs to try
-  let idsToTry = [];
-  if(teSection==='custom'){
-    const customId = document.getElementById('teCustomId').value.trim();
-    if(!customId){ toast('Enter a custom element ID','var(--gold)'); return; }
-    idsToTry = [customId];
+  let targetId;
+  if(teSection === 'custom'){
+    targetId = document.getElementById('teCustomId').value.trim();
+    if(!targetId){ toast('Enter a custom element ID','var(--gold)'); return; }
   } else {
-    idsToTry = TE_SECTIONS[teSection] || [];
+    const map = TE_MAP[teSection];
+    if(!map){ toast('Unknown section','var(--gold)'); return; }
+    targetId = map.pageId;
   }
 
-  // Get new content
   const newContent = teMode==='html'
     ? document.getElementById('teHtmlArea').value
-    : document.getElementById('teTextArea').value.replace(/\n/g,'<br>');
+    : document.getElementById('teTextArea').value.replace(/\n/g,'<br>\n');
 
-  let newHtml = teSourceHtml;
-  let replaced = false;
-
-  for(const id of idsToTry){
-    // Replace innerHTML of matching element
-    const patterns = [
-      new RegExp(`(id="${id}"[^>]*>)[\\s\\S]*?(<\\/)`, 'i'),
-      new RegExp(`(id='${id}'[^>]*>)[\\s\\S]*?(<\\/)`, 'i'),
-    ];
-    for(const pat of patterns){
-      if(pat.test(newHtml)){
-        newHtml = newHtml.replace(pat, `$1${newContent}$2`);
-        replaced = true;
-        break;
-      }
-    }
-    if(replaced) break;
-  }
-
-  if(!replaced){
-    toast('Could not find the element to replace. Try "Add New Section".','var(--red)');
+  const extracted = teExtractInnerHTML(teSourceHtml, targetId);
+  if(!extracted){
+    toast('Could not find element #' + targetId + ' to replace.','var(--red)');
     return;
   }
 
-  // Download
+  // Surgically replace only the innerHTML, keep the opening and closing tags intact
+  const newHtml = teSourceHtml.slice(0, extracted.innerStart)
+    + newContent
+    + teSourceHtml.slice(extracted.innerEnd);
+
   const blob = new Blob([newHtml],{type:'text/html'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2376,8 +2407,8 @@ function teSaveAndDownload(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
-  teSourceHtml = newHtml; // update in memory
-  toast('✓ index.html downloaded with your text changes!');
+  teSourceHtml = newHtml;
+  toast('✓ Saved! Upload index.html to GitHub to go live.');
 }
 
 function teAddNewSection(){
@@ -2387,23 +2418,17 @@ function teAddNewSection(){
 
 function teInsertNewSection(){
   if(!teSourceHtml){ toast('No file loaded','var(--gold)'); return; }
-  const newId      = document.getElementById('teNewId').value.trim();
-  const beforeId   = document.getElementById('teNewBefore').value.trim();
-  const content    = document.getElementById('teNewContent').value;
+  const newId    = document.getElementById('teNewId').value.trim();
+  const beforeId = document.getElementById('teNewBefore').value.trim();
+  const content  = document.getElementById('teNewContent').value;
   if(!newId){ toast('Enter a section ID','var(--gold)'); return; }
 
-  const newEl = `\n<div id="${newId}" style="padding:1rem;">\n  ${content}\n</div>\n`;
-
+  const newEl = `\n<div id="${newId}" class="info-content" style="padding:1rem;">\n${content}\n</div>\n`;
   let newHtml = teSourceHtml;
+
   if(beforeId){
-    // Insert before the element with beforeId
-    const pat = new RegExp(`(<[^>]+id="${beforeId}")`,'i');
-    if(pat.test(newHtml)){
-      newHtml = newHtml.replace(pat, newEl+'$1');
-    } else {
-      // fallback: insert before </body>
-      newHtml = newHtml.replace('</body>', newEl+'</body>');
-    }
+    const pat = new RegExp(`(<[^>]+\\bid=["']${beforeId}["'])`, 'i');
+    newHtml = pat.test(newHtml) ? newHtml.replace(pat, newEl+'$1') : newHtml.replace('</body>', newEl+'</body>');
   } else {
     newHtml = newHtml.replace('</body>', newEl+'</body>');
   }
@@ -2417,9 +2442,10 @@ function teInsertNewSection(){
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
   teSourceHtml = newHtml;
-  toast(`✓ Section #${newId} added and downloaded!`);
+  toast(`✓ Section #${newId} added!`);
   document.getElementById('teNewSectionPanel').style.display='none';
 }
+
 
 // ─── Video Editor ─────────────────────────
 let editorSelectedIndex = -1;
@@ -2479,6 +2505,8 @@ function editorSelectVideo(index){
   document.getElementById('edViews').value    = v.views    || '';
   document.getElementById('edUrl').value      = v.u   || '';
   document.getElementById('edThumb').value    = v.thumb|| '';
+  document.getElementById('edTy').value       = v.ty  || '';
+  document.getElementById('edCreator').value  = v.creator || '';
   document.getElementById('edIsYouTube').checked = !!v.isYouTube;
   document.getElementById('edIsM3U8').checked    = !!v.isM3U8;
   document.getElementById('edIsPinned').checked  = !!v.isPinned;
@@ -2581,12 +2609,14 @@ async function editorSaveAndDownload(){
     const t    = document.getElementById('edTitle').value.trim();
     const tk   = document.getElementById('edTitleKr').value.trim();
     const desc = document.getElementById('edDesc').value.trim();
-    const cat  = document.getElementById('edCat').value || 'film';
+    const cat  = document.getElementById('edCat').value || 'movies';
     const year = document.getElementById('edYear').value.trim();
     const dur  = document.getElementById('edDuration').value.trim();
     const views= document.getElementById('edViews').value.trim();
     const url  = document.getElementById('edUrl').value.trim();
     const thumb= document.getElementById('edThumb').value.trim();
+    const ty      = document.getElementById('edTy')?.value.trim() || '';
+    const creator = document.getElementById('edCreator')?.value.trim() || '';
     const isYT = document.getElementById('edIsYouTube').checked;
     const isM3 = document.getElementById('edIsM3U8').checked;
     const isPin= document.getElementById('edIsPinned').checked;
@@ -2595,17 +2625,19 @@ async function editorSaveAndDownload(){
 
     // ── 3. Build the new entry — always include required fields ──
     let newEntry = `{t:'${esc(t)}'`;
-    if(tk)    newEntry += `,tk:'${esc(tk)}'`;
-    if(desc)  newEntry += `,d:'${esc(desc.slice(0,200))}'`;
+    if(tk)      newEntry += `,tk:'${esc(tk)}'`;
+    if(desc)    newEntry += `,d:'${esc(desc.slice(0,300))}'`;
     newEntry += `,u:'${esc(url)}'`;
     newEntry += `,y:'${esc(year||'')}'`;
     newEntry += `,c:'${esc(cat)}'`;
-    newEntry += `,duration:'${esc(dur||'')}'`;
+    newEntry += `,ty:'${esc(ty||cat)}'`;
     newEntry += `,views:'${esc(views||'0')}'`;
-    if(thumb) newEntry += `,thumb:'${esc(thumb)}'`;
-    if(isYT)  newEntry += `,isYouTube:true`;
-    if(isM3)  newEntry += `,isM3U8:true`;
-    if(isPin) newEntry += `,isPinned:true`;
+    newEntry += `,duration:'${esc(dur||'')}'`;
+    if(creator) newEntry += `,creator:'${esc(creator)}'`;
+    if(thumb)   newEntry += `,thumb:'${esc(thumb)}'`;
+    if(isYT)    newEntry += `,isYouTube:true`;
+    if(isM3)    newEntry += `,isM3U8:true`;
+    if(isPin)   newEntry += `,isPinned:true`;
     newEntry += '}';
 
     // Validate before injecting
@@ -2840,14 +2872,17 @@ function setStreamTab(tab, el){
 
 // ─── Build video object from form ─────────
 function buildVideoObj(){
-  const t    = document.getElementById('newTitle').value.trim();
-  const tk   = document.getElementById('newTitleKr').value.trim();
-  const c    = document.getElementById('newCat').value || 'film';
-  const y    = document.getElementById('newYear').value.trim();
-  const dur  = document.getElementById('newDuration').value.trim();
-  const views= document.getElementById('newViews').value.trim() || '0';
-  const desc = document.getElementById('newDesc').value.trim();
-  const thumb= document.getElementById('newThumb').value.trim();
+  const t       = document.getElementById('newTitle').value.trim();
+  const tk      = document.getElementById('newTitleKr').value.trim();
+  const c       = document.getElementById('newCat').value || 'movies';
+  const ty      = document.getElementById('newTy')?.value.trim() || '';
+  const creator = document.getElementById('newCreator')?.value.trim() || '';
+  const badge   = document.getElementById('newBadge')?.value || 'new';
+  const y       = document.getElementById('newYear').value.trim();
+  const dur     = document.getElementById('newDuration').value.trim();
+  const views   = document.getElementById('newViews').value.trim() || '0';
+  const desc    = document.getElementById('newDesc').value.trim();
+  const thumb   = document.getElementById('newThumb').value.trim();
 
   if(!t){ toast('Please enter a title','var(--gold)'); return null; }
 
@@ -2865,23 +2900,24 @@ function buildVideoObj(){
     extra = ',isM3U8:true,isPinned:true';
   }
 
-  // Escape single quotes, backslashes, and strip newlines safely
   const esc = s => String(s)
     .replace(/\\/g,'\\\\')
     .replace(/'/g,"\\'")
     .replace(/\r?\n/g,' ')
     .replace(/\r/g,' ');
 
-  // Always include t, u, y, c, duration, views — required by home screen
   let entry = `{t:'${esc(t)}'`;
-  if(tk)    entry += `,tk:'${esc(tk)}'`;
-  if(desc)  entry += `,d:'${esc(desc.slice(0,160))}'`;
-  entry += `,u:'${esc(u)}'`;          // always include even if empty
-  entry += `,y:'${esc(y||'')}'`;      // always include
-  entry += `,c:'${esc(c)}'`;          // always include
-  entry += `,duration:'${esc(dur||'')}'`;  // always include
-  entry += `,views:'${esc(views)}'`;  // always include
-  if(thumb) entry += `,thumb:'${esc(thumb)}'`;
+  if(tk)      entry += `,tk:'${esc(tk)}'`;
+  if(desc)    entry += `,d:'${esc(desc.slice(0,300))}'`;
+  entry += `,u:'${esc(u)}'`;
+  entry += `,y:'${esc(y||'')}'`;
+  entry += `,c:'${esc(c)}'`;
+  entry += `,ty:'${esc(ty||c)}'`;
+  entry += `,views:'${esc(views)}'`;
+  entry += `,duration:'${esc(dur||'')}'`;
+  if(creator) entry += `,creator:'${esc(creator)}'`;
+  if(badge)   entry += `,badge:'${esc(badge)}'`;
+  if(thumb)   entry += `,thumb:'${esc(thumb)}'`;
   entry += extra + '}';
   return entry;
 }
