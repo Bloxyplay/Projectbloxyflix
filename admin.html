@@ -891,14 +891,14 @@ select.form-input{cursor:pointer;}
         <div class="page-header">
           <div class="page-header-left">
             <h1>Add Content</h1>
-            <p>Add a new video to the BloxyFlix archive</p>
+            <p>Add one or multiple videos at once to the archive</p>
           </div>
         </div>
 
         <div class="git-status">
           <svg viewBox="0 0 24 24" style="color:var(--green);"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
           <div class="git-status-text">
-            <strong>Download mode</strong> — fills in the form and downloads an updated <span style="font-family:var(--mono);">index.html</span> with your new video already added. Then just upload it to GitHub to go live.
+            <strong>Download mode</strong> — fill in the form, add videos to the queue, then download one updated <span style="font-family:var(--mono);">index.html</span> with all of them injected at once.
           </div>
         </div>
 
@@ -913,7 +913,6 @@ select.form-input{cursor:pointer;}
           </div>
           <div id="addBrowserPanel" style="display:none;">
             <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-              <!-- Filter tabs -->
               <div style="display:flex;gap:.25rem;">
                 <button id="addBrowserTabAll" onclick="setAddBrowserTab('all')" style="padding:.35rem .85rem;border-radius:6px;border:1px solid var(--red);background:var(--red);color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;">All</button>
                 <button id="addBrowserTabNonFilm" onclick="setAddBrowserTab('nonfilm')" style="padding:.35rem .85rem;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.78rem;font-weight:700;cursor:pointer;">All Except Films</button>
@@ -921,7 +920,7 @@ select.form-input{cursor:pointer;}
               <input id="addBrowserSearch" class="form-input" placeholder="🔍 Search…" oninput="renderAddBrowser()" style="flex:1;min-width:160px;padding:.35rem .75rem;font-size:.82rem;" />
               <span id="addBrowserCount" style="font-size:.75rem;color:var(--muted);white-space:nowrap;"></span>
             </div>
-            <div style="max-height:300px;overflow-y:auto;" id="addBrowserTableWrap">
+            <div style="max-height:260px;overflow-y:auto;" id="addBrowserTableWrap">
               <table style="width:100%;border-collapse:collapse;font-size:.8rem;">
                 <thead>
                   <tr>
@@ -940,18 +939,22 @@ select.form-input{cursor:pointer;}
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-head"><div class="card-head-title">Video Details</div></div>
+        <!-- ── Video Form ── -->
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head">
+            <div class="card-head-title">Video Details</div>
+            <div class="card-head-sub">Fill in details then click "Add to Queue"</div>
+          </div>
           <div class="card-body">
             <div class="form-section">
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Title (English)</label>
-                  <input class="form-input" id="newTitle" placeholder="e.g. The Flower Girl (1972)" />
+                  <input class="form-input" id="newTitle" placeholder="e.g. KCTV News March 31, 2026" />
                 </div>
                 <div class="form-group">
                   <label class="form-label">Title (Korean) <span style="color:var(--dim);">optional</span></label>
-                  <input class="form-input" id="newTitleKr" placeholder="e.g. 꽃파는 처녀" style="font-family:'Noto Sans KR',var(--font);" />
+                  <input class="form-input" id="newTitleKr" placeholder="e.g. 조선중앙텔레비죤" style="font-family:'Noto Sans KR',var(--font);" />
                 </div>
               </div>
               <div class="form-row single">
@@ -972,7 +975,7 @@ select.form-input{cursor:pointer;}
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Year</label>
-                  <input class="form-input" id="newYear" placeholder="e.g. 1972" type="number" min="1940" max="2030" />
+                  <input class="form-input" id="newYear" placeholder="e.g. 2026" type="number" min="1940" max="2030" />
                 </div>
                 <div class="form-group">
                   <label class="form-label">Duration</label>
@@ -980,13 +983,13 @@ select.form-input{cursor:pointer;}
                 </div>
                 <div class="form-group">
                   <label class="form-label">Views</label>
-                  <input class="form-input" id="newViews" placeholder="e.g. 12K" />
+                  <input class="form-input" id="newViews" placeholder="e.g. 0" />
                 </div>
               </div>
               <div class="form-row single">
                 <div class="form-group">
                   <label class="form-label">Description</label>
-                  <textarea class="form-input" id="newDesc" placeholder="Brief description of the content…"></textarea>
+                  <textarea class="form-input" id="newDesc" placeholder="Brief description…" style="min-height:70px;"></textarea>
                 </div>
               </div>
               <div class="form-row">
@@ -1017,65 +1020,87 @@ select.form-input{cursor:pointer;}
 
             <div class="form-section">
               <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:1rem;">Stream Source</div>
-
               <div class="tabs" style="margin-bottom:1rem;">
                 <div class="tab active" onclick="setStreamTab('mp4',this)">MP4 / Direct</div>
                 <div class="tab" onclick="setStreamTab('youtube',this)">YouTube</div>
                 <div class="tab" onclick="setStreamTab('m3u8',this)">M3U8 / Live</div>
               </div>
-
               <div id="streamTab-mp4">
                 <div class="form-group">
                   <label class="form-label">Video URL</label>
                   <input class="form-input mono" id="newUrl" placeholder="https://…/video.mp4" />
-                  <div class="form-hint">Direct MP4 or video file URL. Must be publicly accessible.</div>
+                  <div class="form-hint">Direct MP4 or video file URL.</div>
                 </div>
               </div>
               <div id="streamTab-youtube" style="display:none;">
                 <div class="form-group">
                   <label class="form-label">YouTube Video ID or URL</label>
                   <input class="form-input mono" id="newYtUrl" placeholder="dQw4w9WgXcQ  or  https://youtube.com/watch?v=…" />
-                  <div class="form-hint">Paste the YouTube video ID or full URL. Will be embedded as <code style="background:var(--border2);padding:.1rem .3rem;border-radius:3px;font-size:.78rem;">isYouTube: true</code></div>
+                  <div class="form-hint">Paste YouTube ID or full URL.</div>
                 </div>
               </div>
               <div id="streamTab-m3u8" style="display:none;">
                 <div class="form-group">
                   <label class="form-label">M3U8 Stream URL</label>
                   <input class="form-input mono" id="newM3u8Url" placeholder="https://…/stream.m3u8" />
-                  <div class="form-hint">HLS live stream. Will be flagged as <code style="background:var(--border2);padding:.1rem .3rem;border-radius:3px;font-size:.78rem;">isM3U8: true</code> and <code style="background:var(--border2);padding:.1rem .3rem;border-radius:3px;font-size:.78rem;">isPinned: true</code></div>
+                  <div class="form-hint">HLS live stream — flagged as isM3U8 + isPinned.</div>
                 </div>
               </div>
-
               <div style="margin-top:1rem;" class="form-group">
                 <label class="form-label">Thumbnail URL <span style="color:var(--dim);">optional</span></label>
-                <input class="form-input mono" id="newThumb" placeholder="https://…/thumb.jpg  (leave blank for auto-generated)" />
+                <input class="form-input mono" id="newThumb" placeholder="https://…/thumb.jpg" />
               </div>
             </div>
 
             <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
             <input type="hidden" id="generatedCode" />
 
-            <!-- Local HTML upload area (hidden until file is loaded) -->
+            <!-- Add to Queue button -->
+            <button class="topbar-btn primary" onclick="addToQueue()" style="width:100%;justify-content:center;padding:.9rem;font-size:.95rem;margin-bottom:.75rem;">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              Add to Queue
+            </button>
+            <button class="topbar-btn" onclick="clearForm()" style="width:100%;justify-content:center;padding:.6rem;">Clear Form</button>
+          </div>
+        </div>
+
+        <!-- ── Queue ── -->
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">📋 Queue <span id="queueCountBadge" class="nav-badge" style="margin-left:.5rem;">0</span></div>
+              <div class="card-head-sub">Videos waiting to be injected into index.html</div>
+            </div>
+            <button class="card-action" onclick="clearQueue()" style="color:var(--red);">Clear All</button>
+          </div>
+          <div id="queueList" style="padding:0;">
+            <div id="queueEmpty" style="padding:2rem;text-align:center;color:var(--muted);font-size:.85rem;">No videos in queue yet — fill the form above and click "Add to Queue".</div>
+          </div>
+        </div>
+
+        <!-- ── Download All ── -->
+        <div class="card">
+          <div class="card-body">
+            <!-- Local HTML upload area -->
             <div id="localHtmlBox" style="display:none;margin-bottom:1rem;padding:1rem;background:var(--panel2);border:1px solid var(--border);border-radius:8px;">
               <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;">
                 <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:var(--blue);flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
                 <span style="font-size:.8rem;font-weight:700;color:var(--blue);" id="localHtmlName">No file loaded</span>
-                <button onclick="clearLocalHtml()" title="Remove file" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:.75rem;font-weight:700;padding:.2rem .5rem;border-radius:4px;transition:color .15s;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">✕ Remove</button>
+                <button onclick="clearLocalHtml()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:.75rem;font-weight:700;padding:.2rem .5rem;border-radius:4px;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">✕ Remove</button>
               </div>
-              <div style="font-size:.75rem;color:var(--muted);">This local file will be used instead of fetching from GitHub. The new video will be injected into it and downloaded.</div>
+              <div style="font-size:.75rem;color:var(--muted);">Local file will be used instead of fetching from GitHub.</div>
             </div>
 
             <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
               <button class="topbar-btn primary" id="pushVideoBtn" onclick="pushVideoToGitHub()" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
-                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                Add Video to Site
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                Download index.html with All Queue Videos
               </button>
-              <button class="topbar-btn" onclick="triggerLocalHtmlUpload()" title="Load a local index.html to edit instead of fetching from GitHub" style="padding:.85rem 1rem;gap:.5rem;">
+              <button class="topbar-btn" onclick="triggerLocalHtmlUpload()" style="padding:.85rem 1rem;gap:.5rem;">
                 <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
                 Load Local HTML
               </button>
               <input type="file" id="localHtmlInput" accept=".html,text/html" style="display:none;" onchange="handleLocalHtmlUpload(this)" />
-              <button class="topbar-btn" onclick="clearForm()" style="padding:.85rem 1.25rem;">Clear</button>
             </div>
           </div>
         </div>
@@ -2922,6 +2947,68 @@ function buildVideoObj(){
   return entry;
 }
 
+// ─── Video Queue ──────────────────────────
+let videoQueue = []; // array of entry strings
+
+function addToQueue(){
+  const entry = buildVideoObj();
+  if(!entry) return;
+
+  const title = document.getElementById('newTitle').value.trim();
+  const cat   = document.getElementById('newCat').value;
+  const ty    = document.getElementById('newTy')?.value.trim() || cat;
+
+  videoQueue.push({ entry, title, cat, ty });
+  renderQueue();
+  clearForm();
+  toast(`✓ "${title}" added to queue (${videoQueue.length} total)`, 'var(--green)');
+}
+
+function removeFromQueue(idx){
+  videoQueue.splice(idx, 1);
+  renderQueue();
+}
+
+function clearQueue(){
+  videoQueue = [];
+  renderQueue();
+  toast('Queue cleared', 'var(--muted)');
+}
+
+function renderQueue(){
+  const badge = document.getElementById('queueCountBadge');
+  if(badge) badge.textContent = videoQueue.length;
+
+  const list  = document.getElementById('queueList');
+  const empty = document.getElementById('queueEmpty');
+  if(!videoQueue.length){
+    if(empty) empty.style.display='block';
+    // remove any existing rows
+    list.querySelectorAll('.queue-item').forEach(el=>el.remove());
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  // Rebuild all items
+  list.querySelectorAll('.queue-item').forEach(el=>el.remove());
+  const catColors={movies:'var(--red)',performances:'var(--gold)',documentaries:'var(--blue)',news:'var(--green)',cctv:'#06b6d4',live:'var(--red)',other:'var(--muted)'};
+  videoQueue.forEach((item,i)=>{
+    const div = document.createElement('div');
+    div.className = 'queue-item';
+    div.style.cssText = 'display:flex;align-items:center;gap:.75rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--border2);';
+    div.innerHTML = `
+      <div style="width:28px;height:28px;border-radius:6px;background:${catColors[item.cat]||'var(--muted)'}22;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;color:${catColors[item.cat]||'var(--muted)'};flex-shrink:0;">${String(i+1)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.title}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.1rem;">${item.ty} · ${item.cat}</div>
+      </div>
+      <span class="badge" style="background:${catColors[item.cat]||'var(--muted)'}18;color:${catColors[item.cat]||'var(--muted)'};border-color:${catColors[item.cat]||'var(--muted)'}30;flex-shrink:0;">${item.cat}</span>
+      <button onclick="removeFromQueue(${i})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:.8rem;padding:.25rem .5rem;border-radius:4px;flex-shrink:0;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
 // ─── Local HTML upload helpers ────────────
 let localHtmlContent = null;
 
@@ -2953,8 +3040,10 @@ function clearLocalHtml(){
 
 // ─── Download updated index.html ──────────
 async function pushVideoToGitHub(){
-  const entry = buildVideoObj();
-  if(!entry) return;
+  if(!videoQueue.length){
+    toast('Queue is empty — add at least one video first.','var(--gold)');
+    return;
+  }
 
   const btn = document.getElementById('pushVideoBtn');
   btn.disabled = true;
@@ -2964,57 +3053,50 @@ async function pushVideoToGitHub(){
     let currentHtml = null;
 
     if(localHtmlContent){
-      // Use the locally uploaded file
       currentHtml = localHtmlContent;
       toast('Using your local HTML file…','var(--blue)');
     } else {
-      // Fetch from GitHub raw CDN
       btn.textContent = 'Fetching…';
       toast('Fetching index.html from GitHub…','var(--blue)');
       const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
       const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
       const branch = localStorage.getItem('bf_gh_branch') || 'main';
       const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
-
       const urls = [
         `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
         `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
         'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
         'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
       ];
-
       for(const url of urls){
-        try{
-          const res = await fetch(url);
-          if(res.ok){ currentHtml = await res.text(); break; }
-        } catch(e){}
+        try{ const res=await fetch(url); if(res.ok){currentHtml=await res.text();break;} }catch(e){}
       }
-      if(!currentHtml) throw new Error('Could not fetch index.html from GitHub. Try using "Load Local HTML" instead.');
+      if(!currentHtml) throw new Error('Could not fetch index.html. Try "Load Local HTML".');
     }
 
-    // Validate the entry parses correctly before injecting
-    try {
-      const test = (new Function('return [' + entry + ']'))();
-      if(!test || !test[0] || !test[0].t) throw new Error('Entry validation failed');
-    } catch(e) {
-      throw new Error('Generated entry has a syntax error — check for special characters in your fields: ' + e.message);
+    // Validate all entries before touching the file
+    for(const item of videoQueue){
+      try{
+        const test = (new Function('return [' + item.entry + ']'))();
+        if(!test||!test[0]||!test[0].t) throw new Error('missing t field');
+      } catch(e){
+        throw new Error(`Entry "${item.title}" has a syntax error: ${e.message}`);
+      }
     }
 
-    // Try both 'const vids=[' and 'const vids = [' formats
+    // Find vids array marker
     let marker = 'const vids=[';
     let insertAt = currentHtml.indexOf(marker);
-    if(insertAt === -1){
-      marker = 'const vids = [';
-      insertAt = currentHtml.indexOf(marker);
-    }
-    if(insertAt === -1) throw new Error('Could not find vids array in index.html');
+    if(insertAt === -1){ marker = 'const vids = ['; insertAt = currentHtml.indexOf(marker); }
+    if(insertAt === -1) throw new Error('Could not find vids array in index.html.');
 
-    // Inject new entry at the top of the array, with a trailing newline for clean formatting
+    // Inject ALL queued entries at the top of the array (newest first)
+    const allEntries = videoQueue.map(item => '  ' + item.entry).join(',\n');
     const newHtml = currentHtml.slice(0, insertAt + marker.length)
-      + '\n  ' + entry + ',\n'
+      + '\n' + allEntries + ',\n'
       + currentHtml.slice(insertAt + marker.length);
 
-    // Download the updated file to the user's computer
+    // Download
     const blob = new Blob([newHtml], {type:'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -3024,15 +3106,14 @@ async function pushVideoToGitHub(){
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
 
-    const title = document.getElementById('newTitle').value.trim();
-    toast(`✓ index.html downloaded! Now upload it to GitHub to go live.`);
-    clearForm();
+    toast(`✓ ${videoQueue.length} video${videoQueue.length!==1?'s':''} injected! Upload index.html to GitHub.`);
+    clearQueue();
 
   } catch(e){
     toast('Error: '+e.message,'var(--red)');
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Add Video to Site';
+    btn.textContent = 'Download index.html with All Queue Videos';
   }
 }
 
@@ -3053,11 +3134,25 @@ function copyCode(){
 }
 
 function clearForm(){
-  ['newTitle','newTitleKr','newYear','newDuration','newViews','newDesc','newUrl','newYtUrl','newM3u8Url','newThumb','generatedCode'].forEach(id=>{
+  // Clear text inputs
+  ['newTitle','newTitleKr','newYear','newDuration','newViews','newDesc',
+   'newUrl','newYtUrl','newM3u8Url','newThumb','newTy','newCreator','generatedCode'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.value='';
   });
-  toast('Form cleared','var(--muted)');
+  // Reset category to Movies
+  document.getElementById('newCat').value = 'movies';
+  document.querySelectorAll('#newCatPills .cat-pill').forEach(b=>b.classList.remove('active-pill'));
+  const moviesBtn = document.querySelector('#newCatPills .cat-pill');
+  if(moviesBtn) moviesBtn.classList.add('active-pill');
+  // Reset badge to "new"
+  document.getElementById('newBadge').value = 'new';
+  document.querySelectorAll('[id="newBadge"] ~ div .cat-pill, .form-row .cat-pill').forEach(b=>{
+    if(b.closest('.form-group') && b.textContent.trim()==='new') b.classList.add('active-pill');
+    else if(b.closest('.form-group') && b.textContent.trim()!=='new') b.classList.remove('active-pill');
+  });
+  // Reset stream tab to MP4
+  setStreamTab('mp4', document.querySelector('.tabs .tab'));
 }
 
 // Auto-generate on input
