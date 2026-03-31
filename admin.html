@@ -953,9 +953,10 @@ select.form-input{cursor:pointer;}
               <div class="form-row single">
                 <div class="form-group">
                   <label class="form-label">Category</label>
-                  <input type="hidden" id="newCat" value="film" />
+                  <input type="hidden" id="newCat" value="all" />
                   <div style="display:flex;flex-wrap:wrap;gap:.4rem;" id="newCatPills">
-                    <button type="button" onclick="pickCat('newCat','film',this)"      class="cat-pill active-pill">Film</button>
+                    <button type="button" onclick="pickCat('newCat','all',this)"       class="cat-pill active-pill">⭐ All</button>
+                    <button type="button" onclick="pickCat('newCat','film',this)"      class="cat-pill">Film</button>
                     <button type="button" onclick="pickCat('newCat','documentary',this)" class="cat-pill">Documentary</button>
                     <button type="button" onclick="pickCat('newCat','performance',this)" class="cat-pill">Performance</button>
                     <button type="button" onclick="pickCat('newCat','news',this)"      class="cat-pill">News</button>
@@ -1283,6 +1284,7 @@ select.form-input{cursor:pointer;}
                     <label class="form-label">Category</label>
                     <input type="hidden" id="edCat" value="film" />
                     <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+                      <button type="button" onclick="pickCat('edCat','all',this)"          class="cat-pill">⭐ All</button>
                       <button type="button" onclick="pickCat('edCat','film',this)"        class="cat-pill active-pill">Film</button>
                       <button type="button" onclick="pickCat('edCat','documentary',this)" class="cat-pill">Documentary</button>
                       <button type="button" onclick="pickCat('edCat','performance',this)" class="cat-pill">Performance</button>
@@ -2035,7 +2037,7 @@ async function editorSaveAndDownload(){
     const t    = document.getElementById('edTitle').value.trim();
     const tk   = document.getElementById('edTitleKr').value.trim();
     const desc = document.getElementById('edDesc').value.trim();
-    const cat  = document.getElementById('edCat').value;
+    const cat  = document.getElementById('edCat').value || 'film';
     const year = document.getElementById('edYear').value.trim();
     const dur  = document.getElementById('edDuration').value.trim();
     const views= document.getElementById('edViews').value.trim();
@@ -2047,20 +2049,28 @@ async function editorSaveAndDownload(){
 
     if(!t){ toast('Title cannot be empty.','var(--gold)'); btn.disabled=false; btn.textContent='Save Changes & Download'; return; }
 
-    // ── 3. Build the new entry string ───────────────────────────
+    // ── 3. Build the new entry — always include required fields ──
     let newEntry = `{t:'${esc(t)}'`;
     if(tk)    newEntry += `,tk:'${esc(tk)}'`;
     if(desc)  newEntry += `,d:'${esc(desc.slice(0,200))}'`;
-    if(url)   newEntry += `,u:'${esc(url)}'`;
-    if(year)  newEntry += `,y:'${year}'`;
-    if(cat)   newEntry += `,c:'${cat}'`;
-    if(dur)   newEntry += `,duration:'${esc(dur)}'`;
-    if(views) newEntry += `,views:'${esc(views)}'`;
+    newEntry += `,u:'${esc(url)}'`;
+    newEntry += `,y:'${esc(year||'')}'`;
+    newEntry += `,c:'${esc(cat)}'`;
+    newEntry += `,duration:'${esc(dur||'')}'`;
+    newEntry += `,views:'${esc(views||'0')}'`;
     if(thumb) newEntry += `,thumb:'${esc(thumb)}'`;
     if(isYT)  newEntry += `,isYouTube:true`;
     if(isM3)  newEntry += `,isM3U8:true`;
     if(isPin) newEntry += `,isPinned:true`;
     newEntry += '}';
+
+    // Validate before injecting
+    try {
+      const test = (new Function('return [' + newEntry + ']'))();
+      if(!test || !test[0] || !test[0].t) throw new Error('missing t');
+    } catch(e) {
+      throw new Error('Entry has a syntax error — check for special characters: ' + e.message);
+    }
 
     // ── 4. Locate the vids array boundaries in raw HTML ─────────
     let arrMarker = 'const vids=[';
@@ -2286,14 +2296,14 @@ function setStreamTab(tab, el){
 
 // ─── Build video object from form ─────────
 function buildVideoObj(){
-  const t   = document.getElementById('newTitle').value.trim();
-  const tk  = document.getElementById('newTitleKr').value.trim();
-  const c   = document.getElementById('newCat').value;
-  const y   = document.getElementById('newYear').value.trim();
-  const dur = document.getElementById('newDuration').value.trim();
-  const views = document.getElementById('newViews').value.trim()||'0';
-  const desc  = document.getElementById('newDesc').value.trim();
-  const thumb = document.getElementById('newThumb').value.trim();
+  const t    = document.getElementById('newTitle').value.trim();
+  const tk   = document.getElementById('newTitleKr').value.trim();
+  const c    = document.getElementById('newCat').value || 'film';
+  const y    = document.getElementById('newYear').value.trim();
+  const dur  = document.getElementById('newDuration').value.trim();
+  const views= document.getElementById('newViews').value.trim() || '0';
+  const desc = document.getElementById('newDesc').value.trim();
+  const thumb= document.getElementById('newThumb').value.trim();
 
   if(!t){ toast('Please enter a title','var(--gold)'); return null; }
 
@@ -2311,16 +2321,18 @@ function buildVideoObj(){
     extra = ',isM3U8:true,isPinned:true';
   }
 
-  // Build the entry string to inject into vids array
-  const esc = s => s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  // Escape single quotes and backslashes safely
+  const esc = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+  // Always include t, u, y, c, duration, views — required by home screen
   let entry = `{t:'${esc(t)}'`;
   if(tk)    entry += `,tk:'${esc(tk)}'`;
   if(desc)  entry += `,d:'${esc(desc.slice(0,160))}'`;
-  if(u)     entry += `,u:'${esc(u)}'`;
-  if(y)     entry += `,y:'${y}'`;
-  if(c)     entry += `,c:'${c}'`;
-  if(dur)   entry += `,duration:'${esc(dur)}'`;
-  if(views) entry += `,views:'${esc(views)}'`;
+  entry += `,u:'${esc(u)}'`;          // always include even if empty
+  entry += `,y:'${esc(y||'')}'`;      // always include
+  entry += `,c:'${esc(c)}'`;          // always include
+  entry += `,duration:'${esc(dur||'')}'`;  // always include
+  entry += `,views:'${esc(views)}'`;  // always include
   if(thumb) entry += `,thumb:'${esc(thumb)}'`;
   entry += extra + '}';
   return entry;
@@ -2396,6 +2408,14 @@ async function pushVideoToGitHub(){
       if(!currentHtml) throw new Error('Could not fetch index.html from GitHub. Try using "Load Local HTML" instead.');
     }
 
+    // Validate the entry parses correctly before injecting
+    try {
+      const test = (new Function('return [' + entry + ']'))();
+      if(!test || !test[0] || !test[0].t) throw new Error('Entry validation failed');
+    } catch(e) {
+      throw new Error('Generated entry has a syntax error — check for special characters in your fields: ' + e.message);
+    }
+
     // Try both 'const vids=[' and 'const vids = [' formats
     let marker = 'const vids=[';
     let insertAt = currentHtml.indexOf(marker);
@@ -2405,8 +2425,10 @@ async function pushVideoToGitHub(){
     }
     if(insertAt === -1) throw new Error('Could not find vids array in index.html');
 
-    // Inject new entry at the top of the array
-    const newHtml = currentHtml.slice(0, insertAt + marker.length) + '\n  ' + entry + ',' + currentHtml.slice(insertAt + marker.length);
+    // Inject new entry at the top of the array, with a trailing newline for clean formatting
+    const newHtml = currentHtml.slice(0, insertAt + marker.length)
+      + '\n  ' + entry + ',\n'
+      + currentHtml.slice(insertAt + marker.length);
 
     // Download the updated file to the user's computer
     const blob = new Blob([newHtml], {type:'text/html'});
