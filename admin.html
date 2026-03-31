@@ -281,6 +281,17 @@ textarea.form-input{resize:vertical;min-height:90px;}
 select.form-input{cursor:pointer;}
 .form-hint{font-size:.73rem;color:var(--muted);}
 
+/* ─── CATEGORY PILLS ─── */
+.cat-pill{
+  padding:.45rem .9rem;border-radius:99px;
+  border:1px solid var(--border);background:var(--panel2);
+  color:var(--muted);font-size:.8rem;font-weight:600;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+  font-family:var(--font);
+}
+.cat-pill:hover{border-color:var(--dim);color:var(--text);}
+.cat-pill.active-pill{background:var(--red);border-color:var(--red);color:#fff;}
+
 /* ─── TOGGLE ─── */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border2);}
 .toggle-row:last-child{border-bottom:none;}
@@ -939,28 +950,29 @@ select.form-input{cursor:pointer;}
                   <input class="form-input" id="newTitleKr" placeholder="e.g. 꽃파는 처녀" style="font-family:'Noto Sans KR',var(--font);" />
                 </div>
               </div>
-              <div class="form-row">
+              <div class="form-row single">
                 <div class="form-group">
                   <label class="form-label">Category</label>
-                  <select class="form-input" id="newCat">
-                    <option value="film">Film</option>
-                    <option value="documentary">Documentary</option>
-                    <option value="performance">Performance</option>
-                    <option value="news">News</option>
-                    <option value="animation">Animation</option>
-                    <option value="sport">Sport</option>
-                    <option value="tv">TV</option>
-                    <option value="live">Live</option>
-                    <option value="radio">Radio</option>
-                    <option value="other">Other</option>
-                  </select>
+                  <input type="hidden" id="newCat" value="film" />
+                  <div style="display:flex;flex-wrap:wrap;gap:.4rem;" id="newCatPills">
+                    <button type="button" onclick="pickCat('newCat','film',this)"      class="cat-pill active-pill">Film</button>
+                    <button type="button" onclick="pickCat('newCat','documentary',this)" class="cat-pill">Documentary</button>
+                    <button type="button" onclick="pickCat('newCat','performance',this)" class="cat-pill">Performance</button>
+                    <button type="button" onclick="pickCat('newCat','news',this)"      class="cat-pill">News</button>
+                    <button type="button" onclick="pickCat('newCat','animation',this)" class="cat-pill">Animation</button>
+                    <button type="button" onclick="pickCat('newCat','sport',this)"     class="cat-pill">Sport</button>
+                    <button type="button" onclick="pickCat('newCat','tv',this)"        class="cat-pill">TV</button>
+                    <button type="button" onclick="pickCat('newCat','live',this)"      class="cat-pill">Live</button>
+                    <button type="button" onclick="pickCat('newCat','radio',this)"     class="cat-pill">Radio</button>
+                    <button type="button" onclick="pickCat('newCat','other',this)"     class="cat-pill">Other</button>
+                  </div>
                 </div>
+              </div>
+              <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Year</label>
                   <input class="form-input" id="newYear" placeholder="e.g. 1972" type="number" min="1940" max="2030" />
                 </div>
-              </div>
-              <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Duration</label>
                   <input class="form-input" id="newDuration" placeholder="e.g. 1:42:00" />
@@ -1269,18 +1281,19 @@ select.form-input{cursor:pointer;}
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label">Category</label>
-                    <select class="form-input" id="edCat">
-                      <option value="film">Film</option>
-                      <option value="documentary">Documentary</option>
-                      <option value="performance">Performance</option>
-                      <option value="news">News</option>
-                      <option value="animation">Animation</option>
-                      <option value="sport">Sport</option>
-                      <option value="tv">TV</option>
-                      <option value="live">Live</option>
-                      <option value="radio">Radio</option>
-                      <option value="other">Other</option>
-                    </select>
+                    <input type="hidden" id="edCat" value="film" />
+                    <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+                      <button type="button" onclick="pickCat('edCat','film',this)"        class="cat-pill active-pill">Film</button>
+                      <button type="button" onclick="pickCat('edCat','documentary',this)" class="cat-pill">Documentary</button>
+                      <button type="button" onclick="pickCat('edCat','performance',this)" class="cat-pill">Performance</button>
+                      <button type="button" onclick="pickCat('edCat','news',this)"        class="cat-pill">News</button>
+                      <button type="button" onclick="pickCat('edCat','animation',this)"   class="cat-pill">Animation</button>
+                      <button type="button" onclick="pickCat('edCat','sport',this)"       class="cat-pill">Sport</button>
+                      <button type="button" onclick="pickCat('edCat','tv',this)"          class="cat-pill">TV</button>
+                      <button type="button" onclick="pickCat('edCat','live',this)"        class="cat-pill">Live</button>
+                      <button type="button" onclick="pickCat('edCat','radio',this)"       class="cat-pill">Radio</button>
+                      <button type="button" onclick="pickCat('edCat','other',this)"       class="cat-pill">Other</button>
+                    </div>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Year</label>
@@ -1616,6 +1629,14 @@ function updateVideoCountBadge() {
   if (catNF) catNF.textContent = LIVE_VIDS.filter(v=>v.c!=='film').length || '—';
 }
 
+// ─── Category pill picker ─────────────────
+function pickCat(hiddenId, value, btn){
+  document.getElementById(hiddenId).value = value;
+  // un-highlight all sibling pills
+  btn.closest('div').querySelectorAll('.cat-pill').forEach(b=>b.classList.remove('active-pill'));
+  btn.classList.add('active-pill');
+}
+
 // ─── Page switching ───────────────────────
 function showPage(id, el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1920,9 +1941,11 @@ function editorSelectVideo(index){
   document.getElementById('edIsM3U8').checked    = !!v.isM3U8;
   document.getElementById('edIsPinned').checked  = !!v.isPinned;
 
-  // Set category
-  const catSel = document.getElementById('edCat');
-  catSel.value = v.c || 'film';
+  // Set category pill
+  document.getElementById('edCat').value = v.c || 'film';
+  document.querySelectorAll('#page-editor .cat-pill').forEach(b=>{
+    b.classList.toggle('active-pill', b.getAttribute('onclick').includes("'"+( v.c||'film')+"'"));
+  });
 
   // Update header
   document.getElementById('editorFormSub').textContent = 'Editing: ' + v.t;
