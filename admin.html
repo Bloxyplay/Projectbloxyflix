@@ -1462,7 +1462,7 @@ select.form-input{cursor:pointer;}
           <div class="card-head">
             <div>
               <div class="card-head-title">Step 1 — Find a Video</div>
-              <div class="card-head-sub">Search by title or Korean title</div>
+              <div class="card-head-sub">Search and add videos to the edit queue below</div>
             </div>
           </div>
           <div class="card-body">
@@ -1471,6 +1471,34 @@ select.form-input{cursor:pointer;}
               <button class="topbar-btn" onclick="editorClearSelection()" style="white-space:nowrap;">✕ Clear</button>
             </div>
             <div id="editorSearchResults" style="margin-top:.85rem;max-height:260px;overflow-y:auto;"></div>
+          </div>
+        </div>
+
+        <!-- Edit Queue -->
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">📋 Edit Queue <span id="editorQueueBadge" class="nav-badge" style="margin-left:.5rem;">0</span></div>
+              <div class="card-head-sub">Videos selected for editing — edit each one then download all at once</div>
+            </div>
+            <button class="card-action" onclick="editorQueueClearAll()" style="color:var(--red);">Clear All</button>
+          </div>
+          <div id="editorQueueList">
+            <div id="editorQueueEmpty" style="padding:2rem;text-align:center;color:var(--muted);font-size:.85rem;">Search for videos above and click "Add to Edit Queue" to select them.</div>
+          </div>
+          <!-- Download all edits -->
+          <div id="editorQueueActions" style="display:none;padding:1.25rem;border-top:1px solid var(--border);">
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+              <button class="topbar-btn primary" onclick="editorQueueDownloadAll()" id="editorQueueDownloadBtn" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                Download All Edits &amp; Deletions
+              </button>
+              <button class="topbar-btn" onclick="triggerEditorLocalUpload()" style="padding:.85rem 1rem;">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                Load Local HTML
+              </button>
+              <input type="file" id="editorLocalInputQueue" accept=".html,text/html" style="display:none;" onchange="handleEditorLocalUpload(this)" />
+            </div>
           </div>
         </div>
 
@@ -1587,13 +1615,21 @@ select.form-input{cursor:pointer;}
               <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
                 <button class="topbar-btn primary" id="editorSaveBtn" onclick="editorSaveAndDownload()" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
                   <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-                  Save Changes &amp; Download
+                  Save &amp; Download (single)
+                </button>
+                <button class="topbar-btn" onclick="editorQueueSaveEdit(editorSelectedIndex)" style="padding:.85rem 1rem;gap:.5rem;border-color:var(--green);color:var(--green);">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                  Save Edit to Queue
                 </button>
                 <button class="topbar-btn" onclick="triggerEditorLocalUpload()" style="padding:.85rem 1rem;gap:.5rem;">
                   <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
                   Load Local HTML
                 </button>
                 <input type="file" id="editorLocalInput" accept=".html,text/html" style="display:none;" onchange="handleEditorLocalUpload(this)" />
+                <button class="topbar-btn" id="editorDeleteBtn" onclick="editorQueueMarkDelete(editorSelectedIndex);editorQueueAdd(editorSelectedIndex)" style="padding:.85rem 1rem;border-color:rgba(232,38,58,.4);color:var(--red);gap:.5rem;" onmouseover="this.style.background='rgba(232,38,58,.1)'" onmouseout="this.style.background=''">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                  Mark for Delete
+                </button>
               </div>
 
             </div>
@@ -2476,6 +2512,234 @@ function teInsertNewSection(){
 let editorSelectedIndex = -1;
 let editorLocalHtml = null;
 
+// ─── Editor Queue ─────────────────────────
+// Each item: { index, title, cat, action:'edit'|'delete', newEntry:string|null }
+let editorQueue = [];
+
+function editorQueueAdd(index){
+  const v = LIVE_VIDS[index];
+  if(!v) return;
+  if(editorQueue.some(q=>q.index===index)){
+    toast(`"${v.t}" is already in the queue`,'var(--gold)');
+    return;
+  }
+  editorQueue.push({ index, title:v.t, cat:v.c||'', action:'edit', newEntry:null });
+  editorQueueRender();
+  editorSearch(); // re-render search to show green state
+  toast(`Added to queue: ${v.t}`,'var(--green)');
+}
+
+function editorQueueRemove(index){
+  editorQueue = editorQueue.filter(q=>q.index!==index);
+  editorQueueRender();
+  editorSearch();
+}
+
+function editorQueueClearAll(){
+  editorQueue = [];
+  editorQueueRender();
+  editorSearch();
+}
+
+function editorQueueMarkDelete(index){
+  const item = editorQueue.find(q=>q.index===index);
+  if(!item) return;
+  if(item.action==='delete'){
+    item.action='edit'; // toggle off
+  } else {
+    item.action='delete';
+    item.newEntry=null;
+  }
+  editorQueueRender();
+}
+
+function editorQueueSaveEdit(index){
+  // Pull current form values and save as the new entry for this queued item
+  if(editorSelectedIndex !== index){
+    editorSelectVideo(index);
+    toast('Video loaded — edit the fields then click "Save Edit to Queue"','var(--blue)');
+    return;
+  }
+  const entry = buildEditorEntry();
+  if(!entry) return;
+  const item = editorQueue.find(q=>q.index===index);
+  if(!item) return;
+  item.newEntry = entry;
+  item.action = 'edit';
+  editorQueueRender();
+  toast(`✓ Edit saved for: ${item.title}`,'var(--green)');
+}
+
+function buildEditorEntry(){
+  const esc = s => String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ');
+  const t       = document.getElementById('edTitle').value.trim();
+  const tk      = document.getElementById('edTitleKr').value.trim();
+  const desc    = document.getElementById('edDesc').value.trim();
+  const cat     = document.getElementById('edCat').value || 'movies';
+  const year    = document.getElementById('edYear').value.trim();
+  const dur     = document.getElementById('edDuration').value.trim();
+  const views   = document.getElementById('edViews').value.trim();
+  const url     = document.getElementById('edUrl').value.trim();
+  const thumb   = document.getElementById('edThumb').value.trim();
+  const ty      = document.getElementById('edTy')?.value.trim()||'';
+  const creator = document.getElementById('edCreator')?.value.trim()||'';
+  const isYT    = document.getElementById('edIsYouTube').checked;
+  const isM3    = document.getElementById('edIsM3U8').checked;
+  const isPin   = document.getElementById('edIsPinned').checked;
+  if(!t){ toast('Title cannot be empty','var(--gold)'); return null; }
+  let e=`{t:'${esc(t)}'`;
+  if(tk)      e+=`,tk:'${esc(tk)}'`;
+  if(desc)    e+=`,d:'${esc(desc.slice(0,300))}'`;
+  e+=`,u:'${esc(url)}',y:'${esc(year||'')}',c:'${esc(cat)}',ty:'${esc(ty||cat)}',views:'${esc(views||'0')}',duration:'${esc(dur||'')}'`;
+  if(creator) e+=`,creator:'${esc(creator)}'`;
+  if(thumb)   e+=`,thumb:'${esc(thumb)}'`;
+  if(isYT)    e+=`,isYouTube:true`;
+  if(isM3)    e+=`,isM3U8:true`;
+  if(isPin)   e+=`,isPinned:true`;
+  e+='}';
+  return e;
+}
+
+function editorQueueRender(){
+  const badge   = document.getElementById('editorQueueBadge');
+  const list    = document.getElementById('editorQueueList');
+  const empty   = document.getElementById('editorQueueEmpty');
+  const actions = document.getElementById('editorQueueActions');
+  if(badge) badge.textContent = editorQueue.length;
+  if(!editorQueue.length){
+    if(empty)   empty.style.display='block';
+    if(actions) actions.style.display='none';
+    list.querySelectorAll('.eq-item').forEach(el=>el.remove());
+    return;
+  }
+  if(empty)   empty.style.display='none';
+  if(actions) actions.style.display='block';
+
+  list.querySelectorAll('.eq-item').forEach(el=>el.remove());
+  const catColors={movies:'var(--red)',performances:'var(--gold)',documentaries:'var(--blue)',news:'var(--green)',cctv:'#06b6d4',live:'var(--red)',other:'var(--muted)'};
+
+  editorQueue.forEach(item=>{
+    const div = document.createElement('div');
+    div.className='eq-item';
+    div.style.cssText='display:flex;align-items:center;gap:.75rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--border2);flex-wrap:wrap;';
+    const isDelete = item.action==='delete';
+    const hasEdit  = !!item.newEntry;
+    div.innerHTML=`
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${isDelete?'text-decoration:line-through;color:var(--muted);':''}">${item.title}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.15rem;">
+          ${item.cat} · #${item.index+1}
+          ${hasEdit&&!isDelete?'<span style="color:var(--green);margin-left:.5rem;">✓ Edit saved</span>':''}
+          ${isDelete?'<span style="color:var(--red);margin-left:.5rem;">🗑 Will be deleted</span>':''}
+        </div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-shrink:0;flex-wrap:wrap;">
+        <button onclick="editorSelectVideo(${item.index})" style="padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);">Edit Fields</button>
+        <button onclick="editorQueueSaveEdit(${item.index})" style="padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid var(--green);background:rgba(34,197,94,.1);color:var(--green);">Save Edit</button>
+        <button onclick="editorQueueMarkDelete(${item.index})" style="padding:.3rem .65rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid ${isDelete?'var(--red)':'var(--border)'};background:${isDelete?'rgba(232,38,58,.1)':'none'};color:${isDelete?'var(--red)':'var(--muted)'};">${isDelete?'↩ Undo Delete':'🗑 Delete'}</button>
+        <button onclick="editorQueueRemove(${item.index})" style="padding:.3rem .5rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);">✕</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+async function editorQueueDownloadAll(){
+  if(!editorQueue.length){ toast('Queue is empty','var(--gold)'); return; }
+
+  const btn = document.getElementById('editorQueueDownloadBtn');
+  btn.disabled=true; btn.textContent='Working…';
+
+  try{
+    // Get source HTML
+    let sourceHtml = editorLocalHtml || null;
+    if(!sourceHtml){
+      toast('Fetching index.html from GitHub…','var(--blue)');
+      const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
+      const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
+      const branch = localStorage.getItem('bf_gh_branch') || 'main';
+      const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+      const urls = [
+        `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
+        `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
+      ];
+      for(const url of urls){
+        try{ const r=await fetch(url); if(r.ok){sourceHtml=await r.text();break;} }catch(e){}
+      }
+      if(!sourceHtml) throw new Error('Could not fetch index.html. Load a local file first.');
+    }
+
+    // Find vids array boundaries
+    let arrMarker='const vids=[';
+    let arrStart=sourceHtml.indexOf(arrMarker);
+    if(arrStart===-1){ arrMarker='const vids = ['; arrStart=sourceHtml.indexOf(arrMarker); }
+    if(arrStart===-1) throw new Error('Could not find vids array.');
+    const openPos=arrStart+arrMarker.length-1;
+    let depth=0,closePos=-1;
+    for(let i=openPos;i<sourceHtml.length;i++){
+      if(sourceHtml[i]==='[') depth++;
+      else if(sourceHtml[i]===']'){ depth--; if(depth===0){closePos=i;break;} }
+    }
+    if(closePos===-1) throw new Error('Could not find end of vids array.');
+
+    let arrayInner=sourceHtml.slice(openPos+1,closePos);
+
+    // Process queue in REVERSE index order so positions stay valid as we modify
+    const sorted=[...editorQueue].sort((a,b)=>b.index-a.index);
+
+    for(const item of sorted){
+      // Find entry boundaries in current arrayInner
+      let eStart=-1,eEnd=-1,objD=0,eCnt=-1,inS=false,sC='',esc=false;
+      for(let i=0;i<arrayInner.length;i++){
+        const ch=arrayInner[i];
+        if(esc){esc=false;continue;}
+        if(ch==='\\'){esc=true;continue;}
+        if(inS){if(ch===sC)inS=false;continue;}
+        if(ch==='"'||ch==="'"){inS=true;sC=ch;continue;}
+        if(ch==='{'){if(objD===0){eCnt++;if(eCnt===item.index)eStart=i;}objD++;}
+        else if(ch==='}'){objD--;if(objD===0&&eCnt===item.index){eEnd=i;break;}}
+      }
+      if(eStart===-1||eEnd===-1) throw new Error(`Could not find entry for "${item.title}".`);
+
+      if(item.action==='delete'){
+        // Remove entry + surrounding comma/whitespace
+        let before=arrayInner.slice(0,eStart).replace(/,\s*$/,'');
+        let after=arrayInner.slice(eEnd+1).replace(/^\s*,/,'');
+        arrayInner=before+after;
+      } else if(item.newEntry){
+        // Replace entry with edited version
+        arrayInner=arrayInner.slice(0,eStart)+item.newEntry+arrayInner.slice(eEnd+1);
+      }
+      // if no newEntry and not delete — skip (no change)
+    }
+
+    const newHtml=sourceHtml.slice(0,openPos+1)+arrayInner+sourceHtml.slice(closePos);
+
+    const blob=new Blob([newHtml],{type:'text/html'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+
+    const edits   = editorQueue.filter(q=>q.action==='edit'&&q.newEntry).length;
+    const deletes = editorQueue.filter(q=>q.action==='delete').length;
+    const skipped = editorQueue.filter(q=>q.action==='edit'&&!q.newEntry).length;
+    toast(`✓ Done! ${edits} edited, ${deletes} deleted${skipped?', '+skipped+' skipped (no edit saved)':''}. Upload to GitHub!`);
+    editorQueueClearAll();
+    editorClearSelection();
+
+  }catch(e){
+    toast('Error: '+e.message,'var(--red)');
+  }finally{
+    btn.disabled=false; btn.textContent='Download All Edits & Deletions';
+  }
+}
+
 function editorSearch(){
   const q = document.getElementById('editorSearch').value.toLowerCase().trim();
   const resultsEl = document.getElementById('editorSearchResults');
@@ -2496,24 +2760,31 @@ function editorSearch(){
     return;
   }
 
-  const catColors={film:'var(--red)',documentary:'var(--blue)',performance:'var(--gold)',news:'var(--green)',animation:'#a855f7',sport:'var(--orange)',live:'var(--red)',radio:'#06b6d4',tv:'#8b5cf6',other:'var(--muted)'};
-  resultsEl.innerHTML = matches.map(({v,i})=>`
-    <div onclick="editorSelectVideo(${i})" style="
-      display:flex;align-items:center;gap:.85rem;
-      padding:.65rem .9rem;border-radius:8px;cursor:pointer;
-      border:1px solid var(--border);margin-bottom:.4rem;
-      background:var(--panel2);transition:border-color .15s;
-      ${editorSelectedIndex===i?'border-color:var(--red);background:rgba(232,38,58,.06);':''}
-    " onmouseover="this.style.borderColor='var(--dim)'" onmouseout="this.style.borderColor='${editorSelectedIndex===i?'var(--red)':'var(--border)'}'">
-      <div style="width:42px;height:28px;border-radius:4px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:var(--muted);flex-shrink:0;">${(v.c||'?').slice(0,3).toUpperCase()}</div>
-      <div style="flex:1;min-width:0;">
+  const catColors={movies:'var(--red)',performances:'var(--gold)',documentaries:'var(--blue)',news:'var(--green)',cctv:'#06b6d4',live:'var(--red)',other:'var(--muted)'};
+  resultsEl.innerHTML = matches.map(({v,i})=>{
+    const inQueue = editorQueue.some(q=>q.index===i);
+    const isSelected = editorSelectedIndex===i;
+    return `
+    <div style="
+      display:flex;align-items:center;gap:.75rem;
+      padding:.65rem .9rem;border-radius:8px;
+      border:1px solid ${isSelected?'var(--red)':inQueue?'var(--green)':' var(--border)'};
+      margin-bottom:.4rem;
+      background:${isSelected?'rgba(232,38,58,.06)':inQueue?'rgba(34,197,94,.06)':'var(--panel2)'};
+    ">
+      <div style="width:38px;height:26px;border-radius:4px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:var(--muted);flex-shrink:0;">${(v.c||'?').slice(0,3).toUpperCase()}</div>
+      <div style="flex:1;min-width:0;cursor:pointer;" onclick="editorSelectVideo(${i})">
         <div style="font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.t}</div>
-        <div style="font-size:.72rem;color:var(--muted);">${v.tk||''} ${v.tk&&v.y?'·':''} ${v.y||''} ${v.y&&v.c?'·':''} ${v.c||''}</div>
+        <div style="font-size:.72rem;color:var(--muted);">${v.y||''} · ${v.c||''} · #${i+1}</div>
       </div>
-      <span class="badge" style="background:${catColors[v.c]||'var(--muted)'}18;color:${catColors[v.c]||'var(--muted)'};border-color:${catColors[v.c]||'var(--muted)'}30;flex-shrink:0;">${v.c||'?'}</span>
-      <span style="font-size:.72rem;color:var(--dim);flex-shrink:0;">#${i+1}</span>
-    </div>
-  `).join('');
+      <button onclick="editorQueueAdd(${i})" style="
+        padding:.3rem .7rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;
+        border:1px solid ${inQueue?'var(--green)':'var(--border)'};
+        background:${inQueue?'rgba(34,197,94,.12)':'none'};
+        color:${inQueue?'var(--green)':'var(--muted)'};
+      ">${inQueue?'✓ In Queue':'+ Queue'}</button>
+    </div>`;
+  }).join('');
 }
 
 function editorSelectVideo(index){
@@ -2745,7 +3016,108 @@ async function editorSaveAndDownload(){
   }
 }
 
-// ─── Shared table row builder ─────────────
+async function editorDeleteVideo(){
+  if(editorSelectedIndex < 0){ toast('Select a video first.','var(--gold)'); return; }
+
+  const v = LIVE_VIDS[editorSelectedIndex];
+  const title = v?.t || 'this video';
+
+  // Confirm
+  if(!confirm(`Delete "${title}"?\n\nThis will remove it from index.html and download the updated file. This cannot be undone.`)) return;
+
+  const btn = document.getElementById('editorDeleteBtn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+
+  try{
+    // Get source HTML
+    let sourceHtml = null;
+    if(editorLocalHtml){
+      sourceHtml = editorLocalHtml;
+    } else {
+      toast('Fetching index.html from GitHub…','var(--blue)');
+      const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
+      const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
+      const branch = localStorage.getItem('bf_gh_branch') || 'main';
+      const file   = localStorage.getItem('bf_gh_file')   || 'index.html';
+      const urls = [
+        `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
+        `https://raw.githubusercontent.com/${owner}/${repo}/master/${file}`,
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/index.html',
+        'https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/master/index.html',
+      ];
+      for(const url of urls){
+        try{ const r=await fetch(url); if(r.ok){sourceHtml=await r.text();break;} }catch(e){}
+      }
+      if(!sourceHtml) throw new Error('Could not fetch index.html. Load a local file first.');
+    }
+
+    // Find the vids array boundaries
+    let arrMarker = 'const vids=[';
+    let arrStart  = sourceHtml.indexOf(arrMarker);
+    if(arrStart === -1){ arrMarker = 'const vids = ['; arrStart = sourceHtml.indexOf(arrMarker); }
+    if(arrStart === -1) throw new Error('Could not find vids array.');
+
+    const arrayOpenPos = arrStart + arrMarker.length - 1;
+    let depth = 0, arrayClosePos = -1;
+    for(let i = arrayOpenPos; i < sourceHtml.length; i++){
+      if(sourceHtml[i]==='[') depth++;
+      else if(sourceHtml[i]===']'){ depth--; if(depth===0){ arrayClosePos=i; break; } }
+    }
+    if(arrayClosePos === -1) throw new Error('Could not find end of vids array.');
+
+    const arrayInner = sourceHtml.slice(arrayOpenPos + 1, arrayClosePos);
+
+    // Walk char-by-char to find the Nth entry boundaries (same as editor)
+    let entryStart=-1, entryEnd=-1;
+    let objDepth=0, entryCount=-1, inStr=false, strChar='', esc=false;
+    for(let i=0; i<arrayInner.length; i++){
+      const ch=arrayInner[i];
+      if(esc){ esc=false; continue; }
+      if(ch==='\\'){ esc=true; continue; }
+      if(inStr){ if(ch===strChar) inStr=false; continue; }
+      if(ch==='"'||ch==="'"){ inStr=true; strChar=ch; continue; }
+      if(ch==='{'){
+        if(objDepth===0){ entryCount++; if(entryCount===editorSelectedIndex) entryStart=i; }
+        objDepth++;
+      } else if(ch==='}'){
+        objDepth--;
+        if(objDepth===0 && entryCount===editorSelectedIndex){ entryEnd=i; break; }
+      }
+    }
+    if(entryStart===-1||entryEnd===-1) throw new Error(`Could not locate entry #${editorSelectedIndex+1}.`);
+
+    // Remove the entry + any surrounding comma/whitespace
+    let before = arrayInner.slice(0, entryStart);
+    let after  = arrayInner.slice(entryEnd + 1);
+    // Clean up trailing comma before entry or leading comma after
+    before = before.replace(/,\s*$/, '');
+    after  = after.replace(/^\s*,/, '');
+    const newArrayInner = before + after;
+    const newHtml = sourceHtml.slice(0, arrayOpenPos + 1) + newArrayInner + sourceHtml.slice(arrayClosePos);
+
+    // Download
+    const blob = new Blob([newHtml],{type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+
+    // Remove from LIVE_VIDS in memory
+    LIVE_VIDS.splice(editorSelectedIndex, 1);
+    updateVideoCountBadge();
+
+    toast(`✓ "${title}" deleted! Upload index.html to GitHub.`);
+    editorClearSelection();
+
+  } catch(e){
+    toast('Error: '+e.message,'var(--red)');
+  } finally {
+    btn.disabled=false; btn.textContent='Delete Video';
+  }
+}
 function buildVideoRows(list){
   const catColors={film:'var(--red)',documentary:'var(--blue)',performance:'var(--gold)',news:'var(--green)',animation:'#a855f7',sport:'var(--orange)',live:'var(--red)',radio:'#06b6d4',tv:'#8b5cf6',other:'var(--muted)'};
   if(!list.length) return '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">No videos found.</td></tr>';
@@ -3084,17 +3456,27 @@ async function pushVideoToGitHub(){
       }
     }
 
-    // Find vids array marker
+    // Find vids array — inject at the END so new videos get the highest index
+    // (home screen sorts by index descending for "newest first" in All tab)
     let marker = 'const vids=[';
-    let insertAt = currentHtml.indexOf(marker);
-    if(insertAt === -1){ marker = 'const vids = ['; insertAt = currentHtml.indexOf(marker); }
-    if(insertAt === -1) throw new Error('Could not find vids array in index.html.');
+    let arrStart = currentHtml.indexOf(marker);
+    if(arrStart === -1){ marker = 'const vids = ['; arrStart = currentHtml.indexOf(marker); }
+    if(arrStart === -1) throw new Error('Could not find vids array in index.html.');
 
-    // Inject ALL queued entries at the top of the array (newest first)
+    // Walk to find the closing ] of the array
+    const openPos = arrStart + marker.length - 1;
+    let depth = 0, closePos = -1;
+    for(let i = openPos; i < currentHtml.length; i++){
+      if(currentHtml[i]==='[') depth++;
+      else if(currentHtml[i]===']'){ depth--; if(depth===0){ closePos=i; break; } }
+    }
+    if(closePos === -1) throw new Error('Could not find end of vids array.');
+
+    // Inject ALL queued entries just before the closing ]
     const allEntries = videoQueue.map(item => '  ' + item.entry).join(',\n');
-    const newHtml = currentHtml.slice(0, insertAt + marker.length)
-      + '\n' + allEntries + ',\n'
-      + currentHtml.slice(insertAt + marker.length);
+    const newHtml = currentHtml.slice(0, closePos)
+      + ',\n' + allEntries + '\n'
+      + currentHtml.slice(closePos);
 
     // Download
     const blob = new Blob([newHtml], {type:'text/html'});
