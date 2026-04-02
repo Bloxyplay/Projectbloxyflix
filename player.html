@@ -3,744 +3,630 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0b0c0f">
+<meta name="theme-color" content="#050507">
 <title>BloxyFlix Player</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@8.10.0/dist/video-js.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#0b0c0f;--panel:#13141a;--border:#2a2b35;
-  --text:#d8d9e0;--muted:#6b6d7e;
-  --red:#e8263a;--gold:#c9a84c;
+  --ink:#050507;
+  --panel:rgba(12,13,18,.92);
+  --glass:rgba(255,255,255,.04);
+  --glass2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.05);
+  --text:#e8e9f0;
+  --muted:#6b6d82;
+  --dim:#2a2b38;
+  --red:#e8263a;
+  --red2:#ff3d52;
+  --redglow:rgba(232,38,58,.35);
+  --gold:#d4a843;
+  --green:#2ecc71;
   --font:'DM Sans',system-ui,sans-serif;
+  --display:'Bebas Neue',sans-serif;
+  --mono:'JetBrains Mono',monospace;
 }
-html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
+html,body{background:var(--ink);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(232,38,58,.1) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 40% at 90% 90%,rgba(100,20,30,.06) 0%,transparent 50%);
+  pointer-events:none;z-index:0;
+}
 
-/* ── NAV ── */
+/* NAV */
 .pnav{
-  position:sticky;top:0;z-index:100;
-  display:flex;align-items:center;gap:1rem;
-  padding:.75rem 1rem;
-  background:rgba(11,12,15,.95);
+  position:sticky;top:0;z-index:300;
+  display:flex;align-items:center;gap:.85rem;
+  padding:.7rem 1.25rem;
+  background:rgba(5,5,7,.9);
   border-bottom:1px solid var(--border);
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(24px) saturate(160%);
 }
 .pnav-back{
-  display:flex;align-items:center;gap:.5rem;
-  background:none;border:none;color:var(--muted);
-  font-size:.88rem;font-weight:500;cursor:pointer;
-  padding:.4rem .6rem;border-radius:8px;transition:color .2s;
+  display:flex;align-items:center;gap:.4rem;
+  background:var(--glass);border:1px solid var(--border);
+  color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;
+  padding:.32rem .7rem;border-radius:20px;transition:all .18s;flex-shrink:0;
 }
-.pnav-back:hover{color:var(--text);}
-.pnav-back svg{fill:currentColor;flex-shrink:0;}
-.pnav-logo{font-family:'DM Sans',sans-serif;font-weight:900;font-size:1.1rem;letter-spacing:-0.5px;color:#fff;}
+.pnav-back:hover{color:var(--text);background:var(--glass2);}
+.pnav-back svg{fill:currentColor;}
+.pnav-logo{font-family:var(--display);font-size:1.3rem;letter-spacing:2px;color:#fff;flex-shrink:0;line-height:1;}
 .pnav-logo span{color:var(--red);}
-.pnav-title{font-size:.85rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-
-/* ── VIDEO PLAYER ── */
-.player-wrap{width:100%;background:#000;position:relative;}
-.player-wrap video{width:100%;display:block;}
-.vjs-big-play-button{border-color:var(--red)!important;}
-.vjs-big-play-button .vjs-icon-placeholder:before{color:var(--red)!important;}
-.video-js{width:100%!important;height:auto!important;aspect-ratio:16/9;}
-
-/* YouTube overlay inside Video.js */
-#yt-live-overlay{position:absolute;inset:0;z-index:5;}
-#yt-live-overlay iframe{width:100%;height:100%;border:none;}
-
-/* Radio */
-.radio-wrap{padding:2rem 1rem;display:flex;justify-content:center;}
-.radio-card{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:20px;padding:2rem;max-width:380px;width:100%;text-align:center;
+.pnav-title{font-size:.77rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pnav-live{
+  display:none;align-items:center;gap:.32rem;
+  background:var(--red);color:#fff;
+  font-size:.6rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  padding:.2rem .55rem;border-radius:4px;flex-shrink:0;
+  animation:livepulse 2s ease-in-out infinite;
 }
-.radio-visualizer-wrap{position:relative;width:140px;height:140px;margin:0 auto 1.5rem;}
-.radio-visualizer{position:absolute;inset:0;width:100%;height:100%;opacity:.5;}
+.pnav-live.show{display:flex;}
+@keyframes livepulse{0%,100%{box-shadow:0 0 0 0 var(--redglow);}50%{box-shadow:0 0 0 6px transparent;}}
+.pnav-live-dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:rpulse 1s infinite;}
+
+/* LAYOUT */
+.player-layout{
+  display:grid;grid-template-columns:1fr 360px;
+  max-width:1440px;margin:0 auto;position:relative;z-index:1;
+}
+.player-main{grid-column:1;min-width:0;}
+.player-sidebar{
+  grid-column:2;border-left:1px solid var(--border);
+  overflow-y:auto;max-height:calc(100vh - 50px);
+  position:sticky;top:50px;
+  background:rgba(6,7,10,.7);backdrop-filter:blur(12px);
+}
+@media(max-width:960px){
+  .player-layout{grid-template-columns:1fr;}
+  .player-sidebar{grid-column:1;border-left:none;border-top:1px solid var(--border);max-height:none;position:static;}
+}
+
+/* VIDEO STAGE */
+.video-stage{width:100%;background:#000;position:relative;overflow:hidden;}
+.video-stage::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--red),var(--red2),var(--gold),var(--red));
+  background-size:200% 100%;animation:shimmer 3s linear infinite;z-index:10;pointer-events:none;
+}
+@keyframes shimmer{0%{background-position:0%;}100%{background-position:200%;}}
+
+#playerContainer{display:none;}
+.video-js{width:100%!important;height:auto!important;aspect-ratio:16/9;}
+.vjs-big-play-button{
+  border:none!important;background:rgba(0,0,0,.55)!important;
+  backdrop-filter:blur(8px)!important;border-radius:50%!important;
+  width:64px!important;height:64px!important;
+  top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;transition:all .2s!important;
+}
+.vjs-big-play-button:hover{background:rgba(232,38,58,.75)!important;transform:translate(-50%,-50%) scale(1.1)!important;}
+.vjs-big-play-button .vjs-icon-placeholder:before{color:#fff!important;font-size:1.9rem!important;}
+.vjs-control-bar{background:linear-gradient(to top,rgba(0,0,0,.88) 0%,transparent 100%)!important;padding:0 .5rem .4rem!important;}
+.vjs-progress-control .vjs-play-progress{background:var(--red)!important;}
+.vjs-progress-control .vjs-play-progress:before{color:var(--red)!important;}
+.vjs-volume-level{background:var(--red)!important;}
+.vjs-slider{background:rgba(255,255,255,.12)!important;}
+
+#yt-live-overlay{position:absolute;inset:0;z-index:5;display:none;}
+#yt-live-overlay iframe{width:100%;height:100%;border:none;}
+#youtubeContainer{display:none;width:100%;aspect-ratio:16/9;background:#000;}
+#youtubeContainer iframe{width:100%;height:100%;border:none;}
+#plyrContainer{display:none;width:100%;background:#000;}
+#plyrContainer video{width:100%;aspect-ratio:16/9;}
+:root{--plyr-color-main:#e8263a;}
+.plyr--video .plyr__control--overlaid{background:rgba(232,38,58,.75)!important;border-radius:50%!important;width:64px!important;height:64px!important;}
+.plyr--video .plyr__control--overlaid:hover{background:var(--red)!important;transform:scale(1.1)!important;}
+
+/* RADIO */
+#radioContainer{display:none;}
+.radio-wrap{width:100%;aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.radio-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(232,38,58,.07) 0%,transparent 70%);}
+.radio-card{
+  position:relative;z-index:2;
+  background:rgba(10,11,16,.88);border:1px solid var(--border);
+  backdrop-filter:blur(20px);border-radius:20px;
+  padding:2rem;max-width:320px;width:88%;text-align:center;
+}
+.radio-visualizer-wrap{position:relative;width:116px;height:116px;margin:0 auto 1.4rem;}
+.radio-visualizer{position:absolute;inset:0;width:100%;height:100%;opacity:.55;}
 .radio-disc{
   position:absolute;inset:0;border-radius:50%;
-  background:linear-gradient(135deg,#1a1a2e,#16213e);
-  border:2px solid var(--border);
+  background:conic-gradient(from 0deg,#1a1a2e,#16213e,#0f3460,#1a1a2e);
+  border:2px solid rgba(255,255,255,.08);
   display:flex;align-items:center;justify-content:center;
-  animation:spin 6s linear infinite paused;
+  animation:spin 8s linear infinite paused;
 }
 .radio-disc.playing{animation-play-state:running;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .radio-disc-inner{
-  width:50px;height:50px;border-radius:50%;
+  width:42px;height:42px;border-radius:50%;
   background:linear-gradient(135deg,var(--red),#8b0000);
   display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 18px var(--redglow);
 }
-.radio-disc-letter{color:#fff;font-weight:900;font-size:1.4rem;}
-.radio-station-name{font-weight:700;font-size:1.1rem;margin-bottom:.5rem;}
+.radio-disc-letter{color:#fff;font-family:var(--display);font-size:1.3rem;letter-spacing:1px;}
+.radio-station-name{font-family:var(--display);font-size:1.25rem;letter-spacing:2px;margin-bottom:.4rem;}
 .radio-live-badge{
-  display:inline-flex;align-items:center;gap:.4rem;
-  background:rgba(232,38,58,.15);border:1px solid rgba(232,38,58,.3);
-  color:var(--red);font-size:.72rem;font-weight:700;
-  padding:.25rem .75rem;border-radius:20px;margin-bottom:1.25rem;
-  text-transform:uppercase;letter-spacing:1px;
+  display:inline-flex;align-items:center;gap:.32rem;
+  background:rgba(232,38,58,.1);border:1px solid rgba(232,38,58,.22);
+  color:var(--red);font-size:.65rem;font-weight:700;
+  padding:.18rem .6rem;border-radius:4px;margin-bottom:1.2rem;
+  text-transform:uppercase;letter-spacing:1.2px;
 }
-.radio-live-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-.radio-btn-row{display:flex;align-items:center;gap:1rem;justify-content:center;}
-.radio-btn{
-  width:52px;height:52px;border-radius:50%;
-  background:var(--red);border:none;color:#fff;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:all .2s;box-shadow:0 4px 20px rgba(232,38,58,.4);
+.radio-live-dot{width:5px;height:5px;background:var(--red);border-radius:50%;animation:rpulse 1.2s infinite;}
+@keyframes rpulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+.radio-btn-row{display:flex;align-items:center;gap:.8rem;justify-content:center;}
+.radio-btn{width:46px;height:46px;border-radius:50%;background:var(--red);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px var(--redglow);}
+.radio-btn:hover{transform:scale(1.1);}
+.radio-btn svg{width:20px;height:20px;}
+.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:.5rem;color:var(--muted);}
+.radio-volume{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:var(--dim);outline:none;cursor:pointer;}
+.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--red);cursor:pointer;box-shadow:0 0 5px var(--redglow);}
+
+/* SPINNER */
+.spin-overlay{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:16/9;background:#000;}
+.spinner{width:38px;height:38px;border:2px solid rgba(255,255,255,.07);border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite;}
+
+/* HERO STRIP */
+.hero-strip{
+  padding:1.2rem 1.5rem .9rem;
+  background:linear-gradient(180deg,rgba(232,38,58,.035) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);position:relative;
 }
-.radio-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(232,38,58,.55);}
-.radio-btn svg{width:24px;height:24px;}
-.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:.6rem;color:var(--muted);}
-.radio-volume{
-  flex:1;-webkit-appearance:none;appearance:none;
-  height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer;
+.hero-strip::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(232,38,58,.25),transparent);}
+.live-badge{
+  display:none;align-items:center;gap:.32rem;
+  background:var(--red);color:#fff;
+  font-size:.6rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+  padding:.2rem .55rem;border-radius:3px;margin-bottom:.6rem;
+  animation:livepulse 2s ease-in-out infinite;
+  width:fit-content;
 }
-.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--red);cursor:pointer;}
-
-/* YouTube iframe container */
-.youtube-player{width:100%;aspect-ratio:16/9;background:#000;}
-.youtube-player iframe{width:100%;height:100%;border:none;}
-
-/* ── INFO PANEL ── */
-.player-info{padding:1rem 1rem 2rem;max-width:860px;margin:0 auto;}
-.video-title{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:.3rem;margin-top:.75rem;}
-.video-kr{font-size:.9rem;color:var(--muted);margin-bottom:.75rem;}
-.video-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;
-  margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
-.video-views{font-size:.82rem;color:var(--muted);}
-.rating-stars{display:flex;gap:2px;}
-.star{font-size:1.1rem;color:var(--border);cursor:pointer;transition:color .15s;}
-.star.active{color:var(--gold);}
-
-/* Actions */
-.actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;}
-.action-btn{
-  display:flex;align-items:center;gap:.4rem;
-  padding:.55rem 1rem;
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:25px;color:var(--text);font-size:.82rem;
-  cursor:pointer;transition:all .2s;font-weight:500;
+.live-badge.show{display:inline-flex;}
+.live-badge-dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:rpulse 1s infinite;}
+.video-title{
+  font-family:var(--display);
+  font-size:clamp(1.35rem,3vw,2rem);
+  letter-spacing:1.5px;line-height:1.1;color:#fff;
+  margin-bottom:.3rem;
+  text-shadow:0 2px 20px rgba(0,0,0,.4);
 }
-.action-btn:hover{background:#1e1f28;transform:translateY(-1px);}
-.action-btn svg{width:18px;height:18px;fill:currentColor;}
-.action-btn.primary{background:linear-gradient(135deg,var(--red),#c00);border-color:transparent;}
-.action-btn.primary:hover{box-shadow:0 4px 14px rgba(232,38,58,.35);}
-.action-btn.active{color:var(--red);}
+.video-kr{font-size:.83rem;color:var(--muted);letter-spacing:.5px;margin-bottom:.8rem;font-style:italic;}
+.meta-chips{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem;}
+.chip{
+  display:inline-flex;align-items:center;gap:.28rem;
+  padding:.2rem .55rem;border-radius:4px;
+  font-size:.7rem;font-weight:600;letter-spacing:.4px;
+  border:1px solid var(--border);background:var(--glass);color:var(--muted);
+}
+.chip.red{background:rgba(232,38,58,.08);border-color:rgba(232,38,58,.22);color:var(--red);}
+.chip.gold{background:rgba(212,168,67,.08);border-color:rgba(212,168,67,.22);color:var(--gold);}
+.rating-row{display:flex;align-items:center;gap:.35rem;}
+.star{font-size:.95rem;color:var(--dim);cursor:pointer;transition:all .15s;}
+.star.active{color:var(--gold);text-shadow:0 0 8px rgba(212,168,67,.45);}
+.star:hover{transform:scale(1.2);}
 
-/* Description */
-.desc-text{font-size:.87rem;color:var(--muted);line-height:1.7;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
-.desc-text.expanded{display:block;}
-.show-more{font-size:.82rem;color:var(--gold);cursor:pointer;margin-top:.35rem;font-weight:600;}
+/* ACTION BAR */
+.action-bar{
+  display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;
+  padding:.8rem 1.5rem;border-bottom:1px solid var(--border);
+}
+.act-btn{
+  display:flex;align-items:center;gap:.38rem;
+  padding:.44rem .85rem;
+  background:var(--glass);border:1px solid var(--border);
+  border-radius:6px;color:var(--muted);
+  font-size:.78rem;font-weight:600;letter-spacing:.3px;
+  cursor:pointer;transition:all .16s;font-family:var(--font);
+}
+.act-btn:hover{background:var(--glass2);border-color:rgba(255,255,255,.13);color:var(--text);transform:translateY(-1px);}
+.act-btn.active{color:var(--red);border-color:rgba(232,38,58,.28);background:rgba(232,38,58,.06);}
+.act-btn svg{width:14px;height:14px;fill:currentColor;flex-shrink:0;}
+.act-btn.primary{background:linear-gradient(135deg,var(--red),#c00);border-color:transparent;color:#fff;}
+.act-btn.primary:hover{background:linear-gradient(135deg,var(--red2),#d00);box-shadow:0 4px 14px var(--redglow);}
 
-/* Channel row */
+/* CHANNEL */
 .channel-row{
-  display:flex;align-items:center;gap:.75rem;
-  padding:.85rem 0;border-bottom:1px solid var(--border);
-  border-top:1px solid var(--border);margin:.75rem 0;
+  display:flex;align-items:center;gap:.8rem;
+  padding:.9rem 1.5rem;border-bottom:1px solid var(--border);
 }
 .ch-avatar{
   width:38px;height:38px;border-radius:50%;
   background:linear-gradient(135deg,var(--red),#8b0000);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:800;font-size:.9rem;flex-shrink:0;
+  color:#fff;font-family:var(--display);font-size:1rem;letter-spacing:1px;
+  flex-shrink:0;box-shadow:0 2px 10px var(--redglow);
 }
-.ch-name{font-size:.9rem;font-weight:600;}
-.ch-sub{font-size:.78rem;color:var(--muted);}
-.subscribe-btn{
-  margin-left:auto;padding:.45rem 1rem;
-  background:var(--text);border:none;color:#0b0c0f;
-  font-weight:700;font-size:.82rem;border-radius:20px;cursor:pointer;transition:all .2s;
+.ch-info{flex:1;}
+.ch-name{font-size:.88rem;font-weight:700;}
+.ch-sub{font-size:.7rem;color:var(--muted);margin-top:.08rem;letter-spacing:.3px;}
+.sub-btn{
+  padding:.36rem .85rem;background:var(--text);border:none;color:var(--ink);
+  font-weight:800;font-size:.76rem;border-radius:5px;cursor:pointer;transition:all .15s;
+  font-family:var(--font);letter-spacing:.3px;flex-shrink:0;
 }
-.subscribe-btn.subscribed{background:var(--panel);color:var(--text);border:1px solid var(--border);}
+.sub-btn:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(255,255,255,.12);}
+.sub-btn.subscribed{background:var(--glass);color:var(--text);border:1px solid var(--border);}
 
-/* Up Next */
-.up-next-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:.75rem;margin-top:1.25rem;
+/* DESC */
+.desc-section{padding:.9rem 1.5rem;border-bottom:1px solid var(--border);}
+.desc-text{font-size:.83rem;color:var(--muted);line-height:1.8;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.desc-text.expanded{display:block;}
+.show-more{font-size:.76rem;color:var(--red);cursor:pointer;margin-top:.45rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:inline-flex;align-items:center;gap:.3rem;}
+
+/* SIDEBAR */
+.sidebar-head{
+  padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);position:sticky;top:0;
+  background:rgba(6,7,10,.96);backdrop-filter:blur(12px);z-index:5;
 }
-.up-next-title{font-size:.95rem;font-weight:700;}
-.toggle-switch{
-  width:38px;height:20px;background:var(--border);border-radius:10px;
-  position:relative;cursor:pointer;transition:background .2s;
-}
-.toggle-switch.active{background:var(--red);}
-.toggle-switch::after{
-  content:'';position:absolute;top:2px;left:2px;
-  width:16px;height:16px;background:#fff;border-radius:50%;
-  transition:transform .2s;
-}
-.toggle-switch.active::after{transform:translateX(18px);}
+.sidebar-head-title{font-family:var(--display);font-size:.95rem;letter-spacing:2px;color:var(--text);}
+.toggle-sw{width:34px;height:19px;background:var(--dim);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;}
+.toggle-sw.on{background:var(--red);}
+.toggle-sw::after{content:'';position:absolute;top:2.5px;left:2.5px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.toggle-sw.on::after{transform:translateX(15px);}
+
 .up-next-item{
-  display:flex;gap:.75rem;margin-bottom:.75rem;
-  cursor:pointer;border-radius:10px;padding:.5rem;transition:background .2s;
+  display:flex;gap:.7rem;padding:.7rem 1rem;
+  cursor:pointer;transition:background .14s;border-bottom:1px solid var(--border2);position:relative;
 }
-.up-next-item:hover{background:var(--panel);}
-.up-next-thumb{
-  width:120px;height:68px;border-radius:8px;
-  background:#111;flex-shrink:0;position:relative;overflow:hidden;
-}
-.up-next-thumb img{width:100%;height:100%;object-fit:cover;}
-.up-next-dur{
-  position:absolute;bottom:3px;right:4px;
-  background:rgba(0,0,0,.8);color:#fff;font-size:.65rem;
-  padding:.1rem .3rem;border-radius:3px;font-family:'JetBrains Mono',monospace;
-}
-.up-next-info{flex:1;}
-.up-next-vtitle{font-size:.85rem;font-weight:600;line-height:1.3;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.up-next-meta{font-size:.75rem;color:var(--muted);margin-top:.25rem;}
+.up-next-item:hover{background:var(--glass);}
+.up-next-item.current{background:rgba(232,38,58,.05);}
+.up-next-item.current::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--red);}
+.un-thumb{width:108px;height:61px;border-radius:6px;background:var(--dim);flex-shrink:0;position:relative;overflow:hidden;}
+.un-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .28s;}
+.up-next-item:hover .un-thumb img{transform:scale(1.05);}
+.un-dur{position:absolute;bottom:3px;right:4px;background:rgba(0,0,0,.85);color:#fff;font-size:.58rem;padding:.1rem .28rem;border-radius:3px;font-family:var(--mono);}
+.un-badge{position:absolute;top:3px;left:3px;font-size:.54rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;padding:.08rem .28rem;border-radius:2px;}
+.un-badge.yt{background:#ff0000;color:#fff;}
+.un-badge.live{background:var(--red);color:#fff;}
+.un-info{flex:1;min-width:0;}
+.un-title{font-size:.8rem;font-weight:600;line-height:1.35;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:.28rem;}
+.un-meta{font-size:.68rem;color:var(--muted);letter-spacing:.2px;}
 
-/* Comments */
-.comments-section{margin-top:1.5rem;}
-.comments-hdr{font-size:.95rem;font-weight:700;margin-bottom:1rem;}
-.comment-input-row{display:flex;gap:.6rem;align-items:center;margin-bottom:1rem;}
-.comment-avatar{
-  width:32px;height:32px;border-radius:50%;flex-shrink:0;
-  background:var(--red);color:#fff;font-weight:700;font-size:.8rem;
-  display:flex;align-items:center;justify-content:center;
+/* COMMENTS */
+.comments-wrap{padding:1.2rem 1.5rem;}
+.comments-hdr{
+  font-family:var(--display);font-size:1rem;letter-spacing:2px;
+  margin-bottom:.9rem;display:flex;align-items:center;gap:.55rem;
 }
-.comment-input-row input{
-  flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);
-  color:var(--text);font-size:.87rem;padding:.5rem 0;outline:none;
-  font-family:var(--font);
-}
+.comments-count{font-family:var(--font);font-size:.76rem;font-weight:700;background:var(--glass);border:1px solid var(--border);padding:.12rem .45rem;border-radius:20px;color:var(--muted);}
+.comment-input-row{display:flex;gap:.65rem;align-items:center;margin-bottom:1.1rem;}
+.c-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#fff;}
+.comment-input-row input{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;padding:.45rem .7rem;outline:none;font-family:var(--font);transition:border-color .18s;}
+.comment-input-row input:focus{border-color:rgba(232,38,58,.35);}
 .comment-input-row input::placeholder{color:var(--muted);}
-.comment-input-row button{
-  background:none;border:1px solid var(--border);color:var(--text);
-  padding:.4rem .9rem;border-radius:20px;font-size:.8rem;cursor:pointer;
-  font-weight:600;transition:all .2s;
-}
-.comment-input-row button:hover{background:var(--red);border-color:var(--red);}
-.comment-item{display:flex;gap:.65rem;margin-bottom:1rem;}
-.comment-body{}
-.comment-author{font-size:.82rem;font-weight:700;margin-right:.4rem;}
-.comment-time{font-size:.75rem;color:var(--muted);}
-.comment-txt{font-size:.85rem;line-height:1.55;margin:.3rem 0;}
-.comment-acts{display:flex;gap:.75rem;font-size:.75rem;color:var(--muted);}
-.comment-acts span{cursor:pointer;transition:color .15s;}
+.comment-post-btn{background:var(--red);border:none;color:#fff;padding:.42rem .8rem;border-radius:6px;font-size:.76rem;cursor:pointer;font-weight:700;font-family:var(--font);transition:all .14s;white-space:nowrap;}
+.comment-post-btn:hover{background:var(--red2);box-shadow:0 2px 10px var(--redglow);}
+.comment-item{display:flex;gap:.6rem;margin-bottom:.8rem;}
+.comment-author{font-size:.78rem;font-weight:700;margin-right:.28rem;color:var(--text);}
+.comment-time{font-size:.7rem;color:var(--muted);}
+.comment-txt{font-size:.8rem;line-height:1.6;margin:.22rem 0;color:var(--muted);}
+.comment-acts{display:flex;gap:.6rem;font-size:.7rem;color:var(--dim);}
+.comment-acts span{cursor:pointer;transition:color .14s;}
 .comment-acts span:hover{color:var(--text);}
-.no-comments{text-align:center;color:var(--muted);font-size:.85rem;padding:1.5rem 0;}
+.no-comments{text-align:center;color:var(--dim);font-size:.78rem;padding:1.75rem 0;letter-spacing:.5px;font-family:var(--display);font-size:.95rem;}
 
-/* Toast */
+/* TOAST */
 .toast{
-  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
-  background:#1e1f28;border:1px solid var(--border);color:var(--text);
-  padding:.6rem 1.2rem;border-radius:25px;font-size:.85rem;
-  opacity:0;transition:all .3s;pointer-events:none;z-index:9999;
-  white-space:nowrap;
+  position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%) translateY(18px);
+  background:rgba(10,11,16,.96);border:1px solid var(--border);backdrop-filter:blur(20px);
+  color:var(--text);padding:.55rem 1.2rem;border-radius:25px;font-size:.82rem;font-weight:500;
+  opacity:0;transition:all .26s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:9999;white-space:nowrap;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* Loading */
-.player-loading{
-  display:flex;align-items:center;justify-content:center;
-  min-height:60vh;flex-direction:column;gap:1rem;color:var(--muted);
-}
-.player-loading-spinner{
-  width:40px;height:40px;border:3px solid var(--border);
-  border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;
-}
+/* ANIMATIONS */
+.player-main>*{opacity:0;transform:translateY(10px);animation:fadeUp .4s ease forwards;}
+.player-main>*:nth-child(1){animation-delay:.04s;}
+.player-main>*:nth-child(2){animation-delay:.1s;}
+.player-main>*:nth-child(3){animation-delay:.15s;}
+.player-main>*:nth-child(4){animation-delay:.19s;}
+.player-main>*:nth-child(5){animation-delay:.23s;}
+.player-main>*:nth-child(6){animation-delay:.26s;}
+.player-main>*:nth-child(7){animation-delay:.29s;}
+.player-sidebar{opacity:0;animation:fadeUp .45s ease .12s forwards;}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
 </style>
 </head>
 <body>
 
-<!-- Nav -->
-<nav class="pnav">
+<nav class="pnav" id="mainNav">
   <button class="pnav-back" onclick="goBack()">
-    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     Back
   </button>
   <div class="pnav-logo">BLOXY<span>FLIX</span></div>
   <div class="pnav-title" id="navTitle"></div>
+  <div class="pnav-live" id="navLive"><span class="pnav-live-dot"></span>LIVE</div>
 </nav>
 
-<!-- Player -->
-<div class="player-wrap" id="playerWrap">
-  <!-- Video.js -->
-  <div id="playerContainer">
-    <video id="bfplayer" class="video-js vjs-big-play-centered" playsinline></video>
-  </div>
-  <!-- Radio -->
-  <div id="radioContainer" class="radio-wrap" style="display:none;">
-    <div class="radio-card">
-      <div class="radio-visualizer-wrap">
-        <canvas id="radioVisualizer" class="radio-visualizer"></canvas>
-        <div class="radio-disc" id="radioDisc">
-          <div class="radio-disc-inner">
-            <span class="radio-disc-letter" id="radioDiscLetter">R</span>
+<div class="player-layout">
+  <div class="player-main">
+
+    <!-- VIDEO STAGE -->
+    <div class="video-stage" id="videoStage">
+      <div class="spin-overlay" id="spinnerOverlay"><div class="spinner"></div></div>
+      <div id="playerContainer"><video id="bfplayer" class="video-js vjs-big-play-centered" playsinline></video></div>
+      <div id="plyrContainer"><video id="plyrVideo" playsinline></video></div>
+      <div id="yt-live-overlay"></div>
+      <div id="youtubeContainer"><iframe id="youtubeFrame" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>
+      <div id="radioContainer" class="radio-wrap">
+        <div class="radio-bg"></div>
+        <div class="radio-card">
+          <div class="radio-visualizer-wrap">
+            <canvas id="radioVisualizer" class="radio-visualizer"></canvas>
+            <div class="radio-disc" id="radioDisc">
+              <div class="radio-disc-inner"><span class="radio-disc-letter" id="radioDiscLetter">R</span></div>
+            </div>
+          </div>
+          <div class="radio-station-name" id="radioStationName">STATION</div>
+          <div class="radio-live-badge"><span class="radio-live-dot"></span>LIVE BROADCAST</div>
+          <div class="radio-btn-row">
+            <button class="radio-btn" onclick="toggleRadio()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path id="radioPlayIcon" d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="radio-volume-wrap">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+              <input type="range" class="radio-volume" id="radioVolume" min="0" max="1" step="0.02" value="1" oninput="setRadioVolume(this.value)">
+            </div>
           </div>
         </div>
       </div>
-      <div class="radio-station-name" id="radioStationName">Station</div>
-      <div class="radio-live-badge"><span class="radio-live-dot"></span>LIVE</div>
-      <div class="radio-btn-row">
-        <button class="radio-btn" id="radioPlayBtn" onclick="toggleRadio()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path id="radioPlayIcon" d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="radio-volume-wrap">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-          <input type="range" class="radio-volume" id="radioVolume" min="0" max="1" step="0.02" value="1" oninput="setRadioVolume(this.value)">
-        </div>
+    </div>
+
+    <!-- HERO STRIP -->
+    <div class="hero-strip" id="heroStrip" style="display:none;">
+      <div class="live-badge" id="liveBadge"><span class="live-badge-dot"></span>LIVE</div>
+      <h1 class="video-title" id="pTitle"></h1>
+      <p class="video-kr" id="pKr"></p>
+      <div class="meta-chips" id="metaChips"></div>
+      <div class="rating-row" id="ratingStars">
+        <span class="star" onclick="rateVideo(1)">★</span><span class="star" onclick="rateVideo(2)">★</span>
+        <span class="star" onclick="rateVideo(3)">★</span><span class="star" onclick="rateVideo(4)">★</span>
+        <span class="star" onclick="rateVideo(5)">★</span>
       </div>
     </div>
-  </div>
-  <!-- YouTube -->
-  <div id="youtubeContainer" class="youtube-player" style="display:none;">
-    <iframe id="youtubeFrame" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
-  </div>
-</div>
 
-<!-- Info -->
-<div class="player-info" id="playerInfo" style="display:none;">
-  <h1 class="video-title" id="pTitle"></h1>
-  <p class="video-kr" id="pKr"></p>
-  <div class="video-meta">
-    <span class="video-views" id="pViews"></span>
-    <div class="rating-stars" id="ratingStars">
-      <span class="star" onclick="rateVideo(1)">★</span>
-      <span class="star" onclick="rateVideo(2)">★</span>
-      <span class="star" onclick="rateVideo(3)">★</span>
-      <span class="star" onclick="rateVideo(4)">★</span>
-      <span class="star" onclick="rateVideo(5)">★</span>
+    <!-- ACTIONS -->
+    <div class="action-bar" id="actionBar" style="display:none;">
+      <button class="act-btn" id="likeBtn" onclick="likeVideo()">
+        <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>Like
+      </button>
+      <button class="act-btn" id="watchlistBtn" onclick="toggleWatchlist()">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Watchlist
+      </button>
+      <button class="act-btn" onclick="shareVideo()">
+        <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>Share
+      </button>
+      <button class="act-btn primary" id="dlBtn" onclick="triggerDownload()" style="display:none;">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Download
+      </button>
+    </div>
+
+    <!-- CHANNEL -->
+    <div class="channel-row" id="channelRow" style="display:none;">
+      <div class="ch-avatar" id="chAvatar">BF</div>
+      <div class="ch-info">
+        <div class="ch-name" id="chName">BloxyFlix Archive</div>
+        <div class="ch-sub">North Korean Cinema Collection</div>
+      </div>
+      <button class="sub-btn" id="subscribeBtn" onclick="toggleSubscribe()">Subscribe</button>
+    </div>
+
+    <!-- DESC -->
+    <div class="desc-section" id="descSection" style="display:none;">
+      <div id="pDesc" class="desc-text"></div>
+      <div class="show-more" id="showMoreBtn" onclick="toggleDesc()" style="display:none;">Show more ↓</div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="comments-wrap" id="commentsWrap" style="display:none;">
+      <div class="comments-hdr">COMMENTS <span class="comments-count" id="commentCount">0</span></div>
+      <div class="comment-input-row">
+        <div class="c-avatar" id="commentAvatar" style="background:var(--red);">G</div>
+        <input type="text" id="commentInput" placeholder="Leave a comment…" onkeypress="if(event.key==='Enter')postComment()">
+        <button class="comment-post-btn" onclick="postComment()">Post</button>
+      </div>
+      <div id="commentsList"></div>
     </div>
   </div>
-  <div class="actions">
-    <button class="action-btn" id="likeBtn" onclick="likeVideo()">
-      <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
-      Like
-    </button>
-    <button class="action-btn" id="watchlistBtn" onclick="toggleWatchlist()">
-      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-      Watchlist
-    </button>
-    <button class="action-btn" onclick="shareVideo()">
-      <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-      Share
-    </button>
-    <button class="action-btn primary" id="dlBtn" onclick="triggerDownload()" style="display:none;">
-      <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-      Download
-    </button>
-  </div>
-  <div class="channel-row">
-    <div class="ch-avatar">BF</div>
-    <div>
-      <div class="ch-name">BloxyFlix Archive</div>
-      <div class="ch-sub">North Korean Cinema Collection</div>
-    </div>
-    <button class="subscribe-btn" id="subscribeBtn" onclick="toggleSubscribe()">Subscribe</button>
-  </div>
-  <div id="pDesc" class="desc-text"></div>
-  <div class="show-more" id="showMoreBtn" onclick="toggleDesc()">Show more</div>
 
-  <!-- Up Next -->
-  <div class="up-next-header">
-    <span class="up-next-title">Up Next</span>
-    <div class="toggle-switch active" id="autoplayToggle" onclick="toggleAutoplay()"></div>
-  </div>
-  <div id="upNextList"></div>
-
-  <!-- Comments -->
-  <div class="comments-section">
-    <div class="comments-hdr"><span id="commentCount">0</span> Comments</div>
-    <div class="comment-input-row">
-      <div class="comment-avatar" id="commentAvatar">G</div>
-      <input type="text" id="commentInput" placeholder="Add a comment..." onkeypress="if(event.key==='Enter')postComment()">
-      <button onclick="postComment()">Post</button>
+  <!-- SIDEBAR -->
+  <div class="player-sidebar" id="playerSidebar" style="display:none;">
+    <div class="sidebar-head">
+      <span class="sidebar-head-title">UP NEXT</span>
+      <div class="toggle-sw on" id="autoplayToggle" onclick="toggleAutoplay()"></div>
     </div>
-    <div id="commentsList"></div>
+    <div id="upNextList"></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/video.js@8.10.0/dist/video.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
-// ── State ──
-let curVid = null;
-let curIdx = -1;
-let slimVids = [];
-let bfPlayer = null;
-let radioAudio = null, radioCtx = null, radioAnalyser = null, radioAnimFrame = null, radioPlaying = false;
-let autoplay = true;
+let curVid=null,curIdx=-1,slimVids=[];
+let bfPlayer=null,plyrPlayer=null;
+let radioAudio=null,radioCtx=null,radioAnalyser=null,radioAnimFrame=null,radioPlaying=false;
+let autoplay=true;
 
-// ── Init ──
-window.addEventListener('DOMContentLoaded', () => {
-  // Load settings
-  try {
-    const s = JSON.parse(localStorage.getItem('bloxyflix-settings') || '{}');
-    autoplay = s.autoplay !== false;
-    if (!autoplay) document.getElementById('autoplayToggle').classList.remove('active');
-  } catch(e) {}
-
-  // Get video data from sessionStorage
-  try {
-    const raw = sessionStorage.getItem('bf-player-vid');
-    const rawSlim = sessionStorage.getItem('bf-player-slim');
-    if (!raw) { goBack(); return; }
-    curVid = JSON.parse(raw);
-    curIdx = parseInt(sessionStorage.getItem('bf-player-idx') || '0', 10);
-    slimVids = rawSlim ? JSON.parse(rawSlim) : [];
-  } catch(e) { goBack(); return; }
-
-  // Init Video.js
-  try {
-    bfPlayer = videojs('bfplayer', {
-      controls: true, autoplay: false, preload: 'auto', fluid: true, aspectRatio: '16:9',
-      playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
-      html5: { vhs: { overrideNative: true }, nativeVideoTracks: false, nativeAudioTracks: false }
-    });
-    bfPlayer.on('ended', () => { if (autoplay) playNext(); });
-  } catch(e) { console.warn('Video.js init failed', e); }
-
-  playCurrentVideo();
-  renderInfo();
-  addToHistory();
+window.addEventListener('DOMContentLoaded',()=>{
+  try{const s=JSON.parse(localStorage.getItem('bloxyflix-settings')||'{}');autoplay=s.autoplay!==false;if(!autoplay)document.getElementById('autoplayToggle').classList.remove('on');}catch(e){}
+  try{
+    const raw=sessionStorage.getItem('bf-player-vid');
+    const rawSlim=sessionStorage.getItem('bf-player-slim');
+    if(!raw){goBack();return;}
+    curVid=JSON.parse(raw);
+    curIdx=parseInt(sessionStorage.getItem('bf-player-idx')||'0',10);
+    slimVids=rawSlim?JSON.parse(rawSlim):[];
+  }catch(e){goBack();return;}
+  try{
+    bfPlayer=videojs('bfplayer',{controls:true,autoplay:false,preload:'auto',fluid:true,aspectRatio:'16:9',playbackRates:[0.5,0.75,1,1.25,1.5,2],html5:{vhs:{overrideNative:true},nativeVideoTracks:false,nativeAudioTracks:false}});
+    bfPlayer.on('ended',()=>{if(autoplay)playNext();});
+  }catch(e){}
+  try{
+    plyrPlayer=new Plyr('#plyrVideo',{controls:['play-large','play','progress','current-time','duration','mute','volume','settings','pip','airplay','fullscreen'],settings:['quality','speed'],speed:{selected:1,options:[0.5,0.75,1,1.25,1.5,2]}});
+    plyrPlayer.on('ended',()=>{if(autoplay)playNext();});
+  }catch(e){}
+  playCurrentVideo();renderInfo();addToHistory();
 });
 
-function playCurrentVideo() {
-  const v = curVid;
-  const pc = document.getElementById('playerContainer');
-  const rc = document.getElementById('radioContainer');
-  const yc = document.getElementById('youtubeContainer');
-  const yf = document.getElementById('youtubeFrame');
-  const isRadio = v.ty === 'Radio';
-  const isYTLive = v.isYouTube && v.isPinned && v.duration === 'LIVE';
-
+function playCurrentVideo(){
+  const v=curVid;if(!v)return;
+  const pc=document.getElementById('playerContainer'),prc=document.getElementById('plyrContainer'),rc=document.getElementById('radioContainer'),yc=document.getElementById('youtubeContainer'),yf=document.getElementById('youtubeFrame'),sp=document.getElementById('spinnerOverlay'),lb=document.getElementById('liveBadge'),nl=document.getElementById('navLive');
+  [pc,prc,rc,yc].forEach(el=>{if(el)el.style.display='none';});
+  if(sp)sp.style.display='flex';lb.classList.remove('show');nl.classList.remove('show');
   stopRadio();
-
-  if (isYTLive) {
-    pc.style.display = 'block'; rc.style.display = 'none'; yc.style.display = 'none'; yf.src = '';
-    const ytSrc = `https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1&controls=0`;
-    let ytOv = document.getElementById('yt-live-overlay');
-    if (!ytOv) {
-      ytOv = document.createElement('div'); ytOv.id = 'yt-live-overlay';
-      ytOv.style.cssText = 'position:absolute;inset:0;z-index:5;';
-      bfPlayer.el().appendChild(ytOv);
-    }
-    ytOv.innerHTML = `<iframe src="${ytSrc}" style="width:100%;height:100%;border:none;" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>`;
-    ytOv.style.display = 'block';
-    try { bfPlayer.pause(); bfPlayer.src(''); } catch(e) {}
-  } else if (v.isYouTube) {
-    pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
-    yf.src = `https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1`;
-    const ytOv = document.getElementById('yt-live-overlay');
-    if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-  } else if (isRadio) {
-    pc.style.display = 'none'; rc.style.display = 'flex'; yc.style.display = 'none'; yf.src = '';
-    document.getElementById('radioStationName').textContent = v.t;
-    document.getElementById('radioDiscLetter').textContent = (v.tk || v.t).charAt(0).toUpperCase();
+  const isRadio=v.ty==='Radio'||(v.c==='live'&&v.isM3U8&&/radio/i.test(v.t));
+  const isM3U8=v.isM3U8||(v.u&&v.u.endsWith('.m3u8'));
+  const isYTLive=v.isYouTube&&v.isPinned&&(v.duration==='LIVE'||v.badge==='live');
+  const isYT=v.isYouTube&&!isYTLive;
+  if(isYTLive){
+    if(pc)pc.style.display='block';if(sp)sp.style.display='none';lb.classList.add('show');nl.classList.add('show');
+    const ytOv=document.getElementById('yt-live-overlay');
+    ytOv.style.cssText='position:absolute;inset:0;z-index:5;';
+    ytOv.innerHTML=`<iframe src="https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1&controls=1" style="width:100%;height:100%;border:none;aspect-ratio:16/9;" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>`;
+    try{bfPlayer.pause();bfPlayer.src('');}catch(e){}
+  }else if(isYT){
+    if(yc)yc.style.display='block';if(sp)sp.style.display='none';
+    yf.src=`https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1`;
+    const ytOv=document.getElementById('yt-live-overlay');ytOv.innerHTML='';ytOv.style.cssText='position:absolute;inset:0;z-index:5;display:none;';
+  }else if(isRadio){
+    if(rc)rc.style.display='flex';if(sp)sp.style.display='none';lb.classList.add('show');nl.classList.add('show');
+    document.getElementById('radioStationName').textContent=v.t.toUpperCase();
+    document.getElementById('radioDiscLetter').textContent=(v.tk||v.t).charAt(0).toUpperCase();
     startRadio(v.u);
-  } else {
-    pc.style.display = 'block'; rc.style.display = 'none'; yc.style.display = 'none'; yf.src = '';
-    const ytOv = document.getElementById('yt-live-overlay');
-    if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-    const isHLS = v.isM3U8 || (v.u && v.u.endsWith('.m3u8'));
-    if (bfPlayer) {
-      bfPlayer.src({ src: v.u, type: isHLS ? 'application/x-mpegURL' : 'video/mp4' });
-      bfPlayer.play().catch(() => { bfPlayer.muted(true); bfPlayer.play().then(() => setTimeout(() => bfPlayer.muted(false), 800)); });
-      bfPlayer.on('timeupdate', () => {
-        if (bfPlayer.duration()) saveProgress(curIdx, (bfPlayer.currentTime() / bfPlayer.duration()) * 100);
-      });
+  }else if(isM3U8){
+    if(prc)prc.style.display='block';lb.classList.add('show');nl.classList.add('show');
+    const ytOv=document.getElementById('yt-live-overlay');ytOv.innerHTML='';ytOv.style.cssText='position:absolute;inset:0;z-index:5;display:none;';
+    const ve=document.getElementById('plyrVideo');
+    if(ve._hls){ve._hls.destroy();ve._hls=null;}
+    if(Hls.isSupported()){
+      const hls=new Hls({lowLatencyMode:true,backBufferLength:30});ve._hls=hls;
+      hls.loadSource(v.u);hls.attachMedia(ve);
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{if(sp)sp.style.display='none';ve.play().catch(()=>{ve.muted=true;ve.play();});});
+      hls.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal)showToast('Stream error — retrying…');});
+    }else if(ve.canPlayType('application/vnd.apple.mpegurl')){ve.src=v.u;ve.addEventListener('loadedmetadata',()=>{if(sp)sp.style.display='none';ve.play().catch(()=>{});});}
+  }else{
+    if(pc)pc.style.display='block';
+    const ytOv=document.getElementById('yt-live-overlay');ytOv.innerHTML='';ytOv.style.cssText='position:absolute;inset:0;z-index:5;display:none;';
+    if(bfPlayer){
+      bfPlayer.src({src:v.u,type:'video/mp4'});
+      bfPlayer.one('canplay',()=>{if(sp)sp.style.display='none';});
+      bfPlayer.play().catch(()=>{bfPlayer.muted(true);bfPlayer.play().then(()=>setTimeout(()=>bfPlayer.muted(false),800));});
+      bfPlayer.on('timeupdate',()=>{if(bfPlayer.duration())saveProgress(curIdx,(bfPlayer.currentTime()/bfPlayer.duration())*100);});
     }
+    setTimeout(()=>{if(sp)sp.style.display='none';},3500);
   }
 }
 
-function renderInfo() {
-  const v = curVid;
-  document.title = v.t + ' — BloxyFlix';
-  document.getElementById('navTitle').textContent = v.t;
-  document.getElementById('pTitle').textContent = v.t;
-  document.getElementById('pKr').textContent = v.tk || '';
-  document.getElementById('pViews').textContent = (v.views || 0) + ' views • ' + (v.y || '');
-  document.getElementById('pDesc').textContent = v.d || '';
-  document.getElementById('playerInfo').style.display = 'block';
-  document.getElementById('dlBtn').style.display = (!v.isYouTube && !v.isM3U8) ? 'flex' : 'none';
-  updateRatingStars(v.userRating || 0);
-  renderUpNext();
-  renderComments(curIdx);
-  const ua = document.getElementById('commentAvatar');
-  const uname = localStorage.getItem('bloxyflix-username') || 'Guest';
-  ua.textContent = uname.charAt(0).toUpperCase();
-  if (isInWatchlist(curIdx)) document.getElementById('watchlistBtn').classList.add('active');
+function renderInfo(){
+  const v=curVid;if(!v)return;
+  document.title=v.t+' — BloxyFlix';
+  document.getElementById('navTitle').textContent=v.t;
+  document.getElementById('pTitle').textContent=v.t;
+  document.getElementById('pKr').textContent=v.tk||'';
+  const chips=document.getElementById('metaChips');
+  const parts=[];
+  if(v.views)parts.push({l:(v.views||'0')+' views',c:''});
+  if(v.y&&v.y!=='Live')parts.push({l:v.y,c:''});
+  if(v.ty||v.c)parts.push({l:(v.ty||v.c).toUpperCase(),c:'red'});
+  if(v.duration&&v.duration!=='LIVE')parts.push({l:v.duration,c:'gold'});
+  chips.innerHTML=parts.map(p=>`<span class="chip ${p.c}">${p.l}</span>`).join('');
+  const creator=v.creator||'Bloxy Flix';
+  document.getElementById('chName').textContent=creator;
+  document.getElementById('chAvatar').textContent=creator.charAt(0).toUpperCase();
+  const descEl=document.getElementById('pDesc');const smBtn=document.getElementById('showMoreBtn');
+  descEl.textContent=v.d||'';
+  smBtn.style.display=(v.d&&v.d.length>150)?'inline-flex':'none';
+  ['heroStrip','actionBar','channelRow','descSection','commentsWrap'].forEach(id=>{document.getElementById(id).style.display='block';});
+  document.getElementById('playerSidebar').style.display='block';
+  document.getElementById('dlBtn').style.display=(!v.isYouTube&&!v.isM3U8)?'flex':'none';
+  updateRatingStars(v.userRating||0);renderUpNext();renderComments(curIdx);
+  const uname=localStorage.getItem('bloxyflix-username')||'Guest';
+  document.getElementById('commentAvatar').textContent=uname.charAt(0).toUpperCase();
+  if(isInWatchlist(curIdx))document.getElementById('watchlistBtn').classList.add('active');
 }
 
-// ── Placeholder thumb ──
-function getThumb(v) {
-  if (v.thumb) return v.thumb;
-  if (v.isYouTube && v.u && !v.u.startsWith('http')) return `https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;
-  return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%2313141a'/><text x='160' y='95' font-family='Arial' font-size='12' fill='%236b6d7e' text-anchor='middle'>BloxyFlix</text></svg>`;
+function getThumb(v){
+  if(v.thumb)return v.thumb;
+  if(v.isYouTube&&v.u&&!v.u.startsWith('http'))return`https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;
+  return`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%230c0d12'/><text x='160' y='95' font-size='10' fill='%232a2b38' text-anchor='middle' font-family='Arial'>BLOXYFLIX</text></svg>`;
 }
 
-// ── Up Next ──
-function renderUpNext() {
-  const list = document.getElementById('upNextList');
-  if (slimVids.length < 2) { list.innerHTML = ''; return; }
-  const items = [];
-  for (let i = 1; i <= 4; i++) {
-    const idx = (curIdx + i) % slimVids.length;
-    if (idx !== curIdx) items.push({ ...slimVids[idx], _idx: idx });
-  }
-  list.innerHTML = items.map(v => `
-    <div class="up-next-item" onclick="loadVideo(${v._idx})">
-      <div class="up-next-thumb">
-        <img src="${getThumb(v)}" alt="${v.t || ''}" loading="lazy">
-        <span class="up-next-dur">${v.duration || ''}</span>
+function renderUpNext(){
+  const list=document.getElementById('upNextList');
+  if(slimVids.length<2){list.innerHTML='';return;}
+  const items=[];
+  for(let i=1;i<=12;i++){const idx=(curIdx+i)%slimVids.length;if(idx!==curIdx)items.push({...slimVids[idx],_idx:idx});if(items.length>=10)break;}
+  list.innerHTML=items.map(v=>`
+    <div class="up-next-item${v._idx===curIdx?' current':''}" onclick="loadVideo(${v._idx})">
+      <div class="un-thumb">
+        <img src="${getThumb(v)}" alt="" loading="lazy">
+        <span class="un-dur">${v.duration||''}</span>
+        ${v.isYouTube?'<span class="un-badge yt">YT</span>':v.isM3U8?'<span class="un-badge live">LIVE</span>':''}
       </div>
-      <div class="up-next-info">
-        <div class="up-next-vtitle">${v.t || ''}</div>
-        <div class="up-next-meta">${v.ty || ''} · ${v.views || 0} views</div>
+      <div class="un-info">
+        <div class="un-title">${v.t||''}</div>
+        <div class="un-meta">${v.ty||v.c||''} · ${v.views||0} views${v.y&&v.y!=='Live'?' · '+v.y:''}</div>
       </div>
     </div>`).join('');
 }
 
-function loadVideo(idx) {
-  const v = slimVids[idx];
-  if (!v) return;
-  stopAll();
-  curVid = v;
-  curIdx = idx;
-  sessionStorage.setItem('bf-player-vid', JSON.stringify(v));
-  sessionStorage.setItem('bf-player-idx', idx);
-  window.scrollTo(0, 0);
-  playCurrentVideo();
-  renderInfo();
-  addToHistory();
-}
+function loadVideo(idx){const v=slimVids[idx];if(!v)return;stopAll();curVid=v;curIdx=idx;sessionStorage.setItem('bf-player-vid',JSON.stringify(v));sessionStorage.setItem('bf-player-idx',idx);window.scrollTo({top:0,behavior:'smooth'});playCurrentVideo();renderInfo();addToHistory();}
+function playNext(){loadVideo((curIdx+1)%slimVids.length);}
 
-function playNext() {
-  const nextIdx = (curIdx + 1) % slimVids.length;
-  loadVideo(nextIdx);
+function startRadio(url){radioAudio=new Audio();radioAudio.crossOrigin='anonymous';radioAudio.src=url;radioAudio.volume=parseFloat(document.getElementById('radioVolume').value);radioAudio.play().then(()=>{radioPlaying=true;document.querySelector('#radioPlayIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');document.getElementById('radioDisc').classList.add('playing');initVisualizer();}).catch(()=>{radioPlaying=false;});}
+function stopRadio(){if(radioAnimFrame){cancelAnimationFrame(radioAnimFrame);radioAnimFrame=null;}if(radioAudio){radioAudio.pause();radioAudio.src='';radioAudio=null;}if(radioCtx){radioCtx.close().catch(()=>{});radioCtx=null;}radioAnalyser=null;radioPlaying=false;const disc=document.getElementById('radioDisc');if(disc)disc.classList.remove('playing');const icon=document.querySelector('#radioPlayIcon');if(icon)icon.setAttribute('d','M8 5v14l11-7z');}
+function toggleRadio(){if(!radioAudio)return;if(radioPlaying){radioAudio.pause();radioPlaying=false;document.getElementById('radioDisc').classList.remove('playing');document.querySelector('#radioPlayIcon').setAttribute('d','M8 5v14l11-7z');}else{radioAudio.play();radioPlaying=true;document.getElementById('radioDisc').classList.add('playing');document.querySelector('#radioPlayIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');if(!radioAnalyser)initVisualizer();}}
+function setRadioVolume(v){if(radioAudio)radioAudio.volume=parseFloat(v);}
+function initVisualizer(){try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx||!radioAudio)return;radioCtx=new AudioCtx();radioAnalyser=radioCtx.createAnalyser();radioAnalyser.fftSize=64;const src=radioCtx.createMediaElementSource(radioAudio);src.connect(radioAnalyser);radioAnalyser.connect(radioCtx.destination);const canvas=document.getElementById('radioVisualizer'),ctx=canvas.getContext('2d'),buf=new Uint8Array(radioAnalyser.frequencyBinCount);function draw(){radioAnimFrame=requestAnimationFrame(draw);radioAnalyser.getByteFrequencyData(buf);ctx.clearRect(0,0,canvas.width,canvas.height);const bw=canvas.width/buf.length;buf.forEach((v,i)=>{const h=(v/255)*canvas.height*.85;const g=ctx.createLinearGradient(0,canvas.height,0,canvas.height-h);g.addColorStop(0,'rgba(232,38,58,.9)');g.addColorStop(1,'rgba(212,168,67,.3)');ctx.fillStyle=g;ctx.fillRect(i*bw,canvas.height-h,bw-1,h);});}draw();}catch(e){}}
+function stopAll(){stopRadio();const yf=document.getElementById('youtubeFrame');if(yf)yf.src='';const ytOv=document.getElementById('yt-live-overlay');if(ytOv){ytOv.innerHTML='';ytOv.style.cssText='position:absolute;inset:0;z-index:5;display:none;';}if(bfPlayer){try{bfPlayer.pause();bfPlayer.src('');}catch(e){}}const ve=document.getElementById('plyrVideo');if(ve){if(ve._hls){ve._hls.destroy();ve._hls=null;}try{ve.pause();ve.src='';}catch(e){}}}
+function goBack(){stopAll();window.location.href='index.html';}
+function likeVideo(){document.getElementById('likeBtn').classList.toggle('active');showToast(document.getElementById('likeBtn').classList.contains('active')?'❤ Liked!':'Like removed');}
+function toggleWatchlist(){const key='bloxyflix-watchlist';let wl=JSON.parse(localStorage.getItem(key)||'[]');const i=wl.indexOf(curIdx);if(i===-1){wl.unshift(curIdx);showToast('Added to watchlist');}else{wl.splice(i,1);showToast('Removed from watchlist');}localStorage.setItem(key,JSON.stringify(wl));document.getElementById('watchlistBtn').classList.toggle('active',i===-1);}
+function isInWatchlist(idx){return JSON.parse(localStorage.getItem('bloxyflix-watchlist')||'[]').includes(idx);}
+function shareVideo(){if(navigator.share)navigator.share({title:curVid?.t||'BloxyFlix',url:window.location.href});else{navigator.clipboard.writeText(window.location.href);showToast('Link copied!');}}
+function triggerDownload(){if(!curVid?.u)return;const a=document.createElement('a');a.href=curVid.u;a.download=(curVid.t||'video').replace(/[^a-z0-9\s-]/gi,'').trim().replace(/\s+/g,'-')+'.mp4';a.click();}
+function toggleSubscribe(){const btn=document.getElementById('subscribeBtn');btn.classList.toggle('subscribed');btn.textContent=btn.classList.contains('subscribed')?'Subscribed':'Subscribe';showToast(btn.classList.contains('subscribed')?'Subscribed!':'Unsubscribed');}
+function toggleDesc(){const d=document.getElementById('pDesc');const b=document.getElementById('showMoreBtn');d.classList.toggle('expanded');b.textContent=d.classList.contains('expanded')?'Show less ↑':'Show more ↓';}
+function toggleAutoplay(){autoplay=!autoplay;document.getElementById('autoplayToggle').classList.toggle('on',autoplay);try{const s=JSON.parse(localStorage.getItem('bloxyflix-settings')||'{}');s.autoplay=autoplay;localStorage.setItem('bloxyflix-settings',JSON.stringify(s));}catch(e){}showToast(autoplay?'Autoplay on':'Autoplay off');}
+function rateVideo(r){if(curVid)curVid.userRating=r;updateRatingStars(r);showToast('Rated '+r+' ★');}
+function updateRatingStars(r){document.querySelectorAll('#ratingStars .star').forEach((s,i)=>s.classList.toggle('active',i<r));}
+function saveProgress(idx,pct){const p=JSON.parse(localStorage.getItem('bloxyflix-progress')||'{}');p[idx]=Math.round(pct);localStorage.setItem('bloxyflix-progress',JSON.stringify(p));}
+function addToHistory(){let h=JSON.parse(localStorage.getItem('bloxyflix-history')||'[]');h=h.filter(i=>i!==curIdx);h.unshift(curIdx);if(h.length>50)h=h.slice(0,50);localStorage.setItem('bloxyflix-history',JSON.stringify(h));}
+function getComments(id){return JSON.parse(localStorage.getItem('bloxyflix-comments')||'{}')[id]||[];}
+function saveComments(id,c){const all=JSON.parse(localStorage.getItem('bloxyflix-comments')||'{}');all[id]=c;localStorage.setItem('bloxyflix-comments',JSON.stringify(all));}
+function postComment(){const inp=document.getElementById('commentInput');const txt=inp.value.trim();if(!txt)return;const cs=getComments(curIdx);cs.unshift({id:Date.now(),name:localStorage.getItem('bloxyflix-username')||'Guest',text:txt,time:Date.now(),likes:0,liked:false});saveComments(curIdx,cs);inp.value='';renderComments(curIdx);showToast('Comment posted!');}
+function likeComment(id){const cs=getComments(curIdx);const c=cs.find(x=>x.id===id);if(c){c.liked?(c.likes--,c.liked=false):(c.likes++,c.liked=true);saveComments(curIdx,cs);renderComments(curIdx);}}
+function deleteComment(id){const uname=localStorage.getItem('bloxyflix-username')||'Guest';let cs=getComments(curIdx);const c=cs.find(x=>x.id===id);if(c&&c.name===uname){cs=cs.filter(x=>x.id!==id);saveComments(curIdx,cs);renderComments(curIdx);showToast('Deleted');}}
+function formatAgo(ts){const s=(Date.now()-ts)/1000;if(s<60)return'just now';const m=Math.floor(s/60);if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+function renderComments(id){
+  const list=document.getElementById('commentsList'),count=document.getElementById('commentCount'),uname=localStorage.getItem('bloxyflix-username')||'Guest',cs=getComments(id);
+  count.textContent=cs.length;
+  if(!cs.length){list.innerHTML='<div class="no-comments">NO COMMENTS YET</div>';return;}
+  function sc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+  function col(s){let h=0;for(let c of s)h=s.charCodeAt(0)+((h<<5)-h);return['#e8263a','#9c27b0','#2196f3','#4caf50','#ff9800','#00bcd4'][Math.abs(h)%6];}
+  list.innerHTML=cs.map(c=>`<div class="comment-item"><div class="c-avatar" style="background:${col(c.name)};">${c.name.charAt(0).toUpperCase()}</div><div style="flex:1;"><span class="comment-author">${sc(c.name)}</span><span class="comment-time">${formatAgo(c.time)}</span><div class="comment-txt">${sc(c.text)}</div><div class="comment-acts"><span onclick="likeComment(${c.id})" style="${c.liked?'color:var(--red)':''}">♥ ${c.likes||'Like'}</span><span onclick="document.getElementById('commentInput').value='@${sc(c.name)} ';document.getElementById('commentInput').focus()">Reply</span>${c.name===uname?`<span onclick="deleteComment(${c.id})">Delete</span>`:''}</div></div></div>`).join('');
 }
-
-// ── Radio ──
-function startRadio(url) {
-  radioAudio = new Audio();
-  radioAudio.crossOrigin = 'anonymous';
-  radioAudio.src = url;
-  radioAudio.volume = parseFloat(document.getElementById('radioVolume').value);
-  radioAudio.play().then(() => {
-    radioPlaying = true;
-    document.querySelector('#radioPlayIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-    document.getElementById('radioDisc').classList.add('playing');
-    initVisualizer();
-  }).catch(() => { radioPlaying = false; });
-}
-function stopRadio() {
-  if (radioAnimFrame) { cancelAnimationFrame(radioAnimFrame); radioAnimFrame = null; }
-  if (radioAudio) { radioAudio.pause(); radioAudio.src = ''; radioAudio = null; }
-  if (radioCtx) { radioCtx.close().catch(() => {}); radioCtx = null; }
-  radioAnalyser = null; radioPlaying = false;
-  const disc = document.getElementById('radioDisc');
-  if (disc) disc.classList.remove('playing');
-  const icon = document.querySelector('#radioPlayIcon');
-  if (icon) icon.setAttribute('d','M8 5v14l11-7z');
-}
-function toggleRadio() {
-  if (!radioAudio) return;
-  if (radioPlaying) {
-    radioAudio.pause(); radioPlaying = false;
-    document.getElementById('radioDisc').classList.remove('playing');
-    document.querySelector('#radioPlayIcon').setAttribute('d','M8 5v14l11-7z');
-  } else {
-    radioAudio.play(); radioPlaying = true;
-    document.getElementById('radioDisc').classList.add('playing');
-    document.querySelector('#radioPlayIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-    if (!radioAnalyser) initVisualizer();
-  }
-}
-function setRadioVolume(v) { if (radioAudio) radioAudio.volume = parseFloat(v); }
-function initVisualizer() {
-  try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx || !radioAudio) return;
-    radioCtx = new AudioCtx();
-    radioAnalyser = radioCtx.createAnalyser();
-    radioAnalyser.fftSize = 64;
-    const src = radioCtx.createMediaElementSource(radioAudio);
-    src.connect(radioAnalyser); radioAnalyser.connect(radioCtx.destination);
-    const canvas = document.getElementById('radioVisualizer');
-    const ctx = canvas.getContext('2d');
-    const buf = new Uint8Array(radioAnalyser.frequencyBinCount);
-    function draw() {
-      radioAnimFrame = requestAnimationFrame(draw);
-      radioAnalyser.getByteFrequencyData(buf);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barW = canvas.width / buf.length;
-      buf.forEach((v, i) => {
-        const h = (v / 255) * canvas.height * .8;
-        const g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - h);
-        g.addColorStop(0,'rgba(232,38,58,.8)'); g.addColorStop(1,'rgba(201,168,76,.4)');
-        ctx.fillStyle = g;
-        ctx.fillRect(i * barW, canvas.height - h, barW - 1, h);
-      });
-    }
-    draw();
-  } catch(e) {}
-}
-
-// ── Stop all ──
-function stopAll() {
-  stopRadio();
-  const yf = document.getElementById('youtubeFrame');
-  if (yf) yf.src = '';
-  const ytOv = document.getElementById('yt-live-overlay');
-  if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-  if (bfPlayer) { try { bfPlayer.pause(); bfPlayer.src(''); } catch(e) {} }
-}
-
-// ── Navigation ──
-function goBack() {
-  stopAll();
-  window.location.href = 'index.html';
-}
-
-// ── Actions ──
-function likeVideo() {
-  document.getElementById('likeBtn').classList.toggle('active');
-  showToast(document.getElementById('likeBtn').classList.contains('active') ? 'Liked!' : 'Like removed');
-}
-function toggleWatchlist() {
-  const idx = curIdx;
-  const key = 'bloxyflix-watchlist';
-  let wl = JSON.parse(localStorage.getItem(key) || '[]');
-  const i = wl.indexOf(idx);
-  if (i === -1) { wl.unshift(idx); showToast('Added to watchlist'); }
-  else { wl.splice(i, 1); showToast('Removed from watchlist'); }
-  localStorage.setItem(key, JSON.stringify(wl));
-  document.getElementById('watchlistBtn').classList.toggle('active', i === -1);
-}
-function isInWatchlist(idx) {
-  return JSON.parse(localStorage.getItem('bloxyflix-watchlist') || '[]').includes(idx);
-}
-function shareVideo() {
-  if (navigator.share) navigator.share({ title: curVid?.t || 'BloxyFlix', url: window.location.href });
-  else { navigator.clipboard.writeText(window.location.href); showToast('Link copied!'); }
-}
-function triggerDownload() {
-  if (!curVid?.u) return;
-  const a = document.createElement('a');
-  a.href = curVid.u;
-  a.download = (curVid.t || 'video').replace(/[^a-z0-9\s-]/gi,'').trim().replace(/\s+/g,'-') + '.mp4';
-  a.click();
-}
-function toggleSubscribe() {
-  const btn = document.getElementById('subscribeBtn');
-  btn.classList.toggle('subscribed');
-  btn.textContent = btn.classList.contains('subscribed') ? 'Subscribed' : 'Subscribe';
-  showToast(btn.classList.contains('subscribed') ? 'Subscribed!' : 'Unsubscribed');
-}
-function toggleDesc() {
-  const d = document.getElementById('pDesc');
-  const b = document.getElementById('showMoreBtn');
-  d.classList.toggle('expanded');
-  b.textContent = d.classList.contains('expanded') ? 'Show less' : 'Show more';
-}
-function toggleAutoplay() {
-  autoplay = !autoplay;
-  document.getElementById('autoplayToggle').classList.toggle('active', autoplay);
-  try {
-    const s = JSON.parse(localStorage.getItem('bloxyflix-settings') || '{}');
-    s.autoplay = autoplay;
-    localStorage.setItem('bloxyflix-settings', JSON.stringify(s));
-  } catch(e) {}
-}
-function rateVideo(r) {
-  if (curVid) curVid.userRating = r;
-  updateRatingStars(r);
-  showToast('Rated ' + r + ' stars!');
-}
-function updateRatingStars(r) {
-  document.querySelectorAll('#ratingStars .star').forEach((s,i) => s.classList.toggle('active', i < r));
-}
-function saveProgress(idx, pct) {
-  const p = JSON.parse(localStorage.getItem('bloxyflix-progress') || '{}');
-  p[idx] = Math.round(pct);
-  localStorage.setItem('bloxyflix-progress', JSON.stringify(p));
-}
-function addToHistory() {
-  let h = JSON.parse(localStorage.getItem('bloxyflix-history') || '[]');
-  h = h.filter(i => i !== curIdx);
-  h.unshift(curIdx);
-  if (h.length > 50) h = h.slice(0, 50);
-  localStorage.setItem('bloxyflix-history', JSON.stringify(h));
-}
-
-// ── Comments ──
-function getComments(id) { return JSON.parse(localStorage.getItem('bloxyflix-comments') || '{}')[id] || []; }
-function saveComments(id, c) {
-  const all = JSON.parse(localStorage.getItem('bloxyflix-comments') || '{}');
-  all[id] = c; localStorage.setItem('bloxyflix-comments', JSON.stringify(all));
-}
-function postComment() {
-  const inp = document.getElementById('commentInput');
-  const txt = inp.value.trim();
-  if (!txt) return;
-  const cs = getComments(curIdx);
-  cs.unshift({ id: Date.now(), name: localStorage.getItem('bloxyflix-username') || 'Guest', text: txt, time: Date.now(), likes: 0, liked: false });
-  saveComments(curIdx, cs);
-  inp.value = ''; renderComments(curIdx); showToast('Comment posted!');
-}
-function likeComment(id) {
-  const cs = getComments(curIdx);
-  const c = cs.find(x => x.id === id);
-  if (c) { c.liked ? (c.likes--, c.liked = false) : (c.likes++, c.liked = true); saveComments(curIdx, cs); renderComments(curIdx); }
-}
-function deleteComment(id) {
-  const uname = localStorage.getItem('bloxyflix-username') || 'Guest';
-  let cs = getComments(curIdx);
-  const c = cs.find(x => x.id === id);
-  if (c && c.name === uname) { cs = cs.filter(x => x.id !== id); saveComments(curIdx, cs); renderComments(curIdx); showToast('Deleted'); }
-}
-function formatAgo(ts) {
-  const s = (Date.now() - ts) / 1000;
-  if (s < 60) return 'just now';
-  const m = Math.floor(s/60); if (m < 60) return m + 'm ago';
-  const h = Math.floor(m/60); if (h < 24) return h + 'h ago';
-  return Math.floor(h/24) + 'd ago';
-}
-function renderComments(id) {
-  const list = document.getElementById('commentsList');
-  const count = document.getElementById('commentCount');
-  const uname = localStorage.getItem('bloxyflix-username') || 'Guest';
-  const cs = getComments(id);
-  count.textContent = cs.length;
-  if (!cs.length) { list.innerHTML = '<div class="no-comments">No comments yet. Be the first!</div>'; return; }
-  function sc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function col(s) { let h=0; for(let c of s) h=s.charCodeAt(0)+((h<<5)-h); return ['#e8263a','#9c27b0','#2196f3','#4caf50','#ff9800','#00bcd4'][Math.abs(h)%6]; }
-  list.innerHTML = cs.map(c => `
-    <div class="comment-item">
-      <div class="comment-avatar" style="background:${col(c.name)};">${c.name.charAt(0).toUpperCase()}</div>
-      <div class="comment-body">
-        <span class="comment-author">${sc(c.name)}</span><span class="comment-time">${formatAgo(c.time)}</span>
-        <div class="comment-txt">${sc(c.text)}</div>
-        <div class="comment-acts">
-          <span onclick="likeComment(${c.id})" style="${c.liked?'color:var(--red)':''}">♥ ${c.likes||'Like'}</span>
-          <span onclick="document.getElementById('commentInput').value='@${sc(c.name)} ';document.getElementById('commentInput').focus()">Reply</span>
-          ${c.name===uname?`<span onclick="deleteComment(${c.id})">Delete</span>`:''}
-        </div>
-      </div>
-    </div>`).join('');
-}
-
-// ── Toast ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// ── Keyboard ──
-document.addEventListener('keydown', e => {
-  if (document.activeElement.tagName === 'INPUT') return;
-  if (e.key === ' ') { e.preventDefault(); if (radioPlaying || radioAudio) toggleRadio(); else if (bfPlayer) bfPlayer.paused() ? bfPlayer.play() : bfPlayer.pause(); }
-  if (e.key === 'ArrowRight' && bfPlayer) bfPlayer.currentTime(bfPlayer.currentTime()+10);
-  if (e.key === 'ArrowLeft' && bfPlayer) bfPlayer.currentTime(Math.max(0, bfPlayer.currentTime()-10));
-  if (e.key.toLowerCase() === 'f' && bfPlayer) bfPlayer.isFullscreen() ? bfPlayer.exitFullscreen() : bfPlayer.requestFullscreen();
-  if (e.key.toLowerCase() === 'm' && bfPlayer) bfPlayer.muted(!bfPlayer.muted());
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+document.addEventListener('keydown',e=>{
+  if(document.activeElement.tagName==='INPUT')return;
+  if(e.key===' '){e.preventDefault();if(radioPlaying||radioAudio)toggleRadio();else if(bfPlayer)bfPlayer.paused()?bfPlayer.play():bfPlayer.pause();}
+  if(e.key==='ArrowRight'&&bfPlayer)bfPlayer.currentTime(bfPlayer.currentTime()+10);
+  if(e.key==='ArrowLeft'&&bfPlayer)bfPlayer.currentTime(Math.max(0,bfPlayer.currentTime()-10));
+  if(e.key.toLowerCase()==='f'&&bfPlayer)bfPlayer.isFullscreen()?bfPlayer.exitFullscreen():bfPlayer.requestFullscreen();
+  if(e.key.toLowerCase()==='m'&&bfPlayer)bfPlayer.muted(!bfPlayer.muted());
 });
 </script>
 </body>
