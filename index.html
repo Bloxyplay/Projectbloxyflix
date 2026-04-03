@@ -5435,7 +5435,7 @@ function playVideo(idx){
   sessionStorage.setItem('bf-player-vid', JSON.stringify(vid));
   sessionStorage.setItem('bf-player-idx', String(idx));
   // Store slim vids list (no thumbs) for Up Next
-  const slim = vids.map((v,i)=>({t:v.t,tk:v.tk,c:v.c,ty:v.ty,views:v.views,duration:v.duration,u:v.u,y:v.y,isM3U8:v.isM3U8,isYouTube:v.isYouTube,isPinned:v.isPinned,idx:i}));
+  const slim = vids.map((v,i)=>({t:v.t,tk:v.tk,c:v.c,ty:v.ty,views:v.views,duration:v.duration,u:v.u,y:v.y,isM3U8:v.isM3U8,isYouTube:v.isYouTube,isPinned:v.isPinned,isGoogleDrive:v.isGoogleDrive,idx:i}));
   sessionStorage.setItem('bf-player-slim', JSON.stringify(slim));
   window.location.href = 'player.html';
 }
@@ -5486,6 +5486,16 @@ function _playVideoInternal(idx){
     youtubeContainer.style.display='block';
     radioContainer.style.display='none';
     youtubeFrame.src=`https://www.youtube.com/embed/${curVid.u}?autoplay=1&rel=0&modestbranding=1`;
+  }else if(curVid.isGoogleDrive){
+    // Google Drive video → iframe embed using /preview URL
+    let ytOverlay = document.getElementById('yt-live-overlay');
+    if(ytOverlay) ytOverlay.style.display='none';
+    playerContainer.style.display='none';
+    youtubeContainer.style.display='block';
+    radioContainer.style.display='none';
+    // u can be a full /preview URL or just a file ID
+    const gdId = curVid.u.match(/\/d\/([A-Za-z0-9_-]{10,})/) ? curVid.u.match(/\/d\/([A-Za-z0-9_-]{10,})/)[1] : curVid.u;
+    youtubeFrame.src=`https://drive.google.com/file/d/${gdId}/preview`;
   }else if(isRadio){
     // Radio card player
     playerContainer.style.display='none';
