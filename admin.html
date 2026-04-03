@@ -1032,6 +1032,7 @@ select.form-input{cursor:pointer;}
                   Google Drive
                 </div>
                 <div class="tab" onclick="setStreamTab('m3u8',this)">M3U8 / Live</div>
+                <div class="tab" onclick="setStreamTab('embed',this)">⌨ Embed Code</div>
               </div>
               <div id="streamTab-mp4">
                 <div class="form-group">
@@ -1077,6 +1078,31 @@ select.form-input{cursor:pointer;}
                 </div>
                 <div id="gdriveNoIdWrap" style="display:none;margin-top:.75rem;padding:.65rem .9rem;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:6px;font-size:.78rem;color:var(--gold);">
                   ⚠ Could not extract a File ID from that link. Check the URL format.
+                </div>
+              </div>
+              <div id="streamTab-embed" style="display:none;">
+                <div class="form-group" style="margin-bottom:.85rem;">
+                  <label class="form-label">Embed HTML Code</label>
+                  <textarea class="form-input mono" id="newEmbedCode" style="min-height:180px;font-size:.75rem;line-height:1.5;" placeholder="Paste your full embed HTML here…&#10;&#10;e.g. &lt;div style=&quot;position:fixed…&quot;&gt;&#10;  &lt;iframe src=&quot;https://koryo.tv/channel/kctv&quot; …&gt;&lt;/iframe&gt;&#10;&lt;/div&gt;" oninput="embedPreviewUpdate()"></textarea>
+                  <div class="form-hint">Paste any raw HTML embed block — iframes, divs, etc. The code is stored as-is and rendered directly by the BloxyFlix player.</div>
+                </div>
+                <div id="embedPreviewWrap" style="display:none;margin-top:.75rem;">
+                  <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:.5rem;">Live Embed Preview</div>
+                  <div style="position:relative;width:100%;padding-bottom:56.25%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                    <iframe id="embedPreviewFrame"
+                      style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;"
+                      sandbox="allow-scripts allow-same-origin allow-presentation"
+                      allowfullscreen>
+                    </iframe>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem;">
+                    <span style="font-family:var(--mono);font-size:.72rem;color:var(--muted);flex:1;">Embed code detected</span>
+                    <span class="badge blue">Embed</span>
+                    <button onclick="embedPreviewRefresh()" style="padding:.25rem .65rem;border-radius:5px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);">&#8635; Refresh</button>
+                  </div>
+                </div>
+                <div id="embedNoCodeWrap" style="display:none;margin-top:.75rem;padding:.65rem .9rem;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:6px;font-size:.78rem;color:var(--gold);">
+                  &#9888; Paste some embed HTML above to see a preview.
                 </div>
               </div>
               <div style="margin-top:1rem;" class="form-group">
@@ -2343,7 +2369,7 @@ function filterVideoTable(){
       <td style="font-weight:700;">${fmtViews(v.views)}</td>
       <td class="td-mono">${v.duration}</td>
       <td>
-        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':'<span class="badge dim">MP4</span>'}
+        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':v.isEmbed?'<span class="badge blue">Embed</span>':v.isGoogleDrive?'<span class="badge gold">Drive</span>':'<span class="badge dim">MP4</span>'}
         ${v.isPinned?'<span class="badge red" style="margin-left:.25rem;">Live</span>':''}
       </td>
       <td>${v.rating?`<span style="color:var(--gold);font-weight:700;">★ ${v.rating}</span>`:'<span style="color:var(--dim);">—</span>'}</td>
@@ -3432,7 +3458,7 @@ function buildVideoRows(list){
       <td style="font-weight:700;">${fmtViews(v.views)}</td>
       <td class="td-mono">${v.duration||'—'}</td>
       <td>
-        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':'<span class="badge dim">MP4</span>'}
+        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':v.isEmbed?'<span class="badge blue">Embed</span>':v.isGoogleDrive?'<span class="badge gold">Drive</span>':'<span class="badge dim">MP4</span>'}
         ${v.isPinned?'<span class="badge red" style="margin-left:.25rem;">Live</span>':''}
       </td>
       <td>${v.rating?`<span style="color:var(--gold);font-weight:700;">★ ${v.rating}</span>`:'<span style="color:var(--dim);">—</span>'}</td>
@@ -3549,7 +3575,7 @@ function renderAddBrowser(){
       </td>
       <td style="padding:.5rem .9rem;font-family:var(--mono);font-size:.78rem;color:var(--muted);">${v.y||'—'}</td>
       <td style="padding:.5rem .9rem;">
-        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':'<span class="badge dim">MP4</span>'}
+        ${v.isM3U8?'<span class="badge green">M3U8</span>':v.isYouTube?'<span class="badge red">YT</span>':v.isEmbed?'<span class="badge blue">Embed</span>':v.isGoogleDrive?'<span class="badge gold">Drive</span>':'<span class="badge dim">MP4</span>'}
       </td>
     </tr>
   `).join('');
@@ -3559,7 +3585,7 @@ function renderAddBrowser(){
 let activeStreamTab = 'mp4';
 function setStreamTab(tab, el){
   activeStreamTab = tab;
-  ['mp4','youtube','m3u8','gdrive'].forEach(t=>{
+  ['mp4','youtube','m3u8','gdrive','embed'].forEach(t=>{
     document.getElementById('streamTab-'+t).style.display = t===tab?'':'none';
   });
   document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
@@ -3601,6 +3627,32 @@ function gdrivePreviewUpdate(){
   idDisplay.textContent = 'File ID: ' + id;
 }
 
+// ─── Embed Code preview ───────────────────
+function embedPreviewUpdate(){
+  const code = document.getElementById('newEmbedCode').value.trim();
+  const previewWrap  = document.getElementById('embedPreviewWrap');
+  const noCodeWrap   = document.getElementById('embedNoCodeWrap');
+  const frame        = document.getElementById('embedPreviewFrame');
+
+  if(!code){
+    previewWrap.style.display = 'none';
+    noCodeWrap.style.display  = 'none';
+    return;
+  }
+
+  noCodeWrap.style.display  = 'none';
+  previewWrap.style.display = 'block';
+
+  // Write the embed HTML into the iframe srcdoc
+  const doc = `<!DOCTYPE html><html><head><style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#000;overflow:hidden;}</style></head><body>${code}</body></html>`;
+  frame.srcdoc = doc;
+}
+
+function embedPreviewRefresh(){
+  embedPreviewUpdate();
+  toast('Preview refreshed','var(--blue)');
+}
+
 // ─── Build video object from form ─────────
 function buildVideoObj(){
   const t       = document.getElementById('newTitle').value.trim();
@@ -3631,6 +3683,10 @@ function buildVideoObj(){
     const gm = u.match(/\/d\/([A-Za-z0-9_-]{25,})/);
     if(gm) u = gm[1];
     extra = ',isGoogleDrive:true';
+  } else if(activeStreamTab==='embed'){
+    u = document.getElementById('newEmbedCode').value.trim();
+    if(!u){ toast('Please paste your embed HTML code','var(--gold)'); return null; }
+    extra = ',isEmbed:true';
   } else {
     u = document.getElementById('newM3u8Url').value.trim();
     extra = ',isM3U8:true,isPinned:true';
@@ -3857,7 +3913,7 @@ function copyCode(){
 function clearForm(){
   // Clear text inputs
   ['newTitle','newTitleKr','newYear','newDuration','newViews','newDesc',
-   'newUrl','newYtUrl','newM3u8Url','newThumb','newTy','newCreator','generatedCode'].forEach(id=>{
+   'newUrl','newYtUrl','newM3u8Url','newEmbedCode','newThumb','newTy','newCreator','generatedCode'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.value='';
   });
