@@ -1027,6 +1027,10 @@ select.form-input{cursor:pointer;}
               <div class="tabs" style="margin-bottom:1rem;">
                 <div class="tab active" onclick="setStreamTab('mp4',this)">MP4 / Direct</div>
                 <div class="tab" onclick="setStreamTab('youtube',this)">YouTube</div>
+                <div class="tab" onclick="setStreamTab('gdrive',this)">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M7.71 3.5L1.15 15l3.43 5.5h15.06l.79-1.27L14.29 3.5H7.71zM6.41 15L9.5 9.5h5l3.09 5.5H6.41zm7.88-9.5h-4.58l-1.5 2.6 2.3 3.9h4.58l1.5-2.6-2.3-3.9z"/></svg>
+                  Google Drive
+                </div>
                 <div class="tab" onclick="setStreamTab('m3u8',this)">M3U8 / Live</div>
               </div>
               <div id="streamTab-mp4">
@@ -1048,6 +1052,31 @@ select.form-input{cursor:pointer;}
                   <label class="form-label">M3U8 Stream URL</label>
                   <input class="form-input mono" id="newM3u8Url" placeholder="https://…/stream.m3u8" />
                   <div class="form-hint">HLS live stream — flagged as isM3U8 + isPinned.</div>
+                </div>
+              </div>
+              <div id="streamTab-gdrive" style="display:none;">
+                <div class="form-group" style="margin-bottom:.85rem;">
+                  <label class="form-label">Google Drive Share Link or File ID</label>
+                  <input class="form-input mono" id="newGdriveUrl" placeholder="https://drive.google.com/file/d/FILE_ID/view  or  FILE_ID" oninput="gdrivePreviewUpdate()" />
+                  <div class="form-hint">Paste any Google Drive share link — the File ID is extracted automatically. Make sure sharing is set to <strong style="color:var(--text);">Anyone with the link</strong>.</div>
+                </div>
+                <div id="gdrivePreviewWrap" style="display:none;margin-top:.75rem;">
+                  <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:.5rem;">Live Embed Preview</div>
+                  <div style="position:relative;width:100%;padding-bottom:56.25%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                    <iframe id="gdrivePreviewFrame"
+                      src=""
+                      style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+                      allowfullscreen
+                      allow="autoplay">
+                    </iframe>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem;">
+                    <span id="gdriveFileIdDisplay" style="font-family:var(--mono);font-size:.75rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                    <span class="badge green">Google Drive</span>
+                  </div>
+                </div>
+                <div id="gdriveNoIdWrap" style="display:none;margin-top:.75rem;padding:.65rem .9rem;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:6px;font-size:.78rem;color:var(--gold);">
+                  ⚠ Could not extract a File ID from that link. Check the URL format.
                 </div>
               </div>
               <div style="margin-top:1rem;" class="form-group">
@@ -3530,11 +3559,46 @@ function renderAddBrowser(){
 let activeStreamTab = 'mp4';
 function setStreamTab(tab, el){
   activeStreamTab = tab;
-  ['mp4','youtube','m3u8'].forEach(t=>{
+  ['mp4','youtube','m3u8','gdrive'].forEach(t=>{
     document.getElementById('streamTab-'+t).style.display = t===tab?'':'none';
   });
   document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
   if(el) el.classList.add('active');
+}
+
+// ─── Google Drive preview ─────────────────
+function gdriveExtractId(input){
+  const m = input.match(/\/d\/([A-Za-z0-9_-]{25,})/);
+  if(m) return m[1];
+  // bare file ID (no slashes)
+  if(/^[A-Za-z0-9_-]{25,}$/.test(input.trim())) return input.trim();
+  return null;
+}
+
+function gdrivePreviewUpdate(){
+  const raw = document.getElementById('newGdriveUrl').value.trim();
+  const previewWrap = document.getElementById('gdrivePreviewWrap');
+  const noIdWrap    = document.getElementById('gdriveNoIdWrap');
+  const frame       = document.getElementById('gdrivePreviewFrame');
+  const idDisplay   = document.getElementById('gdriveFileIdDisplay');
+
+  if(!raw){
+    previewWrap.style.display = 'none';
+    noIdWrap.style.display    = 'none';
+    return;
+  }
+
+  const id = gdriveExtractId(raw);
+  if(!id){
+    previewWrap.style.display = 'none';
+    noIdWrap.style.display    = 'block';
+    return;
+  }
+
+  noIdWrap.style.display    = 'none';
+  previewWrap.style.display = 'block';
+  frame.src = `https://drive.google.com/file/d/${id}/preview`;
+  idDisplay.textContent = 'File ID: ' + id;
 }
 
 // ─── Build video object from form ─────────
@@ -3562,6 +3626,11 @@ function buildVideoObj(){
     const m = u.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
     if(m) u = m[1];
     extra = ',isYouTube:true';
+  } else if(activeStreamTab==='gdrive'){
+    u = document.getElementById('newGdriveUrl').value.trim();
+    const gm = u.match(/\/d\/([A-Za-z0-9_-]{25,})/);
+    if(gm) u = gm[1];
+    extra = ',isGoogleDrive:true';
   } else {
     u = document.getElementById('newM3u8Url').value.trim();
     extra = ',isM3U8:true,isPinned:true';
