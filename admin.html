@@ -609,6 +609,10 @@ select.form-input{cursor:pointer;}
 
       <div class="nav-section">
         <div class="nav-label">System</div>
+        <div class="nav-item" onclick="showPage('abouteditor',this)">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          About Page Editor
+        </div>
         <div class="nav-item" onclick="showPage('texteditor',this)">
           <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
           Text Editor
@@ -1323,6 +1327,178 @@ select.form-input{cursor:pointer;}
         </div>
       </div>
 
+      <!-- ═══════════════════ ABOUT PAGE EDITOR ═══════════════════ -->
+      <div id="page-abouteditor" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>About Page Editor</h1>
+            <p>Edit every section of about.html visually — no code needed</p>
+          </div>
+        </div>
+
+        <!-- Load file -->
+        <div class="git-status warning" id="abStatusBanner">
+          <svg viewBox="0 0 24 24" style="color:var(--gold);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <div class="git-status-text"><strong>Load about.html first</strong> <span>— fetch from GitHub or upload locally.</span></div>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+          <button class="topbar-btn primary" onclick="abFetch()" id="abFetchBtn">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            Fetch about.html from GitHub
+          </button>
+          <button class="topbar-btn" onclick="document.getElementById('abLocalInput').click()">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+            Upload Local about.html
+          </button>
+          <input type="file" id="abLocalInput" accept=".html" style="display:none;" onchange="abLoadLocal(this)">
+        </div>
+
+        <!-- Fields -->
+        <div id="abFields" style="display:none;">
+
+          <!-- Hero -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head"><div class="card-head-title">🎬 Hero Section</div></div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Tagline (below BLOXYFLIX)</label>
+                  <input class="form-input" id="ab-hero-tagline" placeholder="North Korean Cinema Archive">
+                </div>
+              </div>
+              <div class="form-row single">
+                <div class="form-group">
+                  <label class="form-label">Hero Description</label>
+                  <textarea class="form-input" id="ab-hero-desc" style="min-height:80px;"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head"><div class="card-head-title">📊 Stats Bar</div></div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Stat 1 Number</label><input class="form-input" id="ab-stat1" placeholder="500+"></div>
+                <div class="form-group"><label class="form-label">Stat 1 Label</label><input class="form-input" id="ab-stat1-label" placeholder="Videos Archived"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Stat 2 Number</label><input class="form-input" id="ab-stat2" placeholder="100%"></div>
+                <div class="form-group"><label class="form-label">Stat 2 Label</label><input class="form-input" id="ab-stat2-label" placeholder="Free Forever"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Stat 3 Number</label><input class="form-input" id="ab-stat3" placeholder="24/7"></div>
+                <div class="form-group"><label class="form-label">Stat 3 Label</label><input class="form-input" id="ab-stat3-label" placeholder="Live Streams"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Stat 4 Number</label><input class="form-input" id="ab-stat4" placeholder="0$"></div>
+                <div class="form-group"><label class="form-label">Stat 4 Label</label><input class="form-input" id="ab-stat4-label" placeholder="No Paywalls"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mission -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head"><div class="card-head-title">🎯 Mission Section</div></div>
+            <div class="card-body">
+              <div class="form-row single">
+                <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="ab-mission-title"></div>
+              </div>
+              <div class="form-row single">
+                <div class="form-group"><label class="form-label">Body Text (HTML allowed)</label><textarea class="form-input" id="ab-mission-body" style="min-height:100px;"></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Services -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head"><div class="card-head-title">⚙️ Services Cards</div></div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Service 1 Title</label><input class="form-input" id="ab-s1-title"></div>
+                <div class="form-group"><label class="form-label">Service 1 Body</label><input class="form-input" id="ab-s1-body"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Service 2 Title</label><input class="form-input" id="ab-s2-title"></div>
+                <div class="form-group"><label class="form-label">Service 2 Body</label><input class="form-input" id="ab-s2-body"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Service 3 Title</label><input class="form-input" id="ab-s3-title"></div>
+                <div class="form-group"><label class="form-label">Service 3 Body</label><input class="form-input" id="ab-s3-body"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Service 4 Title</label><input class="form-input" id="ab-s4-title"></div>
+                <div class="form-group"><label class="form-label">Service 4 Body</label><input class="form-input" id="ab-s4-body"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Service 5 Title</label><input class="form-input" id="ab-s5-title"></div>
+                <div class="form-group"><label class="form-label">Service 5 Body</label><input class="form-input" id="ab-s5-body"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Service 6 Title</label><input class="form-input" id="ab-s6-title"></div>
+                <div class="form-group"><label class="form-label">Service 6 Body</label><input class="form-input" id="ab-s6-body"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- About blocks -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head"><div class="card-head-title">📖 About Us Blocks</div></div>
+            <div class="card-body">
+              <div class="form-row single"><div class="form-group"><label class="form-label">About Title</label><input class="form-input" id="ab-about-title"></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">Intro Paragraph</label><textarea class="form-input" id="ab-about-intro" style="min-height:70px;"></textarea></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">Our Story</label><textarea class="form-input" id="ab-about-story" style="min-height:90px;"></textarea></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">Our Approach</label><textarea class="form-input" id="ab-about-approach" style="min-height:90px;"></textarea></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">Independence & Neutrality</label><textarea class="form-input" id="ab-about-neutrality" style="min-height:90px;"></textarea></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">Technology & Platform</label><textarea class="form-input" id="ab-about-tech" style="min-height:90px;"></textarea></div></div>
+            </div>
+          </div>
+
+          <!-- Values -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head"><div class="card-head-title">💎 Core Values</div></div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Value 1 Name</label><input class="form-input" id="ab-v1-name"></div>
+                <div class="form-group"><label class="form-label">Value 1 Text</label><input class="form-input" id="ab-v1-text"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Value 2 Name</label><input class="form-input" id="ab-v2-name"></div>
+                <div class="form-group"><label class="form-label">Value 2 Text</label><input class="form-input" id="ab-v2-text"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Value 3 Name</label><input class="form-input" id="ab-v3-name"></div>
+                <div class="form-group"><label class="form-label">Value 3 Text</label><input class="form-input" id="ab-v3-text"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Value 4 Name</label><input class="form-input" id="ab-v4-name"></div>
+                <div class="form-group"><label class="form-label">Value 4 Text</label><input class="form-input" id="ab-v4-text"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div class="card" style="margin-bottom:1.25rem;">
+            <div class="card-head"><div class="card-head-title">📬 Contact Info</div></div>
+            <div class="card-body">
+              <div class="form-row single"><div class="form-group"><label class="form-label">Contact Email</label><input class="form-input" id="ab-contact-email"></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">GitHub URL</label><input class="form-input" id="ab-contact-github"></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">Location / Based In</label><input class="form-input" id="ab-contact-location"></div></div>
+              <div class="form-row single"><div class="form-group"><label class="form-label">Footer Copyright Text</label><input class="form-input" id="ab-footer-copy"></div></div>
+            </div>
+          </div>
+
+          <!-- Save -->
+          <div style="display:flex;gap:.75rem;">
+            <button class="topbar-btn primary" onclick="abSaveDownload()" style="flex:1;justify-content:center;padding:.85rem;font-size:.95rem;">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              Save &amp; Download about.html
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══════════════════ TEXT EDITOR PAGE ═══════════════════ -->
       <div id="page-texteditor" class="page">
         <div class="page-header">
@@ -1916,7 +2092,7 @@ function showPage(id, el){
     live:'Live Channels',add:'Add Content',github:'GitHub Config',
     deploy:'Deploy',settings:'Settings',
     'cat-all':'All Videos','cat-nonfilm':'All Except Films',
-    'editor':'Video Editor','texteditor':'Text Editor'
+    'editor':'Video Editor','texteditor':'Text Editor','abouteditor':'About Page Editor'
   }[id]||id;
   closeSidebar();
   if(id==='dashboard') renderDashboard();
@@ -2248,6 +2424,100 @@ async function localAdderPush(){
   } finally {
     btn.disabled = false; btn.textContent = 'Push Local File to GitHub';
   }
+}
+
+// ─── About Page Editor ───────────────────
+let abSourceHtml = null;
+
+// Map of field id → element id in about.html
+const AB_FIELDS = [
+  'hero-tagline','hero-desc',
+  'stat1','stat1-label','stat2','stat2-label','stat3','stat3-label','stat4','stat4-label',
+  'mission-title','mission-body',
+  's1-title','s1-body','s2-title','s2-body','s3-title','s3-body',
+  's4-title','s4-body','s5-title','s5-body','s6-title','s6-body',
+  'about-title','about-intro','about-story','about-approach','about-neutrality','about-tech',
+  'v1-name','v1-text','v2-name','v2-text','v3-name','v3-text','v4-name','v4-text',
+  'contact-email','contact-github','contact-location','footer-copy',
+];
+
+function abSetStatus(msg, type='ok'){
+  const banner = document.getElementById('abStatusBanner');
+  const colors = {ok:'var(--green)',warning:'var(--gold)',error:'var(--red)',blue:'var(--blue)'};
+  const icons  = {
+    ok:`<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>`,
+    warning:`<path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>`,
+    error:`<path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>`,
+    blue:`<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>`,
+  };
+  banner.className = 'git-status' + (type==='error'?' error':type==='warning'?' warning':'');
+  banner.innerHTML = `<svg viewBox="0 0 24 24" style="color:${colors[type]};width:16px;height:16px;fill:currentColor;flex-shrink:0;">${icons[type]}</svg><div class="git-status-text">${msg}</div>`;
+}
+
+function abPopulateFields(){
+  // Parse each element from the about.html and fill the form
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(abSourceHtml, 'text/html');
+  AB_FIELDS.forEach(id=>{
+    const el = doc.getElementById(id);
+    const field = document.getElementById('ab-'+id);
+    if(el && field) field.value = el.innerHTML.trim();
+  });
+  document.getElementById('abFields').style.display = 'block';
+  abSetStatus('<strong>Loaded!</strong> <span>Edit any field below and click Save &amp; Download.</span>');
+}
+
+async function abFetch(){
+  const btn = document.getElementById('abFetchBtn');
+  btn.disabled=true; btn.textContent='Fetching…';
+  abSetStatus('<strong>Fetching about.html…</strong>','blue');
+  const owner  = localStorage.getItem('bf_gh_owner')  || 'Bloxyplay';
+  const repo   = localStorage.getItem('bf_gh_repo')   || 'Projectbloxyflix';
+  const branch = localStorage.getItem('bf_gh_branch') || 'main';
+  const urls = [
+    `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/about.html`,
+    `https://raw.githubusercontent.com/Bloxyplay/Projectbloxyflix/main/about.html`,
+  ];
+  let html = null;
+  for(const url of urls){
+    try{ const r=await fetch(url); if(r.ok){html=await r.text();break;} }catch(e){}
+  }
+  btn.disabled=false; btn.textContent='Fetch about.html from GitHub';
+  if(!html){ abSetStatus('<strong>Could not fetch.</strong> <span>Upload a local file instead.</span>','error'); return; }
+  abSourceHtml = html;
+  abPopulateFields();
+}
+
+function abLoadLocal(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{ abSourceHtml=e.target.result; abPopulateFields(); };
+  reader.readAsText(file); input.value='';
+}
+
+function abSaveDownload(){
+  if(!abSourceHtml){ toast('Load about.html first','var(--gold)'); return; }
+  // Replace each element's innerHTML with the form value
+  let html = abSourceHtml;
+  AB_FIELDS.forEach(id=>{
+    const field = document.getElementById('ab-'+id);
+    if(!field) return;
+    const newContent = field.value;
+    // Replace id="..." element innerHTML surgically using regex
+    const re = new RegExp(`(id="${id}"[^>]*>)([\\s\\S]*?)(?=</)`, 'i');
+    if(re.test(html)){
+      html = html.replace(re, `$1${newContent}`);
+    }
+  });
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'about.html';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  abSourceHtml = html;
+  toast('✓ about.html downloaded! Upload to GitHub to go live.');
 }
 
 // ─── Text Editor ─────────────────────────
