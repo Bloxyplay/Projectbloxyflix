@@ -1818,12 +1818,15 @@ select.form-input{cursor:pointer;}
                     <input class="form-input mono" id="edThumb" placeholder="https://…/thumb.jpg" />
                   </div>
                 </div>
-                <div style="display:flex;gap:1.5rem;margin-top:.5rem;">
+                <div style="display:flex;gap:1.5rem;margin-top:.5rem;flex-wrap:wrap;">
                   <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;">
                     <input type="checkbox" id="edIsYouTube" style="accent-color:var(--red);width:15px;height:15px;" onchange="edStreamTypeChanged(this,'yt')"> isYouTube
                   </label>
                   <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;">
                     <input type="checkbox" id="edIsM3U8" style="accent-color:var(--green);width:15px;height:15px;" onchange="edStreamTypeChanged(this,'m3u8')"> isM3U8 / Live
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;">
+                    <input type="checkbox" id="edIsEmbed" style="accent-color:var(--blue);width:15px;height:15px;" onchange="edStreamTypeChanged(this,'embed')"> isEmbed
                   </label>
                   <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;">
                     <input type="checkbox" id="edIsPinned" style="accent-color:var(--gold);width:15px;height:15px;"> isPinned
@@ -3130,6 +3133,7 @@ function editorSelectVideo(index){
   document.getElementById('edCreator').value  = v.creator || '';
   document.getElementById('edIsYouTube').checked = !!v.isYouTube;
   document.getElementById('edIsM3U8').checked    = !!v.isM3U8;
+  document.getElementById('edIsEmbed').checked   = !!v.isEmbed;
   document.getElementById('edIsPinned').checked  = !!v.isPinned;
 
   // Set category pill
@@ -3159,10 +3163,20 @@ function editorClearSelection(){
 }
 
 function edStreamTypeChanged(cb, type){
-  // Uncheck the other stream type if this one is checked
+  // Uncheck other stream types if this one is checked (mutually exclusive)
   if(cb.checked){
-    if(type==='yt')   document.getElementById('edIsM3U8').checked   = false;
-    if(type==='m3u8') document.getElementById('edIsYouTube').checked = false;
+    if(type==='yt'){
+      document.getElementById('edIsM3U8').checked = false;
+      document.getElementById('edIsEmbed').checked = false;
+    }
+    if(type==='m3u8'){
+      document.getElementById('edIsYouTube').checked = false;
+      document.getElementById('edIsEmbed').checked = false;
+    }
+    if(type==='embed'){
+      document.getElementById('edIsYouTube').checked = false;
+      document.getElementById('edIsM3U8').checked = false;
+    }
   }
 }
 
@@ -3240,6 +3254,7 @@ async function editorSaveAndDownload(){
     const creator = document.getElementById('edCreator')?.value.trim() || '';
     const isYT = document.getElementById('edIsYouTube').checked;
     const isM3 = document.getElementById('edIsM3U8').checked;
+    const isEmb= document.getElementById('edIsEmbed').checked;
     const isPin= document.getElementById('edIsPinned').checked;
 
     if(!t){ toast('Title cannot be empty.','var(--gold)'); btn.disabled=false; btn.textContent='Save Changes & Download'; return; }
@@ -3258,6 +3273,7 @@ async function editorSaveAndDownload(){
     if(thumb)   newEntry += `,thumb:'${esc(thumb)}'`;
     if(isYT)    newEntry += `,isYouTube:true`;
     if(isM3)    newEntry += `,isM3U8:true`;
+    if(isEmb)   newEntry += `,isEmbed:true`;
     if(isPin)   newEntry += `,isPinned:true`;
     newEntry += '}';
 
@@ -3327,6 +3343,7 @@ async function editorSaveAndDownload(){
       duration:dur, views, thumb,
       isYouTube: isYT||undefined,
       isM3U8:    isM3||undefined,
+      isEmbed:   isEmb||undefined,
       isPinned:  isPin||undefined,
     };
 
