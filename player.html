@@ -27,6 +27,7 @@ body.embedded .video-js{width:100%!important;height:100%!important;aspect-ratio:
 body.embedded .youtube-player{aspect-ratio:unset!important;height:100%!important}
 body.embedded .radio-wrap{padding:0!important;height:100%!important;align-items:center!important}
 body.embedded .radio-card{max-width:100%!important;width:100%!important;height:100%!important;border-radius:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:none!important}
 
 /* ── NAV ── */
 .pnav{
@@ -411,9 +412,25 @@ function getVideoFromURL() {
   }
   // Support individual params
   const url = params.get('url');
+  const embed = params.get('embedcode');
+  
+  if (embed) {
+    // Raw HTML embed code passed as parameter
+    return {
+      u: decodeURIComponent(embed),
+      t: params.get('title') || 'Embedded Video',
+      tk: params.get('title') || '',
+      ty: params.get('type') || 'Video',
+      isEmbed: true,
+      isPinned: params.get('live') === '1',
+      duration: params.get('live') === '1' ? 'LIVE' : ''
+    };
+  }
+  
   if (url) {
     const decodedUrl = decodeURIComponent(url);
     const isExternal = params.get('external') === '1' || decodedUrl.includes('koryo.tv') || decodedUrl.includes('/channel/');
+    const isEmbedCode = decodedUrl.startsWith('<');
     return {
       u: decodedUrl,
       t: params.get('title') || 'Embedded Video',
@@ -423,6 +440,7 @@ function getVideoFromURL() {
       isM3U8: params.get('m3u8') === '1',
       isPinned: params.get('live') === '1',
       isExternal: isExternal,
+      isEmbed: isEmbedCode,
       duration: params.get('live') === '1' ? 'LIVE' : ''
     };
   }
@@ -495,10 +513,25 @@ function playCurrentVideo() {
   const isRadio = v.ty === 'Radio';
   const isYTLive = v.isYouTube && v.isPinned && v.duration === 'LIVE';
   const isExternalIframe = v.isExternal || (v.u && (v.u.includes('koryo.tv') || v.u.includes('/channel/')));
+  const isEmbedCode = v.isEmbed || (v.u && v.u.startsWith('<'));
 
   stopRadio();
 
-  if (isExternalIframe) {
+  if (isEmbedCode) {
+    // Raw HTML embed code (from admin panel)
+    pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
+    // Write embed HTML to iframe using srcdoc
+    const embedHtml = `<!DOCTYPE html>
+<html>
+<head>
+<style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;background:#000;overflow:hidden;}</style>
+</head>
+<body>${v.u}</body>
+</html>`;
+    yf.srcdoc = embedHtml;
+    const ytOv = document.getElementById('yt-live-overlay');
+    if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
+  } else if (isExternalIframe) {
     // External iframe source (like koryo.tv)
     pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
     yf.src = v.u;
@@ -733,9 +766,16 @@ function getEmbedCode() {
   const baseUrl = window.location.origin + window.location.pathname;
   const params = new URLSearchParams();
   params.set('embed', '1');
-  params.set('url', encodeURIComponent(curVid.u || ''));
   params.set('title', curVid.t || 'Video');
   params.set('type', curVid.ty || 'Video');
+  
+  // For embed code videos, use the embedcode param
+  if (curVid.isEmbed || (curVid.u && curVid.u.startsWith('<'))) {
+    params.set('embedcode', encodeURIComponent(curVid.u));
+  } else {
+    params.set('url', encodeURIComponent(curVid.u || ''));
+  }
+  
   if (curVid.isYouTube) params.set('youtube', '1');
   if (curVid.isM3U8) params.set('m3u8', '1');
   if (curVid.isExternal || curVid.u?.includes('koryo.tv')) params.set('external', '1');
