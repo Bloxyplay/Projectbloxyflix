@@ -640,7 +640,20 @@ function playCurrentVideo() {
   const isYTLive = v.isYouTube && v.isPinned && v.duration === 'LIVE';
   const isExternalIframe = v.isExternal || (v.u && (v.u.includes('koryo.tv') || v.u.includes('/channel/')));
   const isEmbedCode = v.isEmbed || (v.u && v.u.startsWith('<'));
-  const isGoogleDrive = v.isGoogleDrive || isGoogleDriveUrl(v.u);
+  // ── Resolve Google Drive file ID from all possible formats ──
+  // Handles: full URL, bare file ID, isGoogleDrive flag, gdriveFileId already set
+  function resolveGdriveId() {
+    if (v.gdriveFileId) return v.gdriveFileId;
+    if (isGoogleDriveUrl(v.u)) return extractGoogleDriveFileId(v.u);
+    // Bare file ID: alphanumeric+_- string 25-45 chars, no spaces, not a URL
+    if (v.isGoogleDrive && v.u && !v.u.startsWith('http') && !v.u.startsWith('<') && /^[a-zA-Z0-9_-]{20,60}$/.test(v.u.trim())) return v.u.trim();
+    return null;
+  }
+  const gdriveId = resolveGdriveId();
+  const isGoogleDrive = v.isGoogleDrive || isGoogleDriveUrl(v.u) || !!gdriveId;
+
+  // Store resolved ID back onto curVid for source link etc.
+  if (gdriveId && !v.gdriveFileId) { v.gdriveFileId = gdriveId; v.isGoogleDrive = true; }
 
   stopRadio();
 
@@ -671,37 +684,19 @@ function playCurrentVideo() {
     yf.src = v.u;
     const ytOv = document.getElementById('yt-live-overlay');
     if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-  } else if (isGoogleDrive && v.gdriveFileId) {
-    // Google Drive video - use preview iframe for best compatibility
+  } else if (isGoogleDrive && gdriveId) {
+    // Google Drive video — always use the preview iframe, never Video.js
     gdc.style.display = 'block';
-    gdf.src = getGoogleDrivePreviewUrl(v.gdriveFileId);
+    gdf.src = getGoogleDrivePreviewUrl(gdriveId);
     const ytOv = document.getElementById('yt-live-overlay');
     if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-  } else if (isGoogleDrive && !v.gdriveFileId) {
-    // Try to extract file ID from URL
-    const fileId = extractGoogleDriveFileId(v.u);
-    if (fileId) {
-      gdc.style.display = 'block';
-      gdf.src = getGoogleDrivePreviewUrl(fileId);
-      v.gdriveFileId = fileId;
-      v.isGoogleDrive = true;
-      // Refresh source link in case renderInfo already ran
-      const srcRow = document.getElementById('sourceLinkRow');
-      const srcUrl = document.getElementById('sourceLinkUrl');
-      if (srcRow && srcUrl) {
-        srcUrl.href = `https://drive.google.com/file/d/${fileId}/view`;
-        srcUrl.textContent = 'Google Drive';
-        srcRow.style.display = 'flex';
-      }
-    } else {
-      // Fallback to Video.js with direct URL
-      pc.style.display = 'block';
-      const ytOv = document.getElementById('yt-live-overlay');
-      if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-      if (bfPlayer) {
-        bfPlayer.src({ src: v.u, type: 'video/mp4' });
-        bfPlayer.play().catch(() => { bfPlayer.muted(true); bfPlayer.play().then(() => setTimeout(() => bfPlayer.muted(false), 800)); });
-      }
+    // Refresh source link row
+    const srcRow = document.getElementById('sourceLinkRow');
+    const srcUrl = document.getElementById('sourceLinkUrl');
+    if (srcRow && srcUrl) {
+      srcUrl.href = `https://drive.google.com/file/d/${gdriveId}/view`;
+      srcUrl.textContent = 'Google Drive';
+      srcRow.style.display = 'flex';
     }
   } else if (isYTLive) {
     pc.style.display = 'block';
@@ -752,7 +747,8 @@ function renderInfo() {
   document.getElementById('playerInfo').style.display = 'block';
   
   // Show download button only for non-YouTube, non-Google Drive videos
-  const canDownload = !v.isYouTube && !v.isM3U8 && !v.isGoogleDrive && !isGoogleDriveUrl(v.u);
+  const _isGdrive = v.isGoogleDrive || isGoogleDriveUrl(v.u) || (v.u && !v.u.startsWith('http') && /^[a-zA-Z0-9_-]{20,60}$/.test(v.u.trim()) && v.isGoogleDrive);
+  const canDownload = !v.isYouTube && !v.isM3U8 && !_isGdrive;
   document.getElementById('dlBtn').style.display = canDownload ? 'flex' : 'none';
 
   // Show source link row
@@ -760,8 +756,12 @@ function renderInfo() {
   const srcUrl = document.getElementById('sourceLinkUrl');
   let sourceHref = '';
   let sourceDisplay = '';
-  if (v.isGoogleDrive && v.gdriveFileId) {
-    sourceHref = `https://drive.google.com/file/d/${v.gdriveFileId}/view`;
+  // Resolve gdrive ID: already set, or extract from URL, or bare ID string
+  const _gdriveId = v.gdriveFileId
+    || (isGoogleDriveUrl(v.u) ? extractGoogleDriveFileId(v.u) : null)
+    || (v.isGoogleDrive && v.u && !v.u.startsWith('http') && !v.u.startsWith('<') && /^[a-zA-Z0-9_-]{20,60}$/.test(v.u.trim()) ? v.u.trim() : null);
+  if (_gdriveId) {
+    sourceHref = `https://drive.google.com/file/d/${_gdriveId}/view`;
     sourceDisplay = 'Google Drive';
   } else if (v.isYouTube) {
     sourceHref = `https://www.youtube.com/watch?v=${v.u}`;
