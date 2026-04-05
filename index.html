@@ -2707,6 +2707,807 @@ html,body{background:#0a0a0a!important;margin:0;padding:0;}
 ::-webkit-scrollbar-thumb { background: #2a2b35; border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: #1a7fff; }
 </style>
+
+<!-- ══════════════════════════════════════════════════════════
+     MEDIA CMS BLUE AESTHETIC OVERRIDE
+     Inspired by Jellyfin / Plex / Emby design language
+     Deep navy · crisp blue accents · professional media UI
+══════════════════════════════════════════════════════════ -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── ROOT PALETTE UPGRADE ── */
+:root {
+  --cms-bg:         #0d1117 !important;
+  --cms-surface:    #161b27 !important;
+  --cms-surface2:   #1c2336 !important;
+  --cms-surface3:   #212940 !important;
+  --cms-border:     rgba(99,131,185,0.15) !important;
+  --cms-border2:    rgba(99,131,185,0.25) !important;
+  --cms-blue:       #1d6ff0 !important;
+  --cms-blue-bright:#4d9fff !important;
+  --cms-blue-glow:  rgba(29,111,240,0.35) !important;
+  --cms-blue-dim:   rgba(29,111,240,0.12) !important;
+  --cms-text:       #e2e8f5 !important;
+  --cms-text2:      #8b9ab5 !important;
+  --cms-text3:      #4a5568 !important;
+  --cms-accent-bar: linear-gradient(90deg, #1d6ff0, #4d9fff) !important;
+}
+
+/* ── BASE BODY ── */
+body {
+  background: #0d1117 !important;
+  color: #e2e8f5 !important;
+  font-family: 'Plus Jakarta Sans', 'DM Sans', sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* Subtle star/dot background texture */
+body::before {
+  content: '' !important;
+  position: fixed !important;
+  inset: 0 !important;
+  background-image:
+    radial-gradient(circle at 20% 15%, rgba(29,111,240,0.06) 0%, transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(77,159,255,0.04) 0%, transparent 50%) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* ── NAVIGATION BAR ── */
+.nav {
+  background: rgba(13,17,23,0.85) !important;
+  border-bottom: 1px solid rgba(99,131,185,0.18) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  padding: 0 !important;
+}
+.nav::after {
+  background: linear-gradient(90deg, transparent, #1d6ff0 40%, #4d9fff 60%, transparent) !important;
+  opacity: 0.8 !important;
+  height: 1px !important;
+}
+.nav-wrap {
+  padding: 0 1.5rem !important;
+  height: 60px !important;
+}
+.logo {
+  font-family: 'Space Grotesk', 'Bebas Neue', sans-serif !important;
+  font-size: 1.35rem !important;
+  letter-spacing: 0.04em !important;
+  font-weight: 700 !important;
+}
+.logo span {
+  color: #4d9fff !important;
+  text-shadow: 0 0 20px rgba(77,159,255,0.5) !important;
+}
+.nav-icon {
+  border-radius: 8px !important;
+  transition: background 0.15s, color 0.15s !important;
+}
+.nav-icon:hover {
+  background: rgba(29,111,240,0.15) !important;
+  color: #4d9fff !important;
+}
+.menu-btn {
+  border-radius: 8px !important;
+}
+.menu-btn:hover {
+  background: rgba(29,111,240,0.12) !important;
+  color: #4d9fff !important;
+}
+
+/* ── SIDEBAR — CMS LEFT RAIL ── */
+.sidebar {
+  background: #0f1420 !important;
+  border-right: 1px solid rgba(99,131,185,0.12) !important;
+  box-shadow: 4px 0 40px rgba(0,0,0,0.6) !important;
+  width: 256px !important;
+}
+.sidebar-header {
+  background: rgba(29,111,240,0.08) !important;
+  border-bottom: 1px solid rgba(99,131,185,0.15) !important;
+  padding: 1.1rem 1.25rem !important;
+}
+.sidebar-logo {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  color: #e2e8f5 !important;
+}
+.sidebar-section {
+  border-bottom: 1px solid rgba(99,131,185,0.08) !important;
+  padding: 0.6rem 0 !important;
+}
+.sidebar-section-title {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: #4a5568 !important;
+  padding: 0.75rem 1.25rem 0.35rem !important;
+}
+.sidebar-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.85rem !important;
+  padding: 0.7rem 1.25rem !important;
+  margin: 0.1rem 0.5rem !important;
+  border-radius: 8px !important;
+  color: #8b9ab5 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease !important;
+  border: 1px solid transparent !important;
+}
+.sidebar-item:hover {
+  background: rgba(29,111,240,0.1) !important;
+  color: #c5d4f0 !important;
+  border-color: rgba(29,111,240,0.2) !important;
+}
+.sidebar-item.active {
+  background: rgba(29,111,240,0.2) !important;
+  color: #4d9fff !important;
+  border-color: rgba(29,111,240,0.35) !important;
+  font-weight: 600 !important;
+  box-shadow: inset 3px 0 0 #1d6ff0 !important;
+}
+.sidebar-item svg { opacity: 0.8; }
+.sidebar-item.active svg { opacity: 1; }
+.sidebar-badge {
+  background: rgba(29,111,240,0.25) !important;
+  color: #4d9fff !important;
+  border: 1px solid rgba(29,111,240,0.4) !important;
+  border-radius: 5px !important;
+  font-size: 0.6rem !important;
+  padding: 2px 7px !important;
+}
+
+/* ── HERO BANNER — CMS STYLE ── */
+.hero-banner {
+  background:
+    radial-gradient(ellipse 90% 70% at 60% 20%, rgba(29,111,240,0.14) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 20% 80%, rgba(13,30,70,0.5) 0%, transparent 60%),
+    linear-gradient(180deg, #0d1420 0%, #0d1117 100%) !important;
+  border-bottom: 1px solid rgba(99,131,185,0.12) !important;
+  min-height: 480px !important;
+  height: 60vh !important;
+}
+.hero-banner::before {
+  background: linear-gradient(to bottom, transparent 0%, transparent 30%, rgba(13,17,23,0.7) 75%, #0d1117 100%) !important;
+}
+.hero-banner::after {
+  opacity: 0.3 !important;
+}
+.hero-content { padding: 0 2rem 6% !important; }
+.hero-logo {
+  background: linear-gradient(135deg, #1d6ff0, #4d9fff) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 20px rgba(29,111,240,0.45) !important;
+}
+.hero-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 2.6rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  color: #e2e8f5 !important;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.7) !important;
+  line-height: 1.15 !important;
+}
+.hero-subtitle {
+  font-size: 0.95rem !important;
+  color: #8b9ab5 !important;
+  max-width: 560px !important;
+  line-height: 1.7 !important;
+}
+.hero-badge {
+  background: rgba(29,111,240,0.2) !important;
+  border: 1px solid rgba(29,111,240,0.45) !important;
+  color: #4d9fff !important;
+  border-radius: 5px !important;
+  font-size: 0.62rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  padding: 3px 8px !important;
+}
+.hero-btn {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  padding: 0.65rem 1.4rem !important;
+  letter-spacing: 0.01em !important;
+  text-transform: none !important;
+}
+.hero-btn-primary {
+  background: #1d6ff0 !important;
+  border: 1px solid #1d6ff0 !important;
+  box-shadow: 0 4px 16px rgba(29,111,240,0.4) !important;
+  color: #fff !important;
+}
+.hero-btn-primary:hover {
+  background: #4d9fff !important;
+  border-color: #4d9fff !important;
+  box-shadow: 0 6px 22px rgba(29,111,240,0.55) !important;
+  transform: translateY(-1px) !important;
+}
+.hero-btn-secondary {
+  background: rgba(22,27,39,0.85) !important;
+  border: 1px solid rgba(99,131,185,0.3) !important;
+  color: #c5d4f0 !important;
+  backdrop-filter: blur(8px) !important;
+}
+.hero-btn-secondary:hover {
+  background: rgba(29,111,240,0.15) !important;
+  border-color: rgba(29,111,240,0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── FILTER TABS — CMS PILL STYLE ── */
+.filter-tabs {
+  padding: 1rem 1.5rem !important;
+  gap: 0.5rem !important;
+  border-bottom: 1px solid rgba(99,131,185,0.08) !important;
+  background: rgba(15,20,32,0.6) !important;
+}
+.filter-tab {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  padding: 0.4rem 0.9rem !important;
+  border: 1px solid rgba(99,131,185,0.18) !important;
+  background: rgba(22,27,39,0.7) !important;
+  color: #8b9ab5 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transition: all 0.15s !important;
+}
+.filter-tab:hover {
+  background: rgba(29,111,240,0.12) !important;
+  border-color: rgba(29,111,240,0.35) !important;
+  color: #c5d4f0 !important;
+  transform: none !important;
+}
+.filter-tab.active {
+  background: #1d6ff0 !important;
+  border-color: #1d6ff0 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(29,111,240,0.4) !important;
+  font-weight: 700 !important;
+}
+
+/* ── SECTION HEADERS ── */
+.section-header {
+  border-bottom: none !important;
+  padding: 1.5rem 1.5rem 0.75rem !important;
+  margin-bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+.section-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #c5d4f0 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  position: relative !important;
+  padding-left: 0.85rem !important;
+}
+.section-title::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 3px !important;
+  height: 1em !important;
+  background: linear-gradient(180deg, #1d6ff0, #4d9fff) !important;
+  border-radius: 2px !important;
+}
+.view-all {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: #1d6ff0 !important;
+  border: 1px solid rgba(29,111,240,0.35) !important;
+  background: rgba(29,111,240,0.08) !important;
+  border-radius: 6px !important;
+  padding: 0.3rem 0.75rem !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  transition: all 0.15s !important;
+  cursor: pointer !important;
+}
+.view-all:hover {
+  background: #1d6ff0 !important;
+  color: #fff !important;
+  border-color: #1d6ff0 !important;
+}
+
+/* ── VIDEO GRID ── */
+.video-grid {
+  padding: 1rem 1.5rem 2rem !important;
+  gap: 1rem !important;
+}
+
+/* ── VIDEO CARDS — CMS MEDIA CARD ── */
+.video-card {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.12) !important;
+  border-left: none !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+.video-card:hover {
+  border-color: rgba(29,111,240,0.45) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(29,111,240,0.25) !important;
+  transform: translateY(-3px) !important;
+  z-index: 10 !important;
+}
+.card-thumb {
+  border-radius: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+/* Blue shimmer on hover */
+.video-card:hover .card-thumb::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(135deg, rgba(29,111,240,0.1), transparent 60%) !important;
+  border-radius: 0 !important;
+  pointer-events: none !important;
+}
+.card-badge {
+  border-radius: 4px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.62rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  padding: 2px 6px !important;
+}
+.card-badge.new {
+  background: rgba(29,111,240,0.9) !important;
+  color: #fff !important;
+}
+.card-duration {
+  background: rgba(0,0,0,0.75) !important;
+  border-radius: 4px !important;
+  font-family: 'Space Grotesk', monospace !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  border: none !important;
+}
+.card-info {
+  padding: 0.7rem 0.85rem !important;
+  background: #161b27 !important;
+}
+.card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #c5d4f0 !important;
+  line-height: 1.4 !important;
+}
+.card-meta {
+  font-size: 0.72rem !important;
+  color: #4a5568 !important;
+  letter-spacing: 0 !important;
+}
+.card-kr {
+  font-size: 0.72rem !important;
+  color: #6b7a96 !important;
+}
+
+/* ── SEARCH OVERLAY ── */
+.search-overlay {
+  background: rgba(13,17,23,0.97) !important;
+  backdrop-filter: blur(24px) !important;
+}
+.search-header {
+  background: rgba(15,20,32,0.95) !important;
+  border-bottom: 1px solid rgba(99,131,185,0.15) !important;
+}
+.search-header input {
+  background: rgba(22,27,39,0.9) !important;
+  border: 1px solid rgba(99,131,185,0.2) !important;
+  border-radius: 8px !important;
+  color: #e2e8f5 !important;
+}
+.search-header input:focus {
+  border-color: #1d6ff0 !important;
+  box-shadow: 0 0 0 3px rgba(29,111,240,0.15) !important;
+}
+.search-filter {
+  background: rgba(22,27,39,0.7) !important;
+  border: 1px solid rgba(99,131,185,0.18) !important;
+  border-radius: 6px !important;
+  color: #8b9ab5 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+}
+.search-filter.active {
+  background: #1d6ff0 !important;
+  border-color: #1d6ff0 !important;
+  color: #fff !important;
+}
+.search-result:hover {
+  background: rgba(22,27,39,0.8) !important;
+  border-radius: 8px !important;
+}
+
+/* ── CHANNEL CARDS ── */
+.channel-card {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.12) !important;
+  border-radius: 10px !important;
+}
+.channel-card:hover {
+  border-color: rgba(29,111,240,0.45) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(29,111,240,0.2) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+.channel-badge.live {
+  background: rgba(29,111,240,0.85) !important;
+}
+
+/* ── PROFILE MENU ── */
+.profile-menu {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.18) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6) !important;
+}
+.profile-header {
+  border-bottom: 1px solid rgba(99,131,185,0.12) !important;
+}
+.profile-avatar {
+  background: linear-gradient(135deg, #1d6ff0, #4d9fff) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+}
+.profile-item:hover {
+  background: rgba(29,111,240,0.1) !important;
+  border-radius: 7px !important;
+  color: #c5d4f0 !important;
+}
+
+/* ── MODALS ── */
+.modal-content {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.18) !important;
+  border-radius: 12px !important;
+  border-top: 2px solid #1d6ff0 !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7) !important;
+}
+.modal-header {
+  border-bottom: 1px solid rgba(99,131,185,0.12) !important;
+}
+.modal-footer {
+  border-top: 1px solid rgba(99,131,185,0.12) !important;
+}
+.modal-btn {
+  background: rgba(22,27,39,0.9) !important;
+  border: 1px solid rgba(99,131,185,0.2) !important;
+  border-radius: 8px !important;
+  color: #8b9ab5 !important;
+}
+.modal-btn.primary {
+  background: #1d6ff0 !important;
+  border-color: #1d6ff0 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(29,111,240,0.4) !important;
+}
+
+/* ── SETTINGS PAGE ── */
+.settings-item {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.12) !important;
+  border-radius: 10px !important;
+  transition: border-color 0.15s !important;
+}
+.settings-item:hover {
+  border-color: rgba(29,111,240,0.3) !important;
+  background: rgba(22,35,58,0.8) !important;
+}
+.settings-select {
+  background: rgba(22,27,39,0.9) !important;
+  border: 1px solid rgba(99,131,185,0.2) !important;
+  border-radius: 7px !important;
+  color: #e2e8f5 !important;
+}
+.settings-select:focus {
+  border-color: #1d6ff0 !important;
+}
+
+/* ── FAQ ITEMS ── */
+.faq-item {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.1) !important;
+  border-radius: 8px !important;
+}
+.faq-item:hover, .faq-item.open {
+  background: #1c2336 !important;
+  border-color: rgba(29,111,240,0.25) !important;
+}
+.faq-search input {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.18) !important;
+  border-radius: 8px !important;
+  color: #e2e8f5 !important;
+}
+.faq-search input:focus {
+  border-color: #1d6ff0 !important;
+  box-shadow: 0 0 0 3px rgba(29,111,240,0.15) !important;
+}
+
+/* ── TOAST ── */
+.toast {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.2) !important;
+  border-left: 3px solid #1d6ff0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.85rem !important;
+}
+
+/* ── NOTICE BANNER ── */
+.notice-banner {
+  background: linear-gradient(90deg, #0f2057, #1d6ff0) !important;
+  border-bottom: 1px solid rgba(29,111,240,0.4) !important;
+}
+.notice-text {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* ── LIVE BADGE / DOT ── */
+.live-dot, .radio-live-dot {
+  background: #4d9fff !important;
+  box-shadow: 0 0 0 0 rgba(77,159,255,0.6) !important;
+}
+.live-badge-pill {
+  color: #4d9fff !important;
+  border-color: rgba(77,159,255,0.4) !important;
+  background: rgba(29,111,240,0.1) !important;
+}
+.channel-badge.live, .badge-tv {
+  background: rgba(29,111,240,0.18) !important;
+  color: #4d9fff !important;
+  border-color: rgba(29,111,240,0.3) !important;
+}
+
+/* ── LOADING SCREEN ── */
+.loading {
+  background: #0d1117 !important;
+}
+.loading-logo {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 800 !important;
+  color: #e2e8f5 !important;
+  letter-spacing: -0.02em !important;
+}
+.loading-logo span { color: #4d9fff !important; }
+.loading-spinner {
+  background: conic-gradient(#1d6ff0 0%, transparent 65%) !important;
+}
+
+/* ── WATCHLIST & EMPTY STATES ── */
+.watchlist-thumb {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.12) !important;
+  border-radius: 8px !important;
+}
+.watchlist-remove:hover {
+  background: #1d6ff0 !important;
+}
+.empty-state-icon { color: #4a5568 !important; }
+
+/* ── SCROLL TO TOP ── */
+.scroll-top {
+  background: linear-gradient(135deg, #1d6ff0, #4d9fff) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(29,111,240,0.45) !important;
+}
+
+/* ── SOURCE MODAL ── */
+#sourceModal > div {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.18) !important;
+  border-radius: 14px !important;
+}
+
+/* ── COMMUNITY SECTION ── */
+.community-section {
+  background: linear-gradient(135deg, rgba(15,32,87,0.4), rgba(22,27,39,0.6)) !important;
+  border: 1px solid rgba(29,111,240,0.2) !important;
+  border-radius: 12px !important;
+  margin: 1rem 1.5rem !important;
+}
+
+/* ── SIGNAL CARDS ── */
+.signal-card {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.12) !important;
+  border-radius: 12px !important;
+}
+.signal-card:hover {
+  border-color: rgba(29,111,240,0.4) !important;
+  box-shadow: 0 8px 24px rgba(29,111,240,0.15) !important;
+}
+.signal-card:hover .signal-arrow {
+  background: #1d6ff0 !important;
+  border-color: #1d6ff0 !important;
+}
+.signal-icon-wrap {
+  background: rgba(29,111,240,0.12) !important;
+  border-color: rgba(29,111,240,0.2) !important;
+}
+
+/* ── VIDEO.JS PLAYER ── */
+.vjs-big-play-button {
+  background: rgba(29,111,240,0.9) !important;
+}
+.vjs-big-play-button:hover {
+  background: #1d6ff0 !important;
+}
+.vjs-play-progress, .vjs-volume-level {
+  background: #1d6ff0 !important;
+}
+.vjs-menu li.vjs-selected {
+  background: #1d6ff0 !important;
+}
+.vjs-time-tooltip {
+  background: #1d6ff0 !important;
+}
+
+/* ── RADIO CARD ── */
+.radio-card {
+  background: linear-gradient(145deg, rgba(12,22,52,0.97), rgba(9,15,35,0.99)) !important;
+  border: 1px solid rgba(29,111,240,0.2) !important;
+}
+.radio-btn {
+  background: linear-gradient(135deg, #1d6ff0, #4d9fff) !important;
+  box-shadow: 0 4px 16px rgba(29,111,240,0.45) !important;
+}
+.radio-disc {
+  border-color: rgba(29,111,240,0.35) !important;
+  box-shadow: 0 0 36px rgba(29,111,240,0.2), inset 0 0 20px rgba(0,0,0,0.8) !important;
+}
+.radio-disc-inner {
+  border-color: rgba(29,111,240,0.45) !important;
+}
+.radio-disc-letter { color: #4d9fff !important; }
+.radio-volume::-webkit-slider-thumb { background: #1d6ff0 !important; }
+
+/* ── SUBSCRIBE PAGE ── */
+.sub-hero {
+  background: linear-gradient(160deg, #060e22 0%, #0d1117 60%) !important;
+}
+.sub-cta-btn {
+  background: #1d6ff0 !important;
+  box-shadow: 0 6px 24px rgba(29,111,240,0.45) !important;
+}
+.sub-cta-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 32px rgba(29,111,240,0.55) !important;
+}
+.sub-stat-num { color: #4d9fff !important; }
+.sub-feat-card, .sub-stat, .sub-manifesto {
+  background: #161b27 !important;
+  border-color: rgba(99,131,185,0.12) !important;
+}
+.sub-final-cta {
+  background: linear-gradient(135deg, #1044b5, #1d6ff0) !important;
+}
+.sub-final-cta a { color: #1d6ff0 !important; }
+
+/* ── TOS SCREEN ── */
+#tos-screen { background: #080d16 !important; }
+#tos-screen::before {
+  background-image:
+    linear-gradient(rgba(29,111,240,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29,111,240,.05) 1px, transparent 1px) !important;
+}
+
+/* ── SHORTCUT KEYS ── */
+.shortcut-key {
+  background: rgba(22,27,39,0.9) !important;
+  border: 1px solid rgba(99,131,185,0.2) !important;
+  color: #4d9fff !important;
+  font-family: 'Space Grotesk', monospace !important;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: #0f1420 !important;
+  border-top: 1px solid rgba(99,131,185,0.1) !important;
+}
+.footer-links a:hover {
+  color: #4d9fff !important;
+  background: rgba(29,111,240,0.08) !important;
+}
+
+/* ── SCROLLBAR (CMS STYLE) ── */
+::-webkit-scrollbar { width: 5px !important; }
+::-webkit-scrollbar-track { background: #0d1117 !important; }
+::-webkit-scrollbar-thumb { background: rgba(29,111,240,0.35) !important; border-radius: 3px !important; }
+::-webkit-scrollbar-thumb:hover { background: #1d6ff0 !important; }
+
+/* ── COMING SOON NOTICE ── */
+.coming-soon-notice {
+  background: rgba(29,111,240,0.07) !important;
+  border: 1px solid rgba(29,111,240,0.2) !important;
+}
+.coming-soon-notice h4 { color: #4d9fff !important; }
+
+/* ── THEME SWATCHES ── */
+.theme-swatch.active-theme {
+  box-shadow: 0 0 0 3px #0d1117, 0 0 0 5px #1d6ff0 !important;
+}
+
+/* ── SORT TOGGLE BTN ── */
+#sortToggleBtn {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.18) !important;
+  color: #8b9ab5 !important;
+  border-radius: 7px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+#sortToggleBtn:hover {
+  background: rgba(29,111,240,0.12) !important;
+  border-color: rgba(29,111,240,0.3) !important;
+  color: #4d9fff !important;
+}
+
+/* ── BPTV SECTION TOPBAR ── */
+.bptv-topbar {
+  background: linear-gradient(90deg, #0f2057, #1d6ff0, #4d9fff) !important;
+}
+
+/* ── CONTINUE WATCHING ── */
+.continue-card {
+  background: #161b27 !important;
+  border: 1px solid rgba(99,131,185,0.12) !important;
+  border-radius: 10px !important;
+}
+
+/* Accent: progress bar within continue card */
+.continue-progress-fill {
+  background: linear-gradient(90deg, #1d6ff0, #4d9fff) !important;
+}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  .hero-title { font-size: 1.8rem !important; }
+  .video-grid { padding: 0.75rem 0.85rem 2rem !important; gap: 0.75rem !important; }
+  .section-header { padding: 1.25rem 0.85rem 0.5rem !important; }
+  .filter-tabs { padding: 0.75rem 0.85rem !important; }
+}
+
+/* ── SPLASH SCREEN ── */
+#bf-splash {
+  background: #0d1117 !important;
+}
+#bf-splash-logo {
+  font-family: 'Space Grotesk', sans-serif !important;
+  color: #e2e8f5 !important;
+}
+#bf-splash-logo span { color: #4d9fff !important; }
+</style>
 </head>
 <body>
 <!-- Offline screen -->
