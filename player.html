@@ -4,282 +4,361 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MediaCMS Player</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@8.10.0/dist/video-js.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --primary:#4caf50;
-  --primary-dark:#388e3c;
-  --text-primary:#212121;
-  --text-secondary:#757575;
-  --text-muted:#9e9e9e;
-  --bg-primary:#ffffff;
-  --bg-secondary:#fafafa;
-  --bg-hover:#f5f5f5;
-  --border:#e0e0e0;
-  --border-light:#eeeeee;
-  --radius:8px;
+  --bg-primary:#0d1117;
+  --bg-secondary:#161b22;
+  --bg-card:#21262d;
+  --bg-hover:#30363d;
+  --text-primary:#f0f6fc;
+  --text-secondary:#8b949e;
+  --text-muted:#6e7681;
+  --accent:#58a6ff;
+  --accent-hover:#79c0ff;
+  --accent-glow:rgba(88,166,255,0.3);
+  --success:#238636;
+  --warning:#f0883e;
+  --danger:#da3633;
+  --border:#30363d;
+  --border-light:#21262d;
+  --radius:6px;
   --radius-lg:12px;
-  --shadow:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.24);
-  --shadow-lg:0 4px 6px rgba(0,0,0,0.1),0 2px 4px rgba(0,0,0,0.06);
-  --font:'Roboto',-apple-system,BlinkMacSystemFont,sans-serif;
+  --radius-pill:999px;
+  --shadow:0 1px 0 rgba(255,255,255,0.05) inset,0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.5);
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 html,body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--font);min-height:100vh;line-height:1.5;}
 
 /* ── EMBEDDED MODE ── */
 body.embedded{background:#000!important;overflow:hidden!important}
-body.embedded .header{display:none!important}
-body.embedded .sidebar{display:none!important}
-body.embedded .video-info{display:none!important}
-body.embedded .related-sidebar{display:none!important}
-body.embedded .main-content{padding:0!important;background:#000!important}
-body.embedded .player-container{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;background:#000!important;border-radius:0!important}
+body.embedded .pnav{display:none!important}
+body.embedded .player-sidebar{display:none!important}
+body.embedded .player-info{display:none!important}
+body.embedded .player-wrap{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;background:#000!important;display:flex!important;align-items:center!important;justify-content:center!important}
+body.embedded #playerContainer,body.embedded #radioContainer,body.embedded #youtubeContainer{width:100%!important;height:100%!important;display:block!important}
 body.embedded .video-js{width:100%!important;height:100%!important;aspect-ratio:unset!important}
-body.embedded #radioContainer,body.embedded #youtubeContainer{width:100%!important;height:100%!important}
-body.embedded .radio-wrap{height:100%!important;padding:0!important}
-body.embedded .radio-card{max-width:100%!important;width:100%!important;height:100%!important;border-radius:0!important}
+body.embedded .youtube-player{aspect-ratio:unset!important;width:100%!important;height:100%!important;position:relative!important}
+body.embedded .youtube-player iframe{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:100%!important}
+body.embedded .radio-wrap{padding:0!important;height:100%!important;align-items:center!important}
+body.embedded .radio-card{max-width:100%!important;width:100%!important;height:100%!important;border-radius:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:none!important;position:absolute!important;top:0!important;left:0!important}
 
-/* ── HEADER ── */
-.header{position:sticky;top:0;z-index:100;background:var(--bg-primary);border-bottom:1px solid var(--border);padding:0.5rem 1rem;display:flex;align-items:center;gap:1rem;}
-.header-left{display:flex;align-items:center;gap:0.75rem;}
-.menu-btn{background:none;border:none;padding:0.5rem;cursor:pointer;color:var(--text-secondary);border-radius:50%;transition:background 0.2s;}
-.menu-btn:hover{background:var(--bg-hover);}
-.logo{font-size:1.25rem;font-weight:500;color:var(--primary);text-decoration:none;display:flex;align-items:center;gap:0.25rem;}
-.logo-icon{width:28px;height:28px;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;}
-.search-box{flex:1;max-width:600px;display:flex;align-items:center;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem 1rem;}
-.search-box input{flex:1;background:none;border:none;outline:none;font-size:0.875rem;color:var(--text-primary);}
-.search-box input::placeholder{color:var(--text-muted);}
-.search-btn{background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:0.25rem;}
-.header-right{display:flex;align-items:center;gap:0.5rem;}
-.login-btn{padding:0.5rem 1rem;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-size:0.875rem;font-weight:500;cursor:pointer;transition:background 0.2s;}
-.login-btn:hover{background:var(--primary-dark);}
+/* ── NAV ── */
+.pnav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:1rem;
+  padding:.75rem 1.25rem;
+  background:var(--bg-secondary);
+  border-bottom:1px solid var(--border);
+}
+.pnav-back{
+  display:flex;align-items:center;gap:.5rem;
+  background:none;border:none;color:var(--text-secondary);
+  font-size:.875rem;font-weight:500;cursor:pointer;
+  padding:.5rem .75rem;border-radius:var(--radius);transition:all .2s;
+}
+.pnav-back:hover{color:var(--text-primary);background:var(--bg-hover);}
+.pnav-back svg{fill:currentColor;flex-shrink:0;width:18px;height:18px;}
+.pnav-logo{font-weight:700;font-size:1.125rem;letter-spacing:-0.25px;color:var(--text-primary);display:flex;align-items:center;gap:.5rem;}
+.pnav-logo::before{content:'';width:24px;height:24px;background:var(--accent);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;}
+.pnav-title{font-size:.875rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* ── LAYOUT ── */
-.layout{display:flex;min-height:calc(100vh - 57px);}
-.sidebar{width:240px;background:var(--bg-primary);border-right:1px solid var(--border);padding:0.75rem 0;flex-shrink:0;}
-.sidebar-item{display:flex;align-items:center;gap:1rem;padding:0.75rem 1.5rem;color:var(--text-primary);text-decoration:none;font-size:0.875rem;transition:background 0.2s;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
-.sidebar-item:hover{background:var(--bg-hover);}
-.sidebar-item .material-icons{font-size:1.25rem;color:var(--text-secondary);}
-.sidebar-divider{height:1px;background:var(--border);margin:0.5rem 1rem;}
-.main-content{flex:1;padding:1.5rem;display:flex;gap:1.5rem;max-width:1600px;margin:0 auto;width:100%;}
-.content-area{flex:1;min-width:0;}
-.related-sidebar{width:360px;flex-shrink:0;}
+/* ── MAIN LAYOUT ── */
+.player-main{display:flex;gap:1.5rem;max-width:1600px;margin:0 auto;padding:1.5rem;}
+.player-content{flex:1;min-width:0;}
+.player-sidebar{width:360px;flex-shrink:0;}
+@media(max-width:1100px){
+  .player-main{flex-direction:column;}
+  .player-sidebar{width:100%;}
+}
 
-/* ── PLAYER ── */
-.player-container{width:100%;background:#000;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);position:relative;}
-.player-container video{width:100%;height:100%;display:block;}
-.video-js{width:100%!important;height:auto!important;aspect-ratio:16/9;}
+/* ── VIDEO PLAYER ── */
+.player-wrap{width:100%;background:#000;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);}
+.player-wrap video{width:100%;height:100%;display:block;}
 .video-js .vjs-tech{width:100%!important;height:100%!important;}
-.video-js .vjs-big-play-button{border:none!important;background:rgba(76,175,80,0.9)!important;border-radius:50%!important;width:64px!important;height:64px!important;margin-top:-32px!important;margin-left:-32px!important;}
-.video-js .vjs-big-play-button .vjs-icon-placeholder:before{color:white!important;font-size:28px!important;line-height:64px!important;}
-.video-js .vjs-control-bar{background:linear-gradient(transparent,rgba(0,0,0,0.7))!important;}
-.video-js .vjs-play-progress{background:var(--primary)!important;}
-.video-js .vjs-volume-level{background:var(--primary)!important;}
+.video-js.vjs-fluid,.video-js.vjs-16-9,.video-js.vjs-4-3,.video-js.vjs-fill{width:100%!important;height:auto!important;max-width:100%!important;}
+.vjs-video-canvas,.vjs-text-track-display,.vjs-poster{width:100%!important;height:100%!important;}
+.vjs-big-play-button{border:none!important;background:rgba(88,166,255,0.9)!important;border-radius:50%!important;width:64px!important;height:64px!important;margin-top:-32px!important;margin-left:-32px!important;backdrop-filter:none!important;}
+.vjs-big-play-button .vjs-icon-placeholder:before{color:#fff!important;font-size:28px!important;line-height:64px!important;}
+.video-js{width:100%!important;height:auto!important;aspect-ratio:16/9;}
+.video-js .vjs-control-bar{background:linear-gradient(transparent,rgba(0,0,0,0.8))!important;}
+.video-js .vjs-play-progress{background:var(--accent)!important;}
+.video-js .vjs-volume-level{background:var(--accent)!important;}
+.video-js .vjs-slider{background:rgba(255,255,255,0.2)!important;}
 
-/* YouTube iframe */
+/* YouTube overlay inside Video.js */
+#yt-live-overlay{position:absolute;inset:0;z-index:5;}
+#yt-live-overlay iframe{width:100%;height:100%;border:none;}
+
+/* YouTube iframe container */
 .youtube-player{width:100%;height:100%;aspect-ratio:16/9;background:#000;position:relative;}
 .youtube-player iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
 
 /* Radio */
 .radio-wrap{padding:3rem 1rem;display:flex;justify-content:center;background:var(--bg-secondary);}
-.radio-card{background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem;max-width:400px;width:100%;text-align:center;}
+.radio-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:2.5rem;max-width:400px;width:100%;text-align:center;
+}
 .radio-visualizer-wrap{position:relative;width:160px;height:160px;margin:0 auto 2rem;}
-.radio-visualizer{position:absolute;inset:0;width:100%;height:100%;opacity:0.5;}
-.radio-disc{position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;animation:spin 8s linear infinite paused;}
+.radio-visualizer{position:absolute;inset:0;width:100%;height:100%;opacity:.5;}
+.radio-disc{
+  position:absolute;inset:0;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent) 0%,#0969da 100%);
+  border:3px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  animation:spin 8s linear infinite paused;
+  box-shadow:0 0 40px var(--accent-glow);
+}
 .radio-disc.playing{animation-play-state:running;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.radio-disc-inner{width:56px;height:56px;border-radius:50%;background:var(--bg-primary);display:flex;align-items:center;justify-content:center;}
-.radio-disc-letter{color:var(--primary);font-weight:700;font-size:1.5rem;}
-.radio-station-name{font-weight:600;font-size:1.25rem;margin-bottom:0.5rem;color:var(--text-primary);}
-.radio-live-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(76,175,80,0.15);border:1px solid rgba(76,175,80,0.3);color:var(--primary);font-size:0.75rem;font-weight:600;padding:0.35rem 1rem;border-radius:999px;margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:1px;}
-.radio-live-dot{width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 1.2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.radio-disc-inner{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--bg-primary);
+  display:flex;align-items:center;justify-content:center;
+}
+.radio-disc-letter{color:var(--accent);font-weight:800;font-size:1.5rem;}
+.radio-station-name{font-weight:600;font-size:1.25rem;margin-bottom:.5rem;color:var(--text-primary);}
+.radio-live-badge{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.3);
+  color:var(--accent);font-size:.75rem;font-weight:600;
+  padding:.35rem 1rem;border-radius:var(--radius-pill);margin-bottom:1.5rem;
+  text-transform:uppercase;letter-spacing:1px;
+}
+.radio-live-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 .radio-btn-row{display:flex;align-items:center;gap:1rem;justify-content:center;}
-.radio-btn{width:56px;height:56px;border-radius:50%;background:var(--primary);border:none;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;}
-.radio-btn:hover{background:var(--primary-dark);transform:scale(1.05);}
-.radio-btn .material-icons{font-size:28px;}
-.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:0.75rem;color:var(--text-secondary);}
-.radio-volume{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer;}
-.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--primary);cursor:pointer;border:2px solid white;}
+.radio-btn{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--accent);border:none;color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:all .2s;box-shadow:0 0 20px var(--accent-glow);
+}
+.radio-btn:hover{transform:scale(1.05);background:var(--accent-hover);}
+.radio-btn svg{width:24px;height:24px;}
+.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:.75rem;color:var(--text-secondary);}
+.radio-volume{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer;
+}
+.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg-card);}
 
-/* ── VIDEO INFO ── */
-.video-info{padding:1rem 0;}
-.video-title{font-size:1.25rem;font-weight:500;line-height:1.4;color:var(--text-primary);margin-bottom:0.25rem;}
-.video-meta-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
-.video-views{font-size:0.875rem;color:var(--text-secondary);}
-.video-actions{display:flex;align-items:center;gap:0.5rem;}
-.action-btn{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:none;border:none;border-radius:var(--radius);color:var(--text-secondary);font-size:0.875rem;cursor:pointer;transition:all 0.2s;font-weight:500;}
-.action-btn:hover{background:var(--bg-hover);color:var(--text-primary);}
-.action-btn .material-icons{font-size:1.25rem;}
-.action-btn.active{color:var(--primary);}
+/* ── INFO PANEL ── */
+.player-info{padding:1.25rem 0;}
+.video-title{font-size:1.375rem;font-weight:600;line-height:1.4;margin-bottom:.25rem;color:var(--text-primary);}
+.video-kr{font-size:.9375rem;color:var(--text-secondary);margin-bottom:1rem;}
+.video-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+  padding-bottom:1rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.video-views{font-size:.875rem;color:var(--text-secondary);}
+.rating-stars{display:flex;gap:3px;}
+.star{font-size:1.25rem;color:var(--border);cursor:pointer;transition:color .15s;}
+.star.active{color:var(--warning);}
 
-/* Author Section */
-.author-section{display:flex;align-items:flex-start;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border);}
-.author-avatar{width:48px;height:48px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:500;font-size:1.25rem;flex-shrink:0;overflow:hidden;}
-.author-avatar img{width:100%;height:100%;object-fit:cover;}
-.author-info{flex:1;}
-.author-name{font-size:1rem;font-weight:500;color:var(--text-primary);text-decoration:none;display:block;}
-.author-name:hover{text-decoration:underline;}
-.author-date{font-size:0.875rem;color:var(--text-secondary);margin-top:0.25rem;}
-.video-description{font-size:0.875rem;color:var(--text-primary);line-height:1.6;margin-top:0.75rem;white-space:pre-wrap;}
+/* Actions */
+.actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;}
+.action-btn{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.5rem 1rem;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);color:var(--text-primary);font-size:.875rem;
+  cursor:pointer;transition:all .2s;font-weight:500;
+}
+.action-btn:hover{background:var(--bg-hover);border-color:var(--border);}
+.action-btn svg{width:18px;height:18px;fill:currentColor;}
+.action-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.action-btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
+.action-btn.active{color:var(--accent);}
 
-/* Tags & Categories */
-.tags-section{padding:1rem 0;border-bottom:1px solid var(--border);}
-.tags-label{font-size:0.875rem;color:var(--text-secondary);margin-bottom:0.5rem;}
-.tags-list{display:flex;flex-wrap:wrap;gap:0.5rem;}
-.tag-link{color:var(--primary);text-decoration:none;font-size:0.875rem;}
-.tag-link:hover{text-decoration:underline;}
-.tag-separator{color:var(--text-muted);}
+/* Description */
+.desc-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;}
+.desc-text{font-size:.875rem;color:var(--text-secondary);line-height:1.7;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.desc-text.expanded{display:block;}
+.show-more{font-size:.875rem;color:var(--accent);cursor:pointer;margin-top:.5rem;font-weight:500;}
+.show-more:hover{text-decoration:underline;}
+
+/* Channel row */
+.channel-row{
+  display:flex;align-items:center;gap:1rem;
+  padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1rem;
+}
+.ch-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent) 0%,#0969da 100%);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:1rem;flex-shrink:0;
+}
+.ch-info{flex:1;}
+.ch-name{font-size:.9375rem;font-weight:600;color:var(--text-primary);}
+.ch-sub{font-size:.8125rem;color:var(--text-secondary);}
+.subscribe-btn{
+  padding:.5rem 1.25rem;
+  background:var(--text-primary);border:none;color:var(--bg-primary);
+  font-weight:600;font-size:.875rem;border-radius:var(--radius);cursor:pointer;transition:all .2s;
+}
+.subscribe-btn:hover{opacity:.9;}
+.subscribe-btn.subscribed{background:var(--bg-hover);color:var(--text-primary);border:1px solid var(--border);}
+
+/* ── SIDEBAR ── */
+.sidebar-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:1rem;}
+.sidebar-title{font-size:.9375rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+.sidebar-title::before{content:'';width:4px;height:16px;background:var(--accent);border-radius:2px;}
+
+/* Up Next */
+.up-next-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+}
+.up-next-title{font-size:.9375rem;font-weight:600;color:var(--text-primary);}
+.autoplay-label{font-size:.8125rem;color:var(--text-secondary);margin-right:.5rem;}
+.toggle-switch{
+  width:44px;height:24px;background:var(--border);border-radius:12px;
+  position:relative;cursor:pointer;transition:background .2s;
+}
+.toggle-switch.active{background:var(--accent);}
+.toggle-switch::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:20px;height:20px;background:#fff;border-radius:50%;
+  transition:transform .2s;
+}
+.toggle-switch.active::after{transform:translateX(20px);}
+.up-next-item{
+  display:flex;gap:.75rem;margin-bottom:.75rem;
+  cursor:pointer;border-radius:var(--radius);padding:.5rem;transition:all .2s;
+  border:1px solid transparent;
+}
+.up-next-item:hover{background:var(--bg-hover);border-color:var(--border);}
+.up-next-thumb{
+  width:120px;height:68px;border-radius:var(--radius);
+  background:var(--bg-secondary);flex-shrink:0;position:relative;overflow:hidden;
+}
+.up-next-thumb img{width:100%;height:100%;object-fit:cover;}
+.up-next-dur{
+  position:absolute;bottom:4px;right:4px;
+  background:rgba(0,0,0,.85);color:#fff;font-size:.6875rem;
+  padding:.15rem .4rem;border-radius:3px;font-family:monospace;font-weight:500;
+}
+.up-next-info{flex:1;min-width:0;}
+.up-next-vtitle{font-size:.875rem;font-weight:500;line-height:1.4;color:var(--text-primary);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.up-next-meta{font-size:.75rem;color:var(--text-secondary);margin-top:.25rem;}
 
 /* Comments */
-.comments-section{padding:1rem 0;}
-.comments-header{font-size:1rem;font-weight:500;margin-bottom:1rem;color:var(--text-primary);}
-.comment-input-row{display:flex;gap:0.75rem;margin-bottom:1rem;}
-.comment-avatar{width:40px;height:40px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:500;font-size:1rem;flex-shrink:0;}
+.comments-section{margin-top:1.5rem;}
+.comments-hdr{font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text-primary);padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+.comment-input-row{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:1rem;}
+.comment-avatar{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--accent);color:#fff;font-weight:600;font-size:.875rem;
+  display:flex;align-items:center;justify-content:center;
+}
 .comment-input-wrap{flex:1;}
-.comment-input{width:100%;padding:0.75rem 1rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;outline:none;transition:border-color 0.2s;}
-.comment-input:focus{border-color:var(--primary);}
-.comment-actions{display:flex;justify-content:flex-end;gap:0.5rem;margin-top:0.5rem;}
-.comment-btn{padding:0.5rem 1rem;border:none;border-radius:var(--radius);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.2s;}
-.comment-btn.cancel{background:none;color:var(--text-secondary);}
-.comment-btn.cancel:hover{color:var(--text-primary);}
-.comment-btn.submit{background:var(--primary);color:white;}
-.comment-btn.submit:hover{background:var(--primary-dark);}
-.comment-btn:disabled{opacity:0.5;cursor:not-allowed;}
-
-.comment-item{display:flex;gap:0.75rem;padding:1rem 0;border-bottom:1px solid var(--border-light);}
+.comment-input-wrap input{
+  width:100%;background:var(--bg-primary);border:1px solid var(--border);
+  color:var(--text-primary);font-size:.875rem;padding:.625rem .875rem;border-radius:var(--radius);outline:none;transition:border-color .2s;
+}
+.comment-input-wrap input:focus{border-color:var(--accent);}
+.comment-input-wrap input::placeholder{color:var(--text-secondary);}
+.comment-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.5rem;}
+.comment-actions button{
+  background:none;border:1px solid var(--border);color:var(--text-primary);
+  padding:.4rem 1rem;border-radius:var(--radius);font-size:.8125rem;cursor:pointer;
+  font-weight:500;transition:all .2s;
+}
+.comment-actions button:hover{background:var(--bg-hover);}
+.comment-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.comment-actions button.primary:hover{background:var(--accent-hover);}
+.comment-item{display:flex;gap:.75rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border-light);}
 .comment-item:last-child{border-bottom:none;}
-.comment-content{flex:1;}
-.comment-header{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;}
-.comment-author{font-size:0.875rem;font-weight:500;color:var(--text-primary);text-decoration:none;}
-.comment-author:hover{text-decoration:underline;}
-.comment-time{font-size:0.75rem;color:var(--text-secondary);}
-.comment-text{font-size:0.875rem;color:var(--text-primary);line-height:1.5;margin:0.25rem 0;}
-.comment-actions-row{display:flex;gap:1rem;margin-top:0.5rem;}
-.comment-action{font-size:0.75rem;color:var(--text-secondary);cursor:pointer;transition:color 0.2s;}
-.comment-action:hover{color:var(--primary);}
-.no-comments{text-align:center;color:var(--text-secondary);font-size:0.875rem;padding:2rem 0;}
+.comment-body{flex:1;}
+.comment-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;}
+.comment-author{font-size:.875rem;font-weight:600;color:var(--text-primary);}
+.comment-time{font-size:.75rem;color:var(--text-secondary);}
+.comment-txt{font-size:.875rem;line-height:1.6;color:var(--text-secondary);margin:.25rem 0;}
+.comment-acts{display:flex;gap:1rem;font-size:.75rem;color:var(--text-secondary);margin-top:.5rem;}
+.comment-acts span{cursor:pointer;transition:color .15s;display:flex;align-items:center;gap:.25rem;}
+.comment-acts span:hover{color:var(--text-primary);}
+.no-comments{text-align:center;color:var(--text-secondary);font-size:.875rem;padding:2rem 0;}
 
-/* ── RELATED SIDEBAR ── */
-.related-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-.related-title{font-size:1rem;font-weight:500;color:var(--text-primary);}
-.autoplay-toggle{display:flex;align-items:center;gap:0.5rem;}
-.autoplay-label{font-size:0.875rem;color:var(--text-secondary);}
-.toggle-switch{width:36px;height:20px;background:var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s;}
-.toggle-switch.active{background:var(--primary);}
-.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:transform 0.2s;}
-.toggle-switch.active::after{transform:translateX(16px);}
-
-.related-item{display:flex;gap:0.75rem;margin-bottom:0.75rem;cursor:pointer;padding:0.5rem;border-radius:var(--radius);transition:background 0.2s;}
-.related-item:hover{background:var(--bg-hover);}
-.related-thumb{width:120px;height:68px;border-radius:var(--radius);background:var(--bg-secondary);flex-shrink:0;position:relative;overflow:hidden;}
-.related-thumb img{width:100%;height:100%;object-fit:cover;}
-.related-duration{position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.8);color:white;font-size:0.6875rem;padding:0.15rem 0.4rem;border-radius:3px;font-family:monospace;}
-.related-info{flex:1;min-width:0;}
-.related-title-text{font-size:0.875rem;font-weight:500;line-height:1.4;color:var(--text-primary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.related-meta{font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;}
-
-/* ── SHARE MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+/* Share Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-overlay.active{display:flex;}
-.modal-content{background:white;border-radius:var(--radius-lg);padding:1.5rem;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
-.modal-title{font-size:1.125rem;font-weight:500;color:var(--text-primary);}
-.modal-close{background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:0.25rem;border-radius:50%;transition:background 0.2s;}
-.modal-close:hover{background:var(--bg-hover);}
-.modal-close .material-icons{font-size:24px;}
-
+.modal-title{font-size:1.125rem;font-weight:600;color:var(--text-primary);}
+.modal-close{background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:.25rem;border-radius:var(--radius);transition:color .2s;}
+.modal-close:hover{color:var(--text-primary);}
 .share-options{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
-.share-option{display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem 0.5rem;border-radius:var(--radius);cursor:pointer;transition:background 0.2s;}
-.share-option:hover{background:var(--bg-hover);}
-.share-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;}
-.share-icon.copy{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border);}
+.share-option{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1rem .5rem;border-radius:var(--radius);cursor:pointer;transition:all .2s;border:1px solid transparent;}
+.share-option:hover{background:var(--bg-hover);border-color:var(--border);}
+.share-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.share-icon.copy{background:var(--bg-hover);}
 .share-icon.twitter{background:#1da1f2;}
 .share-icon.facebook{background:#4267b2;}
-.share-icon.email{background:var(--primary);}
-.share-label{font-size:0.75rem;color:var(--text-secondary);}
-
-.share-link-box{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;display:flex;gap:0.5rem;}
-.share-link-box input{flex:1;background:none;border:none;color:var(--text-primary);font-size:0.875rem;outline:none;}
-.share-link-box button{padding:0.5rem 1rem;background:var(--primary);border:none;border-radius:var(--radius);color:white;font-size:0.8125rem;font-weight:500;cursor:pointer;transition:background 0.2s;}
-.share-link-box button:hover{background:var(--primary-dark);}
-
+.share-icon.email{background:var(--success);}
+.share-label{font-size:.75rem;color:var(--text-secondary);}
+.share-link-box{background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;display:flex;gap:.5rem;}
+.share-link-box input{flex:1;background:none;border:none;color:var(--text-primary);font-size:.875rem;outline:none;}
+.share-link-box button{padding:.5rem 1rem;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-size:.8125rem;font-weight:500;cursor:pointer;transition:background .2s;}
+.share-link-box button:hover{background:var(--accent-hover);}
 .embed-section{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);}
-.embed-title{font-size:0.875rem;font-weight:500;color:var(--text-primary);margin-bottom:0.75rem;}
-.embed-code{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;font-family:'Courier New',monospace;font-size:0.75rem;color:var(--text-secondary);max-height:100px;overflow-y:auto;word-break:break-all;}
-.embed-copy-btn{width:100%;padding:0.625rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.2s;margin-top:0.75rem;}
-.embed-copy-btn:hover{background:var(--bg-hover);}
+.embed-title{font-size:.875rem;font-weight:600;color:var(--text-primary);margin-bottom:.75rem;}
+.embed-code{background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;font-family:monospace;font-size:.75rem;color:var(--text-secondary);overflow-x:auto;white-space:pre-wrap;word-break:break-all;margin-bottom:.75rem;max-height:100px;overflow-y:auto;}
+.embed-copy-btn{width:100%;padding:.625rem;background:var(--bg-hover);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s;}
+.embed-copy-btn:hover{background:var(--border);}
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:#323232;color:white;padding:0.75rem 1.5rem;border-radius:var(--radius);font-size:0.875rem;opacity:0;transition:all 0.3s;pointer-events:none;z-index:9999;white-space:nowrap;}
+/* Toast */
+.toast{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);
+  padding:.75rem 1.5rem;border-radius:var(--radius);font-size:.875rem;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:9999;
+  white-space:nowrap;box-shadow:var(--shadow-lg);
+}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ── MOBILE RESPONSIVE ── */
-@media(max-width:1100px){
-  .sidebar{display:none;}
-  .main-content{flex-direction:column;padding:1rem;}
-  .related-sidebar{width:100%;}
+/* Loading */
+.player-loading{
+  display:flex;align-items:center;justify-content:center;
+  min-height:60vh;flex-direction:column;gap:1rem;color:var(--text-secondary);
 }
-@media(max-width:768px){
-  .header{padding:0.5rem;}
-  .search-box{display:none;}
-  .video-meta-row{flex-direction:column;align-items:flex-start;gap:0.75rem;}
-  .video-actions{width:100%;justify-content:space-between;}
-  .action-btn{padding:0.5rem;}
-  .action-btn span:not(.material-icons){display:none;}
+.player-loading-spinner{
+  width:40px;height:40px;border:3px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;
 }
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<header class="header">
-  <div class="header-left">
-    <button class="menu-btn"><span class="material-icons">menu</span></button>
-    <a href="#" class="logo"><span class="logo-icon">M</span>MediaCMS</a>
-  </div>
-  <div class="search-box">
-    <input type="text" placeholder="Search...">
-    <button class="search-btn"><span class="material-icons">search</span></button>
-  </div>
-  <div class="header-right">
-    <button class="login-btn">Login</button>
-  </div>
-</header>
+<!-- Nav -->
+<nav class="pnav">
+  <button class="pnav-back" onclick="goBack()">
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    Back
+  </button>
+  <div class="pnav-logo">MediaCMS</div>
+  <div class="pnav-title" id="navTitle"></div>
+</nav>
 
-<!-- Layout -->
-<div class="layout">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <button class="sidebar-item"><span class="material-icons">home</span>Home</button>
-    <button class="sidebar-item"><span class="material-icons">star</span>Featured</button>
-    <button class="sidebar-item"><span class="material-icons">thumb_up</span>Recommended</button>
-    <button class="sidebar-item"><span class="material-icons">schedule</span>Latest</button>
-    <div class="sidebar-divider"></div>
-    <button class="sidebar-item"><span class="material-icons">label</span>Tags</button>
-    <button class="sidebar-item"><span class="material-icons">folder</span>Categories</button>
-    <button class="sidebar-item"><span class="material-icons">history</span>History</button>
-    <button class="sidebar-item"><span class="material-icons">favorite</span>Liked Media</button>
-    <div class="sidebar-divider"></div>
-    <button class="sidebar-item"><span class="material-icons">info</span>About</button>
-    <button class="sidebar-item"><span class="material-icons">description</span>Terms</button>
-    <button class="sidebar-item"><span class="material-icons">contact_support</span>Contact</button>
-    <button class="sidebar-item"><span class="material-icons">language</span>Language</button>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="content-area">
-      <!-- Player -->
-      <div class="player-container" id="playerContainer">
+<!-- Main Layout -->
+<div class="player-main">
+  <div class="player-content">
+    <!-- Player -->
+    <div class="player-wrap" id="playerWrap">
+      <!-- Video.js -->
+      <div id="playerContainer">
         <video id="mediacms-player" class="video-js vjs-big-play-centered" playsinline></video>
       </div>
-      
-      <!-- Radio Container -->
+      <!-- Radio -->
       <div id="radioContainer" class="radio-wrap" style="display:none;">
         <div class="radio-card">
           <div class="radio-visualizer-wrap">
@@ -294,96 +373,100 @@ body.embedded .radio-card{max-width:100%!important;width:100%!important;height:1
           <div class="radio-live-badge"><span class="radio-live-dot"></span>LIVE</div>
           <div class="radio-btn-row">
             <button class="radio-btn" id="radioPlayBtn" onclick="toggleRadio()">
-              <span class="material-icons" id="radioPlayIcon">play_arrow</span>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path id="radioPlayIcon" d="M8 5v14l11-7z"/></svg>
             </button>
             <div class="radio-volume-wrap">
-              <span class="material-icons">volume_up</span>
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
               <input type="range" class="radio-volume" id="radioVolume" min="0" max="1" step="0.02" value="1" oninput="setRadioVolume(this.value)">
             </div>
           </div>
         </div>
       </div>
-      
-      <!-- YouTube Container -->
+      <!-- YouTube -->
       <div id="youtubeContainer" class="youtube-player" style="display:none;">
         <iframe id="youtubeFrame" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
       </div>
-
-      <!-- Video Info -->
-      <div class="video-info" id="videoInfo" style="display:none;">
-        <h1 class="video-title" id="vTitle"></h1>
-        <div class="video-meta-row">
-          <span class="video-views" id="vViews"></span>
-          <div class="video-actions">
-            <button class="action-btn" id="likeBtn" onclick="likeVideo()">
-              <span class="material-icons">thumb_up</span>
-              <span id="likeCount">Like</span>
-            </button>
-            <button class="action-btn" id="dislikeBtn" onclick="dislikeVideo()">
-              <span class="material-icons">thumb_down</span>
-            </button>
-            <button class="action-btn" onclick="openShareModal()">
-              <span class="material-icons">share</span>
-              <span>Share</span>
-            </button>
-            <button class="action-btn" id="dlBtn" onclick="triggerDownload()">
-              <span class="material-icons">download</span>
-              <span>Download</span>
-            </button>
-            <button class="action-btn">
-              <span class="material-icons">more_horiz</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="author-section">
-          <div class="author-avatar" id="authorAvatar"></div>
-          <div class="author-info">
-            <a href="#" class="author-name" id="authorName"></a>
-            <div class="author-date" id="authorDate"></div>
-            <div class="video-description" id="vDesc"></div>
-          </div>
-        </div>
-
-        <div class="tags-section" id="tagsSection" style="display:none;">
-          <div class="tags-label">Tags</div>
-          <div class="tags-list" id="tagsList"></div>
-        </div>
-
-        <div class="tags-section" id="categoriesSection" style="display:none;">
-          <div class="tags-label">Categories</div>
-          <div class="tags-list" id="categoriesList"></div>
-        </div>
-
-        <div class="comments-section">
-          <div class="comments-header"><span id="commentCount">0</span> Comments</div>
-          <div class="comment-input-row">
-            <div class="comment-avatar" id="commentAvatar">G</div>
-            <div class="comment-input-wrap">
-              <input type="text" class="comment-input" id="commentInput" placeholder="Add a comment..." onkeypress="if(event.key==='Enter')postComment()">
-              <div class="comment-actions">
-                <button class="comment-btn cancel" onclick="document.getElementById('commentInput').value=''">Cancel</button>
-                <button class="comment-btn submit" onclick="postComment()">Comment</button>
-              </div>
-            </div>
-          </div>
-          <div id="commentsList"></div>
-        </div>
-      </div>
     </div>
 
-    <!-- Related Sidebar -->
-    <aside class="related-sidebar" id="relatedSidebar">
-      <div class="related-header">
-        <span class="related-title">Up Next</span>
-        <div class="autoplay-toggle">
+    <!-- Info -->
+    <div class="player-info" id="playerInfo" style="display:none;">
+      <h1 class="video-title" id="pTitle"></h1>
+      <p class="video-kr" id="pKr"></p>
+      <div class="video-meta">
+        <span class="video-views" id="pViews"></span>
+        <div class="rating-stars" id="ratingStars">
+          <span class="star" onclick="rateVideo(1)">★</span>
+          <span class="star" onclick="rateVideo(2)">★</span>
+          <span class="star" onclick="rateVideo(3)">★</span>
+          <span class="star" onclick="rateVideo(4)">★</span>
+          <span class="star" onclick="rateVideo(5)">★</span>
+        </div>
+      </div>
+      
+      <div class="actions">
+        <button class="action-btn" id="likeBtn" onclick="likeVideo()">
+          <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+          Like
+        </button>
+        <button class="action-btn" id="watchlistBtn" onclick="toggleWatchlist()">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Watchlist
+        </button>
+        <button class="action-btn primary" onclick="openShareModal()">
+          <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          Share
+        </button>
+        <button class="action-btn" id="dlBtn" onclick="triggerDownload()">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Download
+        </button>
+      </div>
+
+      <div class="channel-row">
+        <div class="ch-avatar" id="chAvatar">MC</div>
+        <div class="ch-info">
+          <div class="ch-name" id="chName">MediaCMS Channel</div>
+          <div class="ch-sub" id="chSub">Video Collection</div>
+        </div>
+        <button class="subscribe-btn" id="subscribeBtn" onclick="toggleSubscribe()">Subscribe</button>
+      </div>
+
+      <div class="desc-box">
+        <div id="pDesc" class="desc-text"></div>
+        <div class="show-more" id="showMoreBtn" onclick="toggleDesc()">Show more</div>
+      </div>
+
+      <!-- Comments -->
+      <div class="comments-section">
+        <div class="comments-hdr"><span id="commentCount">0</span> Comments</div>
+        <div class="comment-input-row">
+          <div class="comment-avatar" id="commentAvatar">G</div>
+          <div class="comment-input-wrap">
+            <input type="text" id="commentInput" placeholder="Add a comment..." onkeypress="if(event.key==='Enter')postComment()">
+            <div class="comment-actions">
+              <button onclick="document.getElementById('commentInput').value=''">Cancel</button>
+              <button class="primary" onclick="postComment()">Comment</button>
+            </div>
+          </div>
+        </div>
+        <div id="commentsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="player-sidebar" id="playerSidebar">
+    <div class="sidebar-section">
+      <div class="up-next-header">
+        <span class="up-next-title">Up Next</span>
+        <div style="display:flex;align-items:center;">
           <span class="autoplay-label">Autoplay</span>
           <div class="toggle-switch active" id="autoplayToggle" onclick="toggleAutoplay()"></div>
         </div>
       </div>
-      <div id="relatedList"></div>
-    </aside>
-  </main>
+      <div id="upNextList"></div>
+    </div>
+  </div>
 </div>
 
 <!-- Share Modal -->
@@ -392,12 +475,12 @@ body.embedded .radio-card{max-width:100%!important;width:100%!important;height:1
     <div class="modal-header">
       <span class="modal-title">Share</span>
       <button class="modal-close" onclick="closeShareModal()">
-        <span class="material-icons">close</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
     </div>
     <div class="share-options">
       <div class="share-option" onclick="shareTo('copy')">
-        <div class="share-icon copy"><span class="material-icons">content_copy</span></div>
+        <div class="share-icon copy">📋</div>
         <span class="share-label">Copy</span>
       </div>
       <div class="share-option" onclick="shareTo('twitter')">
@@ -409,7 +492,7 @@ body.embedded .radio-card{max-width:100%!important;width:100%!important;height:1
         <span class="share-label">Facebook</span>
       </div>
       <div class="share-option" onclick="shareTo('email')">
-        <div class="share-icon email"><span class="material-icons">email</span></div>
+        <div class="share-icon email">✉</div>
         <span class="share-label">Email</span>
       </div>
     </div>
@@ -451,13 +534,17 @@ function detectEmbeddedMode() {
   }
 }
 
-// ── Parse Video from URL Params ──
+// ── Parse Video from URL Params (for embedded mode) ──
 function getVideoFromURL() {
   const params = new URLSearchParams(window.location.search);
   const vidParam = params.get('vid');
   if (vidParam) {
-    try { return JSON.parse(decodeURIComponent(vidParam)); } catch(e) {
-      try { return JSON.parse(atob(vidParam)); } catch(e2) { return null; }
+    try {
+      return JSON.parse(decodeURIComponent(vidParam));
+    } catch(e) {
+      try {
+        return JSON.parse(atob(vidParam));
+      } catch(e2) { return null; }
     }
   }
   const url = params.get('url');
@@ -465,9 +552,13 @@ function getVideoFromURL() {
   
   if (embed) {
     return {
-      u: decodeURIComponent(embed), t: params.get('title') || 'Embedded Video',
-      tk: params.get('title') || '', ty: params.get('type') || 'Video',
-      isEmbed: true, isPinned: params.get('live') === '1', duration: params.get('live') === '1' ? 'LIVE' : ''
+      u: decodeURIComponent(embed),
+      t: params.get('title') || 'Embedded Video',
+      tk: params.get('title') || '',
+      ty: params.get('type') || 'Video',
+      isEmbed: true,
+      isPinned: params.get('live') === '1',
+      duration: params.get('live') === '1' ? 'LIVE' : ''
     };
   }
   
@@ -476,10 +567,15 @@ function getVideoFromURL() {
     const isExternal = params.get('external') === '1' || decodedUrl.includes('koryo.tv') || decodedUrl.includes('/channel/');
     const isEmbedCode = decodedUrl.startsWith('<');
     return {
-      u: decodedUrl, t: params.get('title') || 'Embedded Video',
-      tk: params.get('title') || '', ty: params.get('type') || 'Video',
-      isYouTube: params.get('youtube') === '1', isM3U8: params.get('m3u8') === '1',
-      isPinned: params.get('live') === '1', isExternal: isExternal, isEmbed: isEmbedCode,
+      u: decodedUrl,
+      t: params.get('title') || 'Embedded Video',
+      tk: params.get('title') || '',
+      ty: params.get('type') || 'Video',
+      isYouTube: params.get('youtube') === '1',
+      isM3U8: params.get('m3u8') === '1',
+      isPinned: params.get('live') === '1',
+      isExternal: isExternal,
+      isEmbed: isEmbedCode,
       duration: params.get('live') === '1' ? 'LIVE' : ''
     };
   }
@@ -488,16 +584,18 @@ function getVideoFromURL() {
 
 // ── Generate URL Slug ──
 function generateSlug(text) {
-  return text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').substring(0, 60);
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .substring(0, 60);
 }
 
 // ── Update URL with Video Name ──
 function updateURLWithVideoName() {
   if (!curVid || !curVid.t) return;
   const slug = generateSlug(curVid.t);
-  const params = new URLSearchParams(window.location.search);
-  params.set('v', slug);
-  const newUrl = window.location.pathname + '?' + params.toString();
+  const newUrl = `${window.location.pathname}?v=${slug}${window.location.search.replace(/^\?/, '&')}`;
   window.history.replaceState({ video: curVid }, curVid.t, newUrl);
 }
 
@@ -515,23 +613,31 @@ window.addEventListener('DOMContentLoaded', () => {
   
   if (isEmbedded) {
     const vidFromURL = getVideoFromURL();
-    if (vidFromURL) { curVid = vidFromURL; curIdx = -1; videoLoaded = true; }
+    if (vidFromURL) {
+      curVid = vidFromURL;
+      curIdx = -1;
+      videoLoaded = true;
+    }
   }
   
   if (!videoLoaded) {
     try {
       const raw = sessionStorage.getItem('mediacms-player-vid');
       const rawSlim = sessionStorage.getItem('mediacms-player-slim');
-      if (!raw) { showToast('No video selected'); return; }
+      if (!raw) { goBack(); return; }
       curVid = JSON.parse(raw);
       curIdx = parseInt(sessionStorage.getItem('mediacms-player-idx') || '0', 10);
       slimVids = rawSlim ? JSON.parse(rawSlim) : [];
       videoLoaded = true;
-    } catch(e) { showToast('Error loading video'); return; }
+    } catch(e) { goBack(); return; }
   }
   
-  if (!videoLoaded || !curVid) { showToast('No video data available'); return; }
+  if (!videoLoaded || !curVid) {
+    showToast('No video data available');
+    return;
+  }
 
+  // Update URL with video name
   updateURLWithVideoName();
 
   try {
@@ -567,11 +673,27 @@ function playCurrentVideo() {
 
   if (isEmbedCode) {
     pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
-    const embedHtml = `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;background:#000;overflow:hidden;}body{display:flex;align-items:center;justify-content:center;}video,iframe,embed,object{max-width:100%;max-height:100%;width:100%;height:100%;}</style></head><body>${v.u}</body></html>`;
+    const embedHtml = `<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;}
+body{display:flex;align-items:center;justify-content:center;}
+video,iframe,embed,object{max-width:100%;max-height:100%;width:100%;height:100%;}
+</style>
+</head>
+<body>${v.u}</body>
+</html>`;
     yf.srcdoc = embedHtml;
+    const ytOv = document.getElementById('yt-live-overlay');
+    if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
   } else if (isExternalIframe) {
     pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
     yf.src = v.u;
+    const ytOv = document.getElementById('yt-live-overlay');
+    if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
   } else if (isYTLive) {
     pc.style.display = 'block'; rc.style.display = 'none'; yc.style.display = 'none'; yf.src = '';
     const ytSrc = `https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1&controls=0`;
@@ -587,6 +709,8 @@ function playCurrentVideo() {
   } else if (v.isYouTube) {
     pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
     yf.src = `https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1`;
+    const ytOv = document.getElementById('yt-live-overlay');
+    if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
   } else if (isRadio) {
     pc.style.display = 'none'; rc.style.display = 'flex'; yc.style.display = 'none'; yf.src = '';
     document.getElementById('radioStationName').textContent = v.t;
@@ -610,80 +734,69 @@ function playCurrentVideo() {
 function renderInfo() {
   const v = curVid;
   if (!v) return;
-  document.title = v.t + ' - MediaCMS';
-  document.getElementById('vTitle').textContent = v.t;
-  document.getElementById('vViews').textContent = (v.views || 0).toLocaleString() + ' views';
-  document.getElementById('vDesc').textContent = v.d || '';
-  document.getElementById('videoInfo').style.display = 'block';
+  document.title = v.t + ' — MediaCMS';
+  document.getElementById('navTitle').textContent = v.t;
+  document.getElementById('pTitle').textContent = v.t;
+  document.getElementById('pKr').textContent = v.tk || '';
+  document.getElementById('pViews').textContent = (v.views || 0) + ' views • ' + (v.y || '');
+  document.getElementById('pDesc').textContent = v.d || '';
+  document.getElementById('playerInfo').style.display = 'block';
   
-  // Author info
-  const authorName = v.author?.name || v.channel?.name || 'MediaCMS User';
-  const authorAvatar = v.author?.avatar || v.channel?.avatar;
-  document.getElementById('authorName').textContent = authorName;
-  document.getElementById('authorDate').textContent = 'Published on ' + (v.date || v.y || 'Unknown date');
-  
-  const avatarEl = document.getElementById('authorAvatar');
-  if (authorAvatar) { avatarEl.innerHTML = `<img src="${authorAvatar}" alt="">`; }
-  else { avatarEl.textContent = authorName.charAt(0).toUpperCase(); }
-  
-  // Hide download in embedded mode
+  // Hide download button in embedded mode
   const dlBtn = document.getElementById('dlBtn');
-  if (isEmbedded || v.isYouTube || v.isM3U8 || v.isEmbed) { dlBtn.style.display = 'none'; }
-  else { dlBtn.style.display = 'flex'; }
-  
-  // Tags
-  if (v.tags && v.tags.length > 0) {
-    document.getElementById('tagsSection').style.display = 'block';
-    document.getElementById('tagsList').innerHTML = v.tags.map((tag, i) => 
-      `<a href="#" class="tag-link">${tag}</a>${i < v.tags.length - 1 ? '<span class="tag-separator">, </span>' : ''}`
-    ).join('');
+  if (isEmbedded || v.isYouTube || v.isM3U8 || v.isEmbed) {
+    dlBtn.style.display = 'none';
+  } else {
+    dlBtn.style.display = 'flex';
   }
   
-  // Categories
-  if (v.categories && v.categories.length > 0) {
-    document.getElementById('categoriesSection').style.display = 'block';
-    document.getElementById('categoriesList').innerHTML = v.categories.map((cat, i) => 
-      `<a href="#" class="tag-link">${cat}</a>${i < v.categories.length - 1 ? '<span class="tag-separator">, </span>' : ''}`
-    ).join('');
+  // Update channel info if available
+  if (v.channel) {
+    document.getElementById('chName').textContent = v.channel.name || 'MediaCMS Channel';
+    document.getElementById('chSub').textContent = v.channel.sub || 'Video Collection';
+    document.getElementById('chAvatar').textContent = (v.channel.name || 'MC').substring(0, 2).toUpperCase();
   }
   
-  // Related videos
+  updateRatingStars(v.userRating || 0);
+  
   if (curIdx >= 0 && slimVids.length > 0) {
-    renderRelated();
+    renderUpNext();
     renderComments(curIdx);
   } else {
-    document.getElementById('relatedList').innerHTML = '<div class="no-comments">No related videos</div>';
+    document.getElementById('upNextList').innerHTML = '<div class="no-comments">No related videos</div>';
     document.getElementById('commentsList').innerHTML = '<div class="no-comments">Comments not available in embed mode</div>';
     document.getElementById('commentCount').textContent = '0';
   }
   
+  const ua = document.getElementById('commentAvatar');
   const uname = localStorage.getItem('mediacms-username') || 'Guest';
-  document.getElementById('commentAvatar').textContent = uname.charAt(0).toUpperCase();
+  ua.textContent = uname.charAt(0).toUpperCase();
+  if (curIdx >= 0 && isInWatchlist(curIdx)) document.getElementById('watchlistBtn').classList.add('active');
 }
 
 function getThumb(v) {
   if (v.thumb) return v.thumb;
-  if (v.isYouTube && v.u && !v.u.startsWith('http')) return `https://img.youtube.com/vi/${v.u}/mqdefault.jpg`;
-  return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%23f5f5f5'/><text x='160' y='95' font-family='Arial' font-size='12' fill='%239e9e9e' text-anchor='middle'>MediaCMS</text></svg>`;
+  if (v.isYouTube && v.u && !v.u.startsWith('http')) return `https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;
+  return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%2321262d'/><text x='160' y='95' font-family='Arial' font-size='12' fill='%238b949e' text-anchor='middle'>MediaCMS</text></svg>`;
 }
 
-function renderRelated() {
-  const list = document.getElementById('relatedList');
+function renderUpNext() {
+  const list = document.getElementById('upNextList');
   if (slimVids.length < 2) { list.innerHTML = '<div class="no-comments">No related videos</div>'; return; }
   const items = [];
-  for (let i = 1; i <= 8; i++) {
+  for (let i = 1; i <= 6; i++) {
     const idx = (curIdx + i) % slimVids.length;
     if (idx !== curIdx) items.push({ ...slimVids[idx], _idx: idx });
   }
   list.innerHTML = items.map(v => `
-    <div class="related-item" onclick="loadVideo(${v._idx})">
-      <div class="related-thumb">
+    <div class="up-next-item" onclick="loadVideo(${v._idx})">
+      <div class="up-next-thumb">
         <img src="${getThumb(v)}" alt="${v.t || ''}" loading="lazy">
-        ${v.duration ? `<span class="related-duration">${v.duration}</span>` : ''}
+        <span class="up-next-dur">${v.duration || ''}</span>
       </div>
-      <div class="related-info">
-        <div class="related-title-text">${v.t || ''}</div>
-        <div class="related-meta">${v.author?.name || v.channel?.name || 'MediaCMS'} • ${(v.views || 0).toLocaleString()} views</div>
+      <div class="up-next-info">
+        <div class="up-next-vtitle">${v.t || ''}</div>
+        <div class="up-next-meta">${v.ty || ''} · ${v.views || 0} views</div>
       </div>
     </div>`).join('');
 }
@@ -708,7 +821,6 @@ function playNext() {
   loadVideo(nextIdx);
 }
 
-// ── Radio Functions ──
 function startRadio(url) {
   radioAudio = new Audio();
   radioAudio.crossOrigin = 'anonymous';
@@ -716,7 +828,7 @@ function startRadio(url) {
   radioAudio.volume = parseFloat(document.getElementById('radioVolume').value);
   radioAudio.play().then(() => {
     radioPlaying = true;
-    document.getElementById('radioPlayIcon').textContent = 'pause';
+    document.querySelector('#radioPlayIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
     document.getElementById('radioDisc').classList.add('playing');
     initVisualizer();
   }).catch(() => { radioPlaying = false; });
@@ -728,19 +840,19 @@ function stopRadio() {
   radioAnalyser = null; radioPlaying = false;
   const disc = document.getElementById('radioDisc');
   if (disc) disc.classList.remove('playing');
-  const icon = document.getElementById('radioPlayIcon');
-  if (icon) icon.textContent = 'play_arrow';
+  const icon = document.querySelector('#radioPlayIcon');
+  if (icon) icon.setAttribute('d','M8 5v14l11-7z');
 }
 function toggleRadio() {
   if (!radioAudio) return;
   if (radioPlaying) {
     radioAudio.pause(); radioPlaying = false;
     document.getElementById('radioDisc').classList.remove('playing');
-    document.getElementById('radioPlayIcon').textContent = 'play_arrow';
+    document.querySelector('#radioPlayIcon').setAttribute('d','M8 5v14l11-7z');
   } else {
     radioAudio.play(); radioPlaying = true;
     document.getElementById('radioDisc').classList.add('playing');
-    document.getElementById('radioPlayIcon').textContent = 'pause';
+    document.querySelector('#radioPlayIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
     if (!radioAnalyser) initVisualizer();
   }
 }
@@ -763,9 +875,9 @@ function initVisualizer() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const barW = canvas.width / buf.length;
       buf.forEach((v, i) => {
-        const h = (v / 255) * canvas.height * 0.8;
+        const h = (v / 255) * canvas.height * .8;
         const g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - h);
-        g.addColorStop(0, 'rgba(76,175,80,0.8)'); g.addColorStop(1, 'rgba(76,175,80,0.3)');
+        g.addColorStop(0,'rgba(88,166,255,.8)'); g.addColorStop(1,'rgba(88,166,255,.3)');
         ctx.fillStyle = g;
         ctx.fillRect(i * barW, canvas.height - h, barW - 1, h);
       });
@@ -783,20 +895,118 @@ function stopAll() {
   if (bfPlayer) { try { bfPlayer.pause(); bfPlayer.src(''); } catch(e) {} }
 }
 
-// ── Actions ──
+function goBack() {
+  stopAll();
+  if (isEmbedded) {
+    showToast('Player paused');
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+
 function likeVideo() {
   document.getElementById('likeBtn').classList.toggle('active');
   showToast(document.getElementById('likeBtn').classList.contains('active') ? 'Liked!' : 'Like removed');
 }
-function dislikeVideo() {
-  document.getElementById('dislikeBtn').classList.toggle('active');
+function toggleWatchlist() {
+  const idx = curIdx;
+  const key = 'mediacms-watchlist';
+  let wl = JSON.parse(localStorage.getItem(key) || '[]');
+  const i = wl.indexOf(idx);
+  if (i === -1) { wl.unshift(idx); showToast('Added to watchlist'); }
+  else { wl.splice(i, 1); showToast('Removed from watchlist'); }
+  localStorage.setItem(key, JSON.stringify(wl));
+  document.getElementById('watchlistBtn').classList.toggle('active', i === -1);
 }
+function isInWatchlist(idx) {
+  return JSON.parse(localStorage.getItem('mediacms-watchlist') || '[]').includes(idx);
+}
+
+// ── Share Modal Functions ──
+function openShareModal() {
+  document.getElementById('shareModal').classList.add('active');
+  document.getElementById('shareLinkInput').value = window.location.href;
+  document.getElementById('embedCode').textContent = getEmbedCode();
+}
+
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById('shareModal')) {
+    document.getElementById('shareModal').classList.remove('active');
+  }
+}
+
+function shareTo(platform) {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(curVid?.t || 'MediaCMS Video');
+  
+  switch(platform) {
+    case 'twitter':
+      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank');
+      break;
+    case 'facebook':
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+      break;
+    case 'email':
+      window.location.href = `mailto:?subject=${title}&body=${url}`;
+      break;
+    case 'copy':
+      copyShareLink();
+      break;
+  }
+}
+
+function copyShareLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => showToast('Link copied!'));
+}
+
+function getEmbedCode() {
+  if (!curVid) return '';
+  const baseUrl = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams();
+  params.set('embed', '1');
+  params.set('title', curVid.t || 'Video');
+  params.set('type', curVid.ty || 'Video');
+  
+  if (curVid.isEmbed || (curVid.u && curVid.u.startsWith('<'))) {
+    params.set('embedcode', encodeURIComponent(curVid.u));
+  } else {
+    params.set('url', encodeURIComponent(curVid.u || ''));
+  }
+  
+  if (curVid.isYouTube) params.set('youtube', '1');
+  if (curVid.isM3U8) params.set('m3u8', '1');
+  if (curVid.isExternal || curVid.u?.includes('koryo.tv')) params.set('external', '1');
+  if (curVid.isPinned || curVid.duration === 'LIVE') params.set('live', '1');
+  
+  const playerUrl = baseUrl + '?' + params.toString();
+  
+  return `<iframe src="${playerUrl}" style="width:100%;height:100%;border:none;background:#000;" scrolling="no" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+}
+
+function copyEmbedCode() {
+  const code = getEmbedCode();
+  navigator.clipboard.writeText(code).then(() => showToast('Embed code copied!'));
+}
+
 function triggerDownload() {
   if (!curVid?.u) return;
   const a = document.createElement('a');
   a.href = curVid.u;
-  a.download = (curVid.t || 'video').replace(/[^a-z0-9\s-]/gi, '').trim().replace(/\s+/g, '-') + '.mp4';
+  a.download = (curVid.t || 'video').replace(/[^a-z0-9\s-]/gi,'').trim().replace(/\s+/g,'-') + '.mp4';
   a.click();
+}
+
+function toggleSubscribe() {
+  const btn = document.getElementById('subscribeBtn');
+  btn.classList.toggle('subscribed');
+  btn.textContent = btn.classList.contains('subscribed') ? 'Subscribed' : 'Subscribe';
+  showToast(btn.classList.contains('subscribed') ? 'Subscribed!' : 'Unsubscribed');
+}
+function toggleDesc() {
+  const d = document.getElementById('pDesc');
+  const b = document.getElementById('showMoreBtn');
+  d.classList.toggle('expanded');
+  b.textContent = d.classList.contains('expanded') ? 'Show less' : 'Show more';
 }
 function toggleAutoplay() {
   autoplay = !autoplay;
@@ -806,6 +1016,14 @@ function toggleAutoplay() {
     s.autoplay = autoplay;
     localStorage.setItem('mediacms-settings', JSON.stringify(s));
   } catch(e) {}
+}
+function rateVideo(r) {
+  if (curVid) curVid.userRating = r;
+  updateRatingStars(r);
+  showToast('Rated ' + r + ' stars!');
+}
+function updateRatingStars(r) {
+  document.querySelectorAll('#ratingStars .star').forEach((s,i) => s.classList.toggle('active', i < r));
 }
 function saveProgress(idx, pct) {
   const p = JSON.parse(localStorage.getItem('mediacms-progress') || '{}');
@@ -821,54 +1039,6 @@ function addToHistory() {
   localStorage.setItem('mediacms-history', JSON.stringify(h));
 }
 
-// ── Share Modal ──
-function openShareModal() {
-  document.getElementById('shareModal').classList.add('active');
-  document.getElementById('shareLinkInput').value = window.location.href;
-  document.getElementById('embedCode').textContent = getEmbedCode();
-}
-function closeShareModal(e) {
-  if (!e || e.target === document.getElementById('shareModal')) {
-    document.getElementById('shareModal').classList.remove('active');
-  }
-}
-function shareTo(platform) {
-  const url = encodeURIComponent(window.location.href);
-  const title = encodeURIComponent(curVid?.t || 'MediaCMS Video');
-  switch(platform) {
-    case 'twitter': window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank'); break;
-    case 'facebook': window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank'); break;
-    case 'email': window.location.href = `mailto:?subject=${title}&body=${url}`; break;
-    case 'copy': copyShareLink(); break;
-  }
-}
-function copyShareLink() {
-  navigator.clipboard.writeText(window.location.href).then(() => showToast('Link copied!'));
-}
-function getEmbedCode() {
-  if (!curVid) return '';
-  const baseUrl = window.location.origin + window.location.pathname;
-  const params = new URLSearchParams();
-  params.set('embed', '1');
-  params.set('title', curVid.t || 'Video');
-  params.set('type', curVid.ty || 'Video');
-  if (curVid.isEmbed || (curVid.u && curVid.u.startsWith('<'))) {
-    params.set('embedcode', encodeURIComponent(curVid.u));
-  } else {
-    params.set('url', encodeURIComponent(curVid.u || ''));
-  }
-  if (curVid.isYouTube) params.set('youtube', '1');
-  if (curVid.isM3U8) params.set('m3u8', '1');
-  if (curVid.isExternal || curVid.u?.includes('koryo.tv')) params.set('external', '1');
-  if (curVid.isPinned || curVid.duration === 'LIVE') params.set('live', '1');
-  const playerUrl = baseUrl + '?' + params.toString();
-  return `<iframe src="${playerUrl}" style="width:100%;height:100%;border:none;background:#000;" scrolling="no" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-}
-function copyEmbedCode() {
-  navigator.clipboard.writeText(getEmbedCode()).then(() => showToast('Embed code copied!'));
-}
-
-// ── Comments ──
 function getComments(id) { return JSON.parse(localStorage.getItem('mediacms-comments') || '{}')[id] || []; }
 function saveComments(id, c) {
   const all = JSON.parse(localStorage.getItem('mediacms-comments') || '{}');
@@ -909,20 +1079,20 @@ function renderComments(id) {
   count.textContent = cs.length;
   if (!cs.length) { list.innerHTML = '<div class="no-comments">No comments yet. Be the first!</div>'; return; }
   function sc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function col(s) { let h=0; for(let c of s) h=s.charCodeAt(0)+((h<<5)-h); return ['#4caf50','#2196f3','#f44336','#ff9800','#9c27b0','#00bcd4'][Math.abs(h)%6]; }
+  function col(s) { let h=0; for(let c of s) h=s.charCodeAt(0)+((h<<5)-h); return ['#58a6ff','#a371f7','#3fb950','#f0883e','#d2a8ff','#79c0ff'][Math.abs(h)%6]; }
   list.innerHTML = cs.map(c => `
     <div class="comment-item">
       <div class="comment-avatar" style="background:${col(c.name)};">${c.name.charAt(0).toUpperCase()}</div>
-      <div class="comment-content">
+      <div class="comment-body">
         <div class="comment-header">
-          <a href="#" class="comment-author">${sc(c.name)}</a>
+          <span class="comment-author">${sc(c.name)}</span>
           <span class="comment-time">${formatAgo(c.time)}</span>
         </div>
-        <div class="comment-text">${sc(c.text)}</div>
-        <div class="comment-actions-row">
-          <span class="comment-action" onclick="likeComment(${c.id})" style="${c.liked?'color:var(--primary)':''}">${c.liked ? '♥' : '♡'} ${c.likes || 'Like'}</span>
-          <span class="comment-action" onclick="document.getElementById('commentInput').value='@${sc(c.name)} ';document.getElementById('commentInput').focus()">Reply</span>
-          ${c.name === uname ? `<span class="comment-action" onclick="deleteComment(${c.id})">Delete</span>` : ''}
+        <div class="comment-txt">${sc(c.text)}</div>
+        <div class="comment-acts">
+          <span onclick="likeComment(${c.id})" style="${c.liked?'color:var(--accent)':''}">♥ ${c.likes||'Like'}</span>
+          <span onclick="document.getElementById('commentInput').value='@${sc(c.name)} ';document.getElementById('commentInput').focus()">Reply</span>
+          ${c.name===uname?`<span onclick="deleteComment(${c.id})">Delete</span>`:''}
         </div>
       </div>
     </div>`).join('');
@@ -937,8 +1107,8 @@ function showToast(msg) {
 document.addEventListener('keydown', e => {
   if (document.activeElement.tagName === 'INPUT') return;
   if (e.key === ' ') { e.preventDefault(); if (radioPlaying || radioAudio) toggleRadio(); else if (bfPlayer) bfPlayer.paused() ? bfPlayer.play() : bfPlayer.pause(); }
-  if (e.key === 'ArrowRight' && bfPlayer) bfPlayer.currentTime(bfPlayer.currentTime() + 10);
-  if (e.key === 'ArrowLeft' && bfPlayer) bfPlayer.currentTime(Math.max(0, bfPlayer.currentTime() - 10));
+  if (e.key === 'ArrowRight' && bfPlayer) bfPlayer.currentTime(bfPlayer.currentTime()+10);
+  if (e.key === 'ArrowLeft' && bfPlayer) bfPlayer.currentTime(Math.max(0, bfPlayer.currentTime()-10));
   if (e.key.toLowerCase() === 'f' && bfPlayer) bfPlayer.isFullscreen() ? bfPlayer.exitFullscreen() : bfPlayer.requestFullscreen();
   if (e.key.toLowerCase() === 'm' && bfPlayer) bfPlayer.muted(!bfPlayer.muted());
   if (e.key === 'Escape') closeShareModal();
@@ -948,14 +1118,44 @@ window.addEventListener('message', (e) => {
   if (!isEmbedded) return;
   const { action, data } = e.data || {};
   switch (action) {
-    case 'play': if (bfPlayer) bfPlayer.play(); if (radioAudio && !radioPlaying) toggleRadio(); break;
-    case 'pause': if (bfPlayer) bfPlayer.pause(); if (radioAudio && radioPlaying) toggleRadio(); break;
-    case 'seek': if (bfPlayer && data && typeof data.time === 'number') bfPlayer.currentTime(data.time); break;
-    case 'volume': if (bfPlayer && data && typeof data.level === 'number') bfPlayer.volume(data.level); if (radioAudio && data && typeof data.level === 'number') radioAudio.volume = data.level; break;
-    case 'mute': if (bfPlayer) bfPlayer.muted(true); break;
-    case 'unmute': if (bfPlayer) bfPlayer.muted(false); break;
-    case 'fullscreen': if (bfPlayer) bfPlayer.requestFullscreen(); break;
-    case 'getStatus': e.source.postMessage({ type: 'playerStatus', data: { playing: bfPlayer ? !bfPlayer.paused() : radioPlaying, currentTime: bfPlayer ? bfPlayer.currentTime() : 0, duration: bfPlayer ? bfPlayer.duration() : 0, volume: bfPlayer ? bfPlayer.volume() : (radioAudio ? radioAudio.volume : 1), muted: bfPlayer ? bfPlayer.muted() : false, title: curVid?.t || '', videoId: curIdx } }, e.origin); break;
+    case 'play':
+      if (bfPlayer) bfPlayer.play();
+      if (radioAudio && !radioPlaying) toggleRadio();
+      break;
+    case 'pause':
+      if (bfPlayer) bfPlayer.pause();
+      if (radioAudio && radioPlaying) toggleRadio();
+      break;
+    case 'seek':
+      if (bfPlayer && data && typeof data.time === 'number') bfPlayer.currentTime(data.time);
+      break;
+    case 'volume':
+      if (bfPlayer && data && typeof data.level === 'number') bfPlayer.volume(data.level);
+      if (radioAudio && data && typeof data.level === 'number') radioAudio.volume = data.level;
+      break;
+    case 'mute':
+      if (bfPlayer) bfPlayer.muted(true);
+      break;
+    case 'unmute':
+      if (bfPlayer) bfPlayer.muted(false);
+      break;
+    case 'fullscreen':
+      if (bfPlayer) bfPlayer.requestFullscreen();
+      break;
+    case 'getStatus':
+      e.source.postMessage({
+        type: 'playerStatus',
+        data: {
+          playing: bfPlayer ? !bfPlayer.paused() : radioPlaying,
+          currentTime: bfPlayer ? bfPlayer.currentTime() : 0,
+          duration: bfPlayer ? bfPlayer.duration() : 0,
+          volume: bfPlayer ? bfPlayer.volume() : (radioAudio ? radioAudio.volume : 1),
+          muted: bfPlayer ? bfPlayer.muted() : false,
+          title: curVid?.t || '',
+          videoId: curIdx
+        }
+      }, e.origin);
+      break;
   }
 });
 </script>
