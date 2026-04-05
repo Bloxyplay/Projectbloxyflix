@@ -4,45 +4,43 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0b0c0f">
+<meta name="theme-color" content="#0d1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>BloxyFlix Player</title>
+<title>MediaCMS Player</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@8.10.0/dist/video-js.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg-primary:#0b0c0f;
-  --bg-secondary:#13141a;
-  --bg-card:#13141a;
-  --bg-hover:#1e1f28;
-  --text-primary:#d8d9e0;
-  --text-secondary:#6b6d7e;
-  --text-muted:#3a3b48;
-  --accent:#1a7fff;
-  --accent-hover:#0055cc;
-  --accent-glow:rgba(26,127,255,0.35);
-  --gold:#c9a84c;
-  --star:#c9a84c;
-  --border:#2a2b35;
-  --glass:rgba(240,240,240,0.04);
-  --glass-border:rgba(240,240,240,0.1);
-  --radius:10px;
-  --radius-lg:16px;
-  --radius-pill:99px;
-  --shadow:0 2px 16px rgba(0,0,0,0.7);
-  --shadow-lg:0 8px 40px rgba(0,0,0,0.85);
-  --shadow-accent:0 4px 20px rgba(26,127,255,0.4);
-  --gradient-accent:linear-gradient(135deg,#1a7fff 0%,#0a2a6e 100%);
-  --gradient-dark:linear-gradient(180deg,rgba(11,12,15,0) 0%,rgba(11,12,15,0.8) 60%,rgba(11,12,15,1) 100%);
-  --font:'DM Sans',system-ui,sans-serif;
+  --bg-primary:#0d1117;
+  --bg-secondary:#161b22;
+  --bg-card:#21262d;
+  --bg-hover:#30363d;
+  --text-primary:#f0f6fc;
+  --text-secondary:#8b949e;
+  --text-muted:#6e7681;
+  --accent:#58a6ff;
+  --accent-hover:#79c0ff;
+  --accent-glow:rgba(88,166,255,0.3);
+  --success:#238636;
+  --warning:#f0883e;
+  --danger:#da3633;
+  --border:#30363d;
+  --border-light:#21262d;
+  --radius:6px;
+  --radius-lg:12px;
+  --radius-pill:999px;
+  --shadow:0 1px 0 rgba(255,255,255,0.05) inset,0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.5);
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
-html,body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--font);min-height:100vh;}
+html,body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--font);min-height:100vh;line-height:1.5;}
 
 /* ── EMBEDDED MODE ── */
 body.embedded{background:#000!important;overflow:hidden!important}
 body.embedded .pnav{display:none!important}
+body.embedded .player-sidebar{display:none!important}
 body.embedded .player-info{display:none!important}
 body.embedded .player-wrap{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;background:#000!important;display:flex!important;align-items:center!important;justify-content:center!important}
 body.embedded #playerContainer,body.embedded #radioContainer,body.embedded #youtubeContainer{width:100%!important;height:100%!important;display:block!important}
@@ -57,45 +55,44 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 .pnav{
   position:sticky;top:0;z-index:100;
   display:flex;align-items:center;gap:1rem;
-  padding:.75rem 1rem;
-  background:rgba(11,12,15,.95);
+  padding:.75rem 1.25rem;
+  background:var(--bg-secondary);
   border-bottom:1px solid var(--border);
-  backdrop-filter:blur(12px);
 }
 .pnav-back{
   display:flex;align-items:center;gap:.5rem;
   background:none;border:none;color:var(--text-secondary);
-  font-size:.88rem;font-weight:500;cursor:pointer;
-  padding:.4rem .6rem;border-radius:var(--radius);transition:color .2s;
+  font-size:.875rem;font-weight:500;cursor:pointer;
+  padding:.5rem .75rem;border-radius:var(--radius);transition:all .2s;
 }
-.pnav-back:hover{color:var(--text-primary);}
-.pnav-back svg{fill:currentColor;flex-shrink:0;}
-.pnav-logo{font-family:'DM Sans',sans-serif;font-weight:900;font-size:1.1rem;letter-spacing:-0.5px;color:#fff;}
-.pnav-logo span{color:var(--accent);}
-.pnav-title{font-size:.85rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pnav-back:hover{color:var(--text-primary);background:var(--bg-hover);}
+.pnav-back svg{fill:currentColor;flex-shrink:0;width:18px;height:18px;}
+.pnav-logo{font-weight:700;font-size:1.125rem;letter-spacing:-0.25px;color:var(--text-primary);display:flex;align-items:center;gap:.5rem;}
+.pnav-logo::before{content:'';width:24px;height:24px;background:var(--accent);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;}
+.pnav-title{font-size:.875rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ── MAIN LAYOUT ── */
+.player-main{display:flex;gap:1.5rem;max-width:1600px;margin:0 auto;padding:1.5rem;}
+.player-content{flex:1;min-width:0;}
+.player-sidebar{width:360px;flex-shrink:0;}
+@media(max-width:1100px){
+  .player-main{flex-direction:column;}
+  .player-sidebar{width:100%;}
+}
 
 /* ── VIDEO PLAYER ── */
-.player-wrap{width:100%;background:#000;position:relative;}
+.player-wrap{width:100%;background:#000;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);}
 .player-wrap video{width:100%;height:100%;display:block;}
 .video-js .vjs-tech{width:100%!important;height:100%!important;}
-/* Fix player sizing issues */
-.video-js.vjs-fluid,
-.video-js.vjs-16-9,
-.video-js.vjs-4-3,
-.video-js.vjs-fill {
-  width: 100% !important;
-  height: auto !important;
-  max-width: 100% !important;
-}
-.vjs-video-canvas,
-.vjs-text-track-display,
-.vjs-poster {
-  width: 100% !important;
-  height: 100% !important;
-}
-.vjs-big-play-button{border-color:var(--accent)!important;background:rgba(26,127,255,0.2)!important;backdrop-filter:blur(4px);}
-.vjs-big-play-button .vjs-icon-placeholder:before{color:var(--accent)!important;}
+.video-js.vjs-fluid,.video-js.vjs-16-9,.video-js.vjs-4-3,.video-js.vjs-fill{width:100%!important;height:auto!important;max-width:100%!important;}
+.vjs-video-canvas,.vjs-text-track-display,.vjs-poster{width:100%!important;height:100%!important;}
+.vjs-big-play-button{border:none!important;background:rgba(88,166,255,0.9)!important;border-radius:50%!important;width:64px!important;height:64px!important;margin-top:-32px!important;margin-left:-32px!important;backdrop-filter:none!important;}
+.vjs-big-play-button .vjs-icon-placeholder:before{color:#fff!important;font-size:28px!important;line-height:64px!important;}
 .video-js{width:100%!important;height:auto!important;aspect-ratio:16/9;}
+.video-js .vjs-control-bar{background:linear-gradient(transparent,rgba(0,0,0,0.8))!important;}
+.video-js .vjs-play-progress{background:var(--accent)!important;}
+.video-js .vjs-volume-level{background:var(--accent)!important;}
+.video-js .vjs-slider{background:rgba(255,255,255,0.2)!important;}
 
 /* YouTube overlay inside Video.js */
 #yt-live-overlay{position:absolute;inset:0;z-index:5;}
@@ -106,181 +103,243 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 .youtube-player iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
 
 /* Radio */
-.radio-wrap{padding:2rem 1rem;display:flex;justify-content:center;}
+.radio-wrap{padding:3rem 1rem;display:flex;justify-content:center;background:var(--bg-secondary);}
 .radio-card{
   background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--radius-lg);padding:2rem;max-width:380px;width:100%;text-align:center;
+  border-radius:var(--radius-lg);padding:2.5rem;max-width:400px;width:100%;text-align:center;
 }
-.radio-visualizer-wrap{position:relative;width:140px;height:140px;margin:0 auto 1.5rem;}
+.radio-visualizer-wrap{position:relative;width:160px;height:160px;margin:0 auto 2rem;}
 .radio-visualizer{position:absolute;inset:0;width:100%;height:100%;opacity:.5;}
 .radio-disc{
   position:absolute;inset:0;border-radius:50%;
-  background:var(--gradient-accent);
-  border:2px solid var(--border);
+  background:linear-gradient(135deg,var(--accent) 0%,#0969da 100%);
+  border:3px solid var(--border);
   display:flex;align-items:center;justify-content:center;
-  animation:spin 6s linear infinite paused;
+  animation:spin 8s linear infinite paused;
+  box-shadow:0 0 40px var(--accent-glow);
 }
 .radio-disc.playing{animation-play-state:running;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .radio-disc-inner{
-  width:50px;height:50px;border-radius:50%;
+  width:56px;height:56px;border-radius:50%;
   background:var(--bg-primary);
   display:flex;align-items:center;justify-content:center;
 }
-.radio-disc-letter{color:var(--accent);font-weight:900;font-size:1.4rem;}
-.radio-station-name{font-weight:700;font-size:1.1rem;margin-bottom:.5rem;color:var(--text-primary);}
+.radio-disc-letter{color:var(--accent);font-weight:800;font-size:1.5rem;}
+.radio-station-name{font-weight:600;font-size:1.25rem;margin-bottom:.5rem;color:var(--text-primary);}
 .radio-live-badge{
   display:inline-flex;align-items:center;gap:.4rem;
-  background:rgba(26,127,255,.15);border:1px solid rgba(26,127,255,.3);
-  color:var(--accent);font-size:.72rem;font-weight:700;
-  padding:.25rem .75rem;border-radius:var(--radius-pill);margin-bottom:1.25rem;
+  background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.3);
+  color:var(--accent);font-size:.75rem;font-weight:600;
+  padding:.35rem 1rem;border-radius:var(--radius-pill);margin-bottom:1.5rem;
   text-transform:uppercase;letter-spacing:1px;
 }
 .radio-live-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 .radio-btn-row{display:flex;align-items:center;gap:1rem;justify-content:center;}
 .radio-btn{
-  width:52px;height:52px;border-radius:50%;
-  background:var(--gradient-accent);border:none;color:#fff;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--accent);border:none;color:#fff;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:all .2s;box-shadow:var(--shadow-accent);
+  transition:all .2s;box-shadow:0 0 20px var(--accent-glow);
 }
-.radio-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(26,127,255,.55);}
+.radio-btn:hover{transform:scale(1.05);background:var(--accent-hover);}
 .radio-btn svg{width:24px;height:24px;}
-.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:.6rem;color:var(--text-secondary);}
+.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:.75rem;color:var(--text-secondary);}
 .radio-volume{
   flex:1;-webkit-appearance:none;appearance:none;
   height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer;
 }
-.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;}
+.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg-card);}
 
 /* ── INFO PANEL ── */
-.player-info{padding:1rem 1rem 2rem;max-width:860px;margin:0 auto;}
-.video-title{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:.3rem;margin-top:.75rem;color:var(--text-primary);}
-.video-kr{font-size:.9rem;color:var(--text-secondary);margin-bottom:.75rem;}
-.video-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;
-  margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
-.video-views{font-size:.82rem;color:var(--text-secondary);}
-.rating-stars{display:flex;gap:2px;}
-.star{font-size:1.1rem;color:var(--border);cursor:pointer;transition:color .15s;}
-.star.active{color:var(--gold);}
+.player-info{padding:1.25rem 0;}
+.video-title{font-size:1.375rem;font-weight:600;line-height:1.4;margin-bottom:.25rem;color:var(--text-primary);}
+.video-kr{font-size:.9375rem;color:var(--text-secondary);margin-bottom:1rem;}
+.video-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+  padding-bottom:1rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.video-views{font-size:.875rem;color:var(--text-secondary);}
+.rating-stars{display:flex;gap:3px;}
+.star{font-size:1.25rem;color:var(--border);cursor:pointer;transition:color .15s;}
+.star.active{color:var(--warning);}
 
 /* Actions */
 .actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;}
 .action-btn{
-  display:flex;align-items:center;gap:.4rem;
-  padding:.55rem 1rem;
+  display:flex;align-items:center;gap:.5rem;
+  padding:.5rem 1rem;
   background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--radius-pill);color:var(--text-primary);font-size:.82rem;
+  border-radius:var(--radius);color:var(--text-primary);font-size:.875rem;
   cursor:pointer;transition:all .2s;font-weight:500;
 }
-.action-btn:hover{background:var(--bg-hover);transform:translateY(-1px);}
+.action-btn:hover{background:var(--bg-hover);border-color:var(--border);}
 .action-btn svg{width:18px;height:18px;fill:currentColor;}
-.action-btn.primary{background:var(--gradient-accent);border-color:transparent;}
-.action-btn.primary:hover{box-shadow:var(--shadow-accent);}
+.action-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.action-btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);}
 .action-btn.active{color:var(--accent);}
 
 /* Description */
-.desc-text{font-size:.87rem;color:var(--text-secondary);line-height:1.7;
+.desc-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;}
+.desc-text{font-size:.875rem;color:var(--text-secondary);line-height:1.7;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .desc-text.expanded{display:block;}
-.show-more{font-size:.82rem;color:var(--gold);cursor:pointer;margin-top:.35rem;font-weight:600;}
+.show-more{font-size:.875rem;color:var(--accent);cursor:pointer;margin-top:.5rem;font-weight:500;}
+.show-more:hover{text-decoration:underline;}
 
 /* Channel row */
 .channel-row{
-  display:flex;align-items:center;gap:.75rem;
-  padding:.85rem 0;border-bottom:1px solid var(--border);
-  border-top:1px solid var(--border);margin:.75rem 0;
+  display:flex;align-items:center;gap:1rem;
+  padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1rem;
 }
 .ch-avatar{
-  width:38px;height:38px;border-radius:50%;
-  background:var(--gradient-accent);
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent) 0%,#0969da 100%);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:800;font-size:.9rem;flex-shrink:0;
+  color:#fff;font-weight:700;font-size:1rem;flex-shrink:0;
 }
-.ch-name{font-size:.9rem;font-weight:600;color:var(--text-primary);}
-.ch-sub{font-size:.78rem;color:var(--text-secondary);}
+.ch-info{flex:1;}
+.ch-name{font-size:.9375rem;font-weight:600;color:var(--text-primary);}
+.ch-sub{font-size:.8125rem;color:var(--text-secondary);}
 .subscribe-btn{
-  margin-left:auto;padding:.45rem 1rem;
+  padding:.5rem 1.25rem;
   background:var(--text-primary);border:none;color:var(--bg-primary);
-  font-weight:700;font-size:.82rem;border-radius:var(--radius-pill);cursor:pointer;transition:all .2s;
+  font-weight:600;font-size:.875rem;border-radius:var(--radius);cursor:pointer;transition:all .2s;
 }
-.subscribe-btn.subscribed{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);}
+.subscribe-btn:hover{opacity:.9;}
+.subscribe-btn.subscribed{background:var(--bg-hover);color:var(--text-primary);border:1px solid var(--border);}
+
+/* ── SIDEBAR ── */
+.sidebar-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:1rem;}
+.sidebar-title{font-size:.9375rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+.sidebar-title::before{content:'';width:4px;height:16px;background:var(--accent);border-radius:2px;}
 
 /* Up Next */
 .up-next-header{
   display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:.75rem;margin-top:1.25rem;
+  margin-bottom:1rem;
 }
-.up-next-title{font-size:.95rem;font-weight:700;color:var(--text-primary);}
+.up-next-title{font-size:.9375rem;font-weight:600;color:var(--text-primary);}
+.autoplay-label{font-size:.8125rem;color:var(--text-secondary);margin-right:.5rem;}
 .toggle-switch{
-  width:38px;height:20px;background:var(--border);border-radius:10px;
+  width:44px;height:24px;background:var(--border);border-radius:12px;
   position:relative;cursor:pointer;transition:background .2s;
 }
 .toggle-switch.active{background:var(--accent);}
 .toggle-switch::after{
   content:'';position:absolute;top:2px;left:2px;
-  width:16px;height:16px;background:#fff;border-radius:50%;
+  width:20px;height:20px;background:#fff;border-radius:50%;
   transition:transform .2s;
 }
-.toggle-switch.active::after{transform:translateX(18px);}
+.toggle-switch.active::after{transform:translateX(20px);}
 .up-next-item{
   display:flex;gap:.75rem;margin-bottom:.75rem;
-  cursor:pointer;border-radius:var(--radius);padding:.5rem;transition:background .2s;
+  cursor:pointer;border-radius:var(--radius);padding:.5rem;transition:all .2s;
+  border:1px solid transparent;
 }
-.up-next-item:hover{background:var(--bg-card);}
+.up-next-item:hover{background:var(--bg-hover);border-color:var(--border);}
 .up-next-thumb{
   width:120px;height:68px;border-radius:var(--radius);
   background:var(--bg-secondary);flex-shrink:0;position:relative;overflow:hidden;
 }
 .up-next-thumb img{width:100%;height:100%;object-fit:cover;}
 .up-next-dur{
-  position:absolute;bottom:3px;right:4px;
-  background:rgba(0,0,0,.8);color:#fff;font-size:.65rem;
-  padding:.1rem .3rem;border-radius:3px;font-family:'JetBrains Mono',monospace;
+  position:absolute;bottom:4px;right:4px;
+  background:rgba(0,0,0,.85);color:#fff;font-size:.6875rem;
+  padding:.15rem .4rem;border-radius:3px;font-family:monospace;font-weight:500;
 }
-.up-next-info{flex:1;}
-.up-next-vtitle{font-size:.85rem;font-weight:600;line-height:1.3;color:var(--text-primary);
+.up-next-info{flex:1;min-width:0;}
+.up-next-vtitle{font-size:.875rem;font-weight:500;line-height:1.4;color:var(--text-primary);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .up-next-meta{font-size:.75rem;color:var(--text-secondary);margin-top:.25rem;}
 
 /* Comments */
 .comments-section{margin-top:1.5rem;}
-.comments-hdr{font-size:.95rem;font-weight:700;margin-bottom:1rem;color:var(--text-primary);}
-.comment-input-row{display:flex;gap:.6rem;align-items:center;margin-bottom:1rem;}
+.comments-hdr{font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text-primary);padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+.comment-input-row{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:1rem;}
 .comment-avatar{
-  width:32px;height:32px;border-radius:50%;flex-shrink:0;
-  background:var(--accent);color:#fff;font-weight:700;font-size:.8rem;
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--accent);color:#fff;font-weight:600;font-size:.875rem;
   display:flex;align-items:center;justify-content:center;
 }
-.comment-input-row input{
-  flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);
-  color:var(--text-primary);font-size:.87rem;padding:.5rem 0;outline:none;
-  font-family:var(--font);
+.comment-input-wrap{flex:1;}
+.comment-input-wrap input{
+  width:100%;background:var(--bg-primary);border:1px solid var(--border);
+  color:var(--text-primary);font-size:.875rem;padding:.625rem .875rem;border-radius:var(--radius);outline:none;transition:border-color .2s;
 }
-.comment-input-row input::placeholder{color:var(--text-secondary);}
-.comment-input-row button{
+.comment-input-wrap input:focus{border-color:var(--accent);}
+.comment-input-wrap input::placeholder{color:var(--text-secondary);}
+.comment-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.5rem;}
+.comment-actions button{
   background:none;border:1px solid var(--border);color:var(--text-primary);
-  padding:.4rem .9rem;border-radius:var(--radius-pill);font-size:.8rem;cursor:pointer;
-  font-weight:600;transition:all .2s;
+  padding:.4rem 1rem;border-radius:var(--radius);font-size:.8125rem;cursor:pointer;
+  font-weight:500;transition:all .2s;
 }
-.comment-input-row button:hover{background:var(--accent);border-color:var(--accent);}
-.comment-item{display:flex;gap:.65rem;margin-bottom:1rem;}
-.comment-author{font-size:.82rem;font-weight:700;margin-right:.4rem;color:var(--text-primary);}
+.comment-actions button:hover{background:var(--bg-hover);}
+.comment-actions button.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.comment-actions button.primary:hover{background:var(--accent-hover);}
+.comment-item{display:flex;gap:.75rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border-light);}
+.comment-item:last-child{border-bottom:none;}
+.comment-body{flex:1;}
+.comment-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;}
+.comment-author{font-size:.875rem;font-weight:600;color:var(--text-primary);}
 .comment-time{font-size:.75rem;color:var(--text-secondary);}
-.comment-txt{font-size:.85rem;line-height:1.55;margin:.3rem 0;color:var(--text-primary);}
-.comment-acts{display:flex;gap:.75rem;font-size:.75rem;color:var(--text-secondary);}
-.comment-acts span{cursor:pointer;transition:color .15s;}
+.comment-txt{font-size:.875rem;line-height:1.6;color:var(--text-secondary);margin:.25rem 0;}
+.comment-acts{display:flex;gap:1rem;font-size:.75rem;color:var(--text-secondary);margin-top:.5rem;}
+.comment-acts span{cursor:pointer;transition:color .15s;display:flex;align-items:center;gap:.25rem;}
 .comment-acts span:hover{color:var(--text-primary);}
-.no-comments{text-align:center;color:var(--text-secondary);font-size:.85rem;padding:1.5rem 0;}
+.no-comments{text-align:center;color:var(--text-secondary);font-size:.875rem;padding:2rem 0;}
+
+/* Share Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.2s ease;}
+.modal-overlay.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp 0.3s ease;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.modal-title{font-size:1.25rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;}
+.modal-title::before{content:'🔗';font-size:1rem;}
+.modal-close{background:var(--bg-hover);border:none;color:var(--text-secondary);cursor:pointer;padding:.5rem;border-radius:var(--radius);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{color:var(--text-primary);background:var(--border);transform:rotate(90deg);}
+.share-section-title{font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.5px;}
+.share-options{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1.5rem;}
+.share-option{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:0.875rem 0.5rem;border-radius:var(--radius-lg);cursor:pointer;transition:all .2s;border:1px solid transparent;background:var(--bg-primary);}
+.share-option:hover{background:var(--bg-hover);border-color:var(--border);transform:translateY(-3px);box-shadow:0 8px 16px rgba(0,0,0,0.3);}
+.share-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;transition:transform 0.2s;}
+.share-option:hover .share-icon{transform:scale(1.1);}
+.share-icon.copy{background:linear-gradient(135deg,#6b7280,#4b5563);color:#fff;}
+.share-icon.twitter{background:linear-gradient(135deg,#1da1f2,#0d8bd9);color:#fff;}
+.share-icon.facebook{background:linear-gradient(135deg,#4267b2,#365899);color:#fff;}
+.share-icon.whatsapp{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;}
+.share-icon.telegram{background:linear-gradient(135deg,#0088cc,#006699);color:#fff;}
+.share-icon.reddit{background:linear-gradient(135deg,#ff4500,#cc3700);color:#fff;}
+.share-icon.linkedin{background:linear-gradient(135deg,#0077b5,#005885);color:#fff;}
+.share-icon.email{background:linear-gradient(135deg,#ea4335,#c53929);color:#fff;}
+.share-icon.qq{background:linear-gradient(135deg,#12b7f5,#0a8fc4);color:#fff;}
+.share-icon.wechat{background:linear-gradient(135deg,#07c160,#059a4c);color:#fff;}
+.share-icon.weibo{background:linear-gradient(135deg,#e6162d,#b91224);color:#fff;}
+.share-icon.bilibili{background:linear-gradient(135deg,#fb7299,#e65a85);color:#fff;}
+.share-icon.douyin{background:linear-gradient(135deg,#000000,#333333);color:#fff;}
+.share-label{font-size:.6875rem;color:var(--text-secondary);font-weight:500;}
+.share-link-section{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+.share-link-box{background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius);padding:.5rem;display:flex;gap:.5rem;align-items:center;}
+.share-link-box input{flex:1;background:none;border:none;color:var(--text-primary);font-size:.875rem;outline:none;padding:0.5rem;}
+.share-link-box button{padding:.625rem 1.25rem;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-size:.8125rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.share-link-box button:hover{background:var(--accent-hover);transform:scale(1.02);}
+.wechat-qr-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:2000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;}
+.wechat-qr-modal.active{display:flex;}
+.wechat-qr-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;text-align:center;max-width:320px;}
+.wechat-qr-title{font-size:1.125rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;}
+.wechat-qr-code{width:200px;height:200px;background:#fff;border-radius:var(--radius);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#333;}
+.wechat-qr-hint{font-size:0.875rem;color:var(--text-secondary);margin-bottom:1rem;}
+.wechat-qr-close{padding:0.625rem 1.5rem;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-weight:600;cursor:pointer;}
 
 /* Toast */
 .toast{
   position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
   background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);
-  padding:.6rem 1.2rem;border-radius:var(--radius-pill);font-size:.85rem;
+  padding:.75rem 1.5rem;border-radius:var(--radius);font-size:.875rem;
   opacity:0;transition:all .3s;pointer-events:none;z-index:9999;
-  white-space:nowrap;
+  white-space:nowrap;box-shadow:var(--shadow-lg);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -300,112 +359,222 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 <!-- Nav -->
 <nav class="pnav">
   <button class="pnav-back" onclick="goBack()">
-    <svg width="20" height="20" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     Back
   </button>
-  <div class="pnav-logo">BLOXY<span>FLIX</span></div>
+  <div class="pnav-logo">MediaCMS</div>
   <div class="pnav-title" id="navTitle"></div>
 </nav>
 
-<!-- Player -->
-<div class="player-wrap" id="playerWrap">
-  <!-- Video.js -->
-  <div id="playerContainer">
-    <video id="bfplayer" class="video-js vjs-big-play-centered" playsinline></video>
-  </div>
-  <!-- Radio -->
-  <div id="radioContainer" class="radio-wrap" style="display:none;">
-    <div class="radio-card">
-      <div class="radio-visualizer-wrap">
-        <canvas id="radioVisualizer" class="radio-visualizer"></canvas>
-        <div class="radio-disc" id="radioDisc">
-          <div class="radio-disc-inner">
-            <span class="radio-disc-letter" id="radioDiscLetter">R</span>
+<!-- Main Layout -->
+<div class="player-main">
+  <div class="player-content">
+    <!-- Player -->
+    <div class="player-wrap" id="playerWrap">
+      <!-- Video.js -->
+      <div id="playerContainer">
+        <video id="mediacms-player" class="video-js vjs-big-play-centered" playsinline></video>
+      </div>
+      <!-- Radio -->
+      <div id="radioContainer" class="radio-wrap" style="display:none;">
+        <div class="radio-card">
+          <div class="radio-visualizer-wrap">
+            <canvas id="radioVisualizer" class="radio-visualizer"></canvas>
+            <div class="radio-disc" id="radioDisc">
+              <div class="radio-disc-inner">
+                <span class="radio-disc-letter" id="radioDiscLetter">R</span>
+              </div>
+            </div>
+          </div>
+          <div class="radio-station-name" id="radioStationName">Station</div>
+          <div class="radio-live-badge"><span class="radio-live-dot"></span>LIVE</div>
+          <div class="radio-btn-row">
+            <button class="radio-btn" id="radioPlayBtn" onclick="toggleRadio()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path id="radioPlayIcon" d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="radio-volume-wrap">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+              <input type="range" class="radio-volume" id="radioVolume" min="0" max="1" step="0.02" value="1" oninput="setRadioVolume(this.value)">
+            </div>
           </div>
         </div>
       </div>
-      <div class="radio-station-name" id="radioStationName">Station</div>
-      <div class="radio-live-badge"><span class="radio-live-dot"></span>LIVE</div>
-      <div class="radio-btn-row">
-        <button class="radio-btn" id="radioPlayBtn" onclick="toggleRadio()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path id="radioPlayIcon" d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="radio-volume-wrap">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-          <input type="range" class="radio-volume" id="radioVolume" min="0" max="1" step="0.02" value="1" oninput="setRadioVolume(this.value)">
+      <!-- YouTube -->
+      <div id="youtubeContainer" class="youtube-player" style="display:none;">
+        <iframe id="youtubeFrame" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="player-info" id="playerInfo" style="display:none;">
+      <h1 class="video-title" id="pTitle"></h1>
+      <p class="video-kr" id="pKr"></p>
+      <div class="video-meta">
+        <span class="video-views" id="pViews"></span>
+        <div class="rating-stars" id="ratingStars">
+          <span class="star" onclick="rateVideo(1)">★</span>
+          <span class="star" onclick="rateVideo(2)">★</span>
+          <span class="star" onclick="rateVideo(3)">★</span>
+          <span class="star" onclick="rateVideo(4)">★</span>
+          <span class="star" onclick="rateVideo(5)">★</span>
         </div>
+      </div>
+      
+      <div class="actions">
+        <button class="action-btn" id="likeBtn" onclick="likeVideo()">
+          <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+          Like
+        </button>
+        <button class="action-btn" id="watchlistBtn" onclick="toggleWatchlist()">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Watchlist
+        </button>
+        <button class="action-btn primary" onclick="openShareModal()">
+          <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          Share
+        </button>
+        <button class="action-btn" id="dlBtn" onclick="triggerDownload()">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Download
+        </button>
+      </div>
+
+      <div class="channel-row">
+        <div class="ch-avatar" id="chAvatar">MC</div>
+        <div class="ch-info">
+          <div class="ch-name" id="chName">MediaCMS Channel</div>
+          <div class="ch-sub" id="chSub">Video Collection</div>
+        </div>
+        <button class="subscribe-btn" id="subscribeBtn" onclick="toggleSubscribe()">Subscribe</button>
+      </div>
+
+      <div class="desc-box">
+        <div id="pDesc" class="desc-text"></div>
+        <div class="show-more" id="showMoreBtn" onclick="toggleDesc()">Show more</div>
+      </div>
+
+      <!-- Comments -->
+      <div class="comments-section">
+        <div class="comments-hdr"><span id="commentCount">0</span> Comments</div>
+        <div class="comment-input-row">
+          <div class="comment-avatar" id="commentAvatar">G</div>
+          <div class="comment-input-wrap">
+            <input type="text" id="commentInput" placeholder="Add a comment..." onkeypress="if(event.key==='Enter')postComment()">
+            <div class="comment-actions">
+              <button onclick="document.getElementById('commentInput').value=''">Cancel</button>
+              <button class="primary" onclick="postComment()">Comment</button>
+            </div>
+          </div>
+        </div>
+        <div id="commentsList"></div>
       </div>
     </div>
   </div>
-  <!-- YouTube -->
-  <div id="youtubeContainer" class="youtube-player" style="display:none;">
-    <iframe id="youtubeFrame" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+
+  <!-- Sidebar -->
+  <div class="player-sidebar" id="playerSidebar">
+    <div class="sidebar-section">
+      <div class="up-next-header">
+        <span class="up-next-title">Up Next</span>
+        <div style="display:flex;align-items:center;">
+          <span class="autoplay-label">Autoplay</span>
+          <div class="toggle-switch active" id="autoplayToggle" onclick="toggleAutoplay()"></div>
+        </div>
+      </div>
+      <div id="upNextList"></div>
+    </div>
   </div>
 </div>
 
-<!-- Info -->
-<div class="player-info" id="playerInfo" style="display:none;">
-  <h1 class="video-title" id="pTitle"></h1>
-  <p class="video-kr" id="pKr"></p>
-  <div class="video-meta">
-    <span class="video-views" id="pViews"></span>
-    <div class="rating-stars" id="ratingStars">
-      <span class="star" onclick="rateVideo(1)">★</span>
-      <span class="star" onclick="rateVideo(2)">★</span>
-      <span class="star" onclick="rateVideo(3)">★</span>
-      <span class="star" onclick="rateVideo(4)">★</span>
-      <span class="star" onclick="rateVideo(5)">★</span>
+<!-- Share Modal -->
+<div class="modal-overlay" id="shareModal" onclick="closeShareModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Share Video</span>
+      <button class="modal-close" onclick="closeShareModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    
+    <div class="share-section-title">International</div>
+    <div class="share-options">
+      <div class="share-option" onclick="shareTo('copy')">
+        <div class="share-icon copy">📋</div>
+        <span class="share-label">Copy</span>
+      </div>
+      <div class="share-option" onclick="shareTo('twitter')">
+        <div class="share-icon twitter">𝕏</div>
+        <span class="share-label">Twitter</span>
+      </div>
+      <div class="share-option" onclick="shareTo('facebook')">
+        <div class="share-icon facebook">f</div>
+        <span class="share-label">Facebook</span>
+      </div>
+      <div class="share-option" onclick="shareTo('whatsapp')">
+        <div class="share-icon whatsapp">📱</div>
+        <span class="share-label">WhatsApp</span>
+      </div>
+      <div class="share-option" onclick="shareTo('telegram')">
+        <div class="share-icon telegram">✈️</div>
+        <span class="share-label">Telegram</span>
+      </div>
+      <div class="share-option" onclick="shareTo('reddit')">
+        <div class="share-icon reddit">🔴</div>
+        <span class="share-label">Reddit</span>
+      </div>
+      <div class="share-option" onclick="shareTo('linkedin')">
+        <div class="share-icon linkedin">in</div>
+        <span class="share-label">LinkedIn</span>
+      </div>
+      <div class="share-option" onclick="shareTo('email')">
+        <div class="share-icon email">✉</div>
+        <span class="share-label">Email</span>
+      </div>
+    </div>
+    
+    <div class="share-section-title">Chinese Platforms</div>
+    <div class="share-options">
+      <div class="share-option" onclick="shareTo('wechat')">
+        <div class="share-icon wechat">💬</div>
+        <span class="share-label">WeChat</span>
+      </div>
+      <div class="share-option" onclick="shareTo('qq')">
+        <div class="share-icon qq">🐧</div>
+        <span class="share-label">QQ</span>
+      </div>
+      <div class="share-option" onclick="shareTo('weibo')">
+        <div class="share-icon weibo">🌊</div>
+        <span class="share-label">Weibo</span>
+      </div>
+      <div class="share-option" onclick="shareTo('bilibili')">
+        <div class="share-icon bilibili">📺</div>
+        <span class="share-label">Bilibili</span>
+      </div>
+      <div class="share-option" onclick="shareTo('douyin')">
+        <div class="share-icon douyin">🎵</div>
+        <span class="share-label">Douyin</span>
+      </div>
+    </div>
+    
+    <div class="share-link-section">
+      <div class="share-section-title">Video Link</div>
+      <div class="share-link-box">
+        <input type="text" id="shareLinkInput" readonly>
+        <button onclick="copyShareLink()">Copy Link</button>
+      </div>
     </div>
   </div>
-  <div class="actions">
-    <button class="action-btn" id="likeBtn" onclick="likeVideo()">
-      <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
-      Like
-    </button>
-    <button class="action-btn" id="watchlistBtn" onclick="toggleWatchlist()">
-      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-      Watchlist
-    </button>
-    <button class="action-btn" onclick="shareVideo()">
-      <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-      Share
-    </button>
-    <button class="action-btn" onclick="copyEmbedCode()">
-      <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-      Embed
-    </button>
-    <button class="action-btn primary" id="dlBtn" onclick="triggerDownload()" style="display:none;">
-      <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-      Download
-    </button>
-  </div>
-  <div class="channel-row">
-    <div class="ch-avatar">BF</div>
-    <div>
-      <div class="ch-name">BloxyFlix Archive</div>
-      <div class="ch-sub">North Korean Cinema Collection</div>
-    </div>
-    <button class="subscribe-btn" id="subscribeBtn" onclick="toggleSubscribe()">Subscribe</button>
-  </div>
-  <div id="pDesc" class="desc-text"></div>
-  <div class="show-more" id="showMoreBtn" onclick="toggleDesc()">Show more</div>
+</div>
 
-  <!-- Up Next -->
-  <div class="up-next-header">
-    <span class="up-next-title">Up Next</span>
-    <div class="toggle-switch active" id="autoplayToggle" onclick="toggleAutoplay()"></div>
-  </div>
-  <div id="upNextList"></div>
-
-  <!-- Comments -->
-  <div class="comments-section">
-    <div class="comments-hdr"><span id="commentCount">0</span> Comments</div>
-    <div class="comment-input-row">
-      <div class="comment-avatar" id="commentAvatar">G</div>
-      <input type="text" id="commentInput" placeholder="Add a comment..." onkeypress="if(event.key==='Enter')postComment()">
-      <button onclick="postComment()">Post</button>
+<!-- WeChat QR Modal -->
+<div class="wechat-qr-modal" id="wechatQRModal" onclick="closeWeChatQR()">
+  <div class="wechat-qr-box" onclick="event.stopPropagation()">
+    <div class="wechat-qr-title">Share to WeChat</div>
+    <div class="wechat-qr-code" id="wechatQRCode">
+      <canvas id="qrCanvas" width="180" height="180"></canvas>
     </div>
-    <div id="commentsList"></div>
+    <div class="wechat-qr-hint">Scan with WeChat to share</div>
+    <button class="wechat-qr-close" onclick="closeWeChatQR()">Close</button>
   </div>
 </div>
 
@@ -431,7 +600,7 @@ function detectEmbeddedMode() {
   isEmbedded = embedParam === '1' || embedParam === 'true' || isIframe;
   if (isEmbedded) {
     document.body.classList.add('embedded');
-    document.title = curVid?.t || 'BloxyFlix Player';
+    document.title = curVid?.t || 'MediaCMS Player';
   }
 }
 
@@ -443,18 +612,15 @@ function getVideoFromURL() {
     try {
       return JSON.parse(decodeURIComponent(vidParam));
     } catch(e) {
-      // Try as base64
       try {
         return JSON.parse(atob(vidParam));
       } catch(e2) { return null; }
     }
   }
-  // Support individual params
   const url = params.get('url');
   const embed = params.get('embedcode');
   
   if (embed) {
-    // Raw HTML embed code passed as parameter
     return {
       u: decodeURIComponent(embed),
       t: params.get('title') || 'Embedded Video',
@@ -486,19 +652,47 @@ function getVideoFromURL() {
   return null;
 }
 
+// ── Generate URL Slug ──
+function generateSlug(text) {
+  if (!text) return '';
+  return text.toLowerCase()
+    .replace(/[^\w\s\u4e00-\u9fa5-]/g, '') // Keep Chinese characters
+    .trim()
+    .replace(/\s+/g, '-')
+    .substring(0, 80);
+}
+
+// ── Update URL with Video Name ──
+function updateURLWithVideoName() {
+  if (!curVid || !curVid.t) return;
+  const slug = generateSlug(curVid.t);
+  const params = new URLSearchParams(window.location.search);
+  params.set('video', slug);
+  if (curVid.id || curVid.u) {
+    params.set('id', curVid.id || btoa(curVid.u).substring(0, 20));
+  }
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState({ video: curVid }, curVid.t, newUrl);
+}
+
+// ── Get video from URL on page load ──
+function getVideoFromURLParams() {
+  const params = new URLSearchParams(window.location.search);
+  const videoSlug = params.get('video');
+  const videoId = params.get('id');
+  return { videoSlug, videoId };
+}
+
 // ── Init ──
 window.addEventListener('DOMContentLoaded', () => {
-  // Load settings
   try {
-    const s = JSON.parse(localStorage.getItem('bloxyflix-settings') || '{}');
+    const s = JSON.parse(localStorage.getItem('mediacms-settings') || '{}');
     autoplay = s.autoplay !== false;
     if (!autoplay) document.getElementById('autoplayToggle').classList.remove('active');
   } catch(e) {}
 
-  // Detect embedded mode first
   detectEmbeddedMode();
 
-  // Get video data - try URL params first (for embedded), then sessionStorage
   let videoLoaded = false;
   
   if (isEmbedded) {
@@ -511,13 +705,12 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   
   if (!videoLoaded) {
-    // Get video data from sessionStorage
     try {
-      const raw = sessionStorage.getItem('bf-player-vid');
-      const rawSlim = sessionStorage.getItem('bf-player-slim');
+      const raw = sessionStorage.getItem('mediacms-player-vid');
+      const rawSlim = sessionStorage.getItem('mediacms-player-slim');
       if (!raw) { goBack(); return; }
       curVid = JSON.parse(raw);
-      curIdx = parseInt(sessionStorage.getItem('bf-player-idx') || '0', 10);
+      curIdx = parseInt(sessionStorage.getItem('mediacms-player-idx') || '0', 10);
       slimVids = rawSlim ? JSON.parse(rawSlim) : [];
       videoLoaded = true;
     } catch(e) { goBack(); return; }
@@ -528,14 +721,15 @@ window.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Init Video.js
+  // Update URL with video name
+  updateURLWithVideoName();
+
   try {
-    bfPlayer = videojs('bfplayer', {
+    bfPlayer = videojs('mediacms-player', {
       controls: true, autoplay: false, preload: 'auto', fluid: true,
       playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
       html5: { vhs: { overrideNative: true }, nativeVideoTracks: false, nativeAudioTracks: false }
     });
-    // Ensure player fills container
     bfPlayer.ready(function() {
       this.el().style.width = '100%';
       this.el().style.height = 'auto';
@@ -562,9 +756,7 @@ function playCurrentVideo() {
   stopRadio();
 
   if (isEmbedCode) {
-    // Raw HTML embed code (from admin panel)
     pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
-    // Write embed HTML to iframe using srcdoc
     const embedHtml = `<!DOCTYPE html>
 <html>
 <head>
@@ -582,7 +774,6 @@ video,iframe,embed,object{max-width:100%;max-height:100%;width:100%;height:100%;
     const ytOv = document.getElementById('yt-live-overlay');
     if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
   } else if (isExternalIframe) {
-    // External iframe source (like koryo.tv)
     pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
     yf.src = v.u;
     const ytOv = document.getElementById('yt-live-overlay');
@@ -627,45 +818,57 @@ video,iframe,embed,object{max-width:100%;max-height:100%;width:100%;height:100%;
 function renderInfo() {
   const v = curVid;
   if (!v) return;
-  document.title = v.t + ' — BloxyFlix';
+  document.title = v.t + ' — MediaCMS';
   document.getElementById('navTitle').textContent = v.t;
   document.getElementById('pTitle').textContent = v.t;
   document.getElementById('pKr').textContent = v.tk || '';
   document.getElementById('pViews').textContent = (v.views || 0) + ' views • ' + (v.y || '');
   document.getElementById('pDesc').textContent = v.d || '';
   document.getElementById('playerInfo').style.display = 'block';
-  document.getElementById('dlBtn').style.display = (!v.isYouTube && !v.isM3U8) ? 'flex' : 'none';
+  
+  // Hide download button in embedded mode
+  const dlBtn = document.getElementById('dlBtn');
+  if (isEmbedded || v.isYouTube || v.isM3U8 || v.isEmbed) {
+    dlBtn.style.display = 'none';
+  } else {
+    dlBtn.style.display = 'flex';
+  }
+  
+  // Update channel info if available
+  if (v.channel) {
+    document.getElementById('chName').textContent = v.channel.name || 'MediaCMS Channel';
+    document.getElementById('chSub').textContent = v.channel.sub || 'Video Collection';
+    document.getElementById('chAvatar').textContent = (v.channel.name || 'MC').substring(0, 2).toUpperCase();
+  }
+  
   updateRatingStars(v.userRating || 0);
   
-  // Only show up next and comments if we have sessionStorage data
   if (curIdx >= 0 && slimVids.length > 0) {
     renderUpNext();
     renderComments(curIdx);
   } else {
-    document.getElementById('upNextList').innerHTML = '';
+    document.getElementById('upNextList').innerHTML = '<div class="no-comments">No related videos</div>';
     document.getElementById('commentsList').innerHTML = '<div class="no-comments">Comments not available in embed mode</div>';
     document.getElementById('commentCount').textContent = '0';
   }
   
   const ua = document.getElementById('commentAvatar');
-  const uname = localStorage.getItem('bloxyflix-username') || 'Guest';
+  const uname = localStorage.getItem('mediacms-username') || 'Guest';
   ua.textContent = uname.charAt(0).toUpperCase();
   if (curIdx >= 0 && isInWatchlist(curIdx)) document.getElementById('watchlistBtn').classList.add('active');
 }
 
-// ── Placeholder thumb ──
 function getThumb(v) {
   if (v.thumb) return v.thumb;
   if (v.isYouTube && v.u && !v.u.startsWith('http')) return `https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;
-  return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%2313141a'/><text x='160' y='95' font-family='Arial' font-size='12' fill='%236b6d7e' text-anchor='middle'>BloxyFlix</text></svg>`;
+  return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%2321262d'/><text x='160' y='95' font-family='Arial' font-size='12' fill='%238b949e' text-anchor='middle'>MediaCMS</text></svg>`;
 }
 
-// ── Up Next ──
 function renderUpNext() {
   const list = document.getElementById('upNextList');
-  if (slimVids.length < 2) { list.innerHTML = ''; return; }
+  if (slimVids.length < 2) { list.innerHTML = '<div class="no-comments">No related videos</div>'; return; }
   const items = [];
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 6; i++) {
     const idx = (curIdx + i) % slimVids.length;
     if (idx !== curIdx) items.push({ ...slimVids[idx], _idx: idx });
   }
@@ -688,9 +891,10 @@ function loadVideo(idx) {
   stopAll();
   curVid = v;
   curIdx = idx;
-  sessionStorage.setItem('bf-player-vid', JSON.stringify(v));
-  sessionStorage.setItem('bf-player-idx', idx);
+  sessionStorage.setItem('mediacms-player-vid', JSON.stringify(v));
+  sessionStorage.setItem('mediacms-player-idx', idx);
   window.scrollTo(0, 0);
+  updateURLWithVideoName();
   playCurrentVideo();
   renderInfo();
   addToHistory();
@@ -701,7 +905,6 @@ function playNext() {
   loadVideo(nextIdx);
 }
 
-// ── Radio ──
 function startRadio(url) {
   radioAudio = new Audio();
   radioAudio.crossOrigin = 'anonymous';
@@ -758,7 +961,7 @@ function initVisualizer() {
       buf.forEach((v, i) => {
         const h = (v / 255) * canvas.height * .8;
         const g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - h);
-        g.addColorStop(0,'rgba(232,38,58,.8)'); g.addColorStop(1,'rgba(201,168,76,.4)');
+        g.addColorStop(0,'rgba(88,166,255,.8)'); g.addColorStop(1,'rgba(88,166,255,.3)');
         ctx.fillStyle = g;
         ctx.fillRect(i * barW, canvas.height - h, barW - 1, h);
       });
@@ -767,7 +970,6 @@ function initVisualizer() {
   } catch(e) {}
 }
 
-// ── Stop all ──
 function stopAll() {
   stopRadio();
   const yf = document.getElementById('youtubeFrame');
@@ -777,25 +979,22 @@ function stopAll() {
   if (bfPlayer) { try { bfPlayer.pause(); bfPlayer.src(''); } catch(e) {} }
 }
 
-// ── Navigation ──
 function goBack() {
   stopAll();
   if (isEmbedded) {
-    // In embedded mode, just pause and show a message
     showToast('Player paused');
   } else {
     window.location.href = 'index.html';
   }
 }
 
-// ── Actions ──
 function likeVideo() {
   document.getElementById('likeBtn').classList.toggle('active');
   showToast(document.getElementById('likeBtn').classList.contains('active') ? 'Liked!' : 'Like removed');
 }
 function toggleWatchlist() {
   const idx = curIdx;
-  const key = 'bloxyflix-watchlist';
+  const key = 'mediacms-watchlist';
   let wl = JSON.parse(localStorage.getItem(key) || '[]');
   const i = wl.indexOf(idx);
   if (i === -1) { wl.unshift(idx); showToast('Added to watchlist'); }
@@ -804,41 +1003,141 @@ function toggleWatchlist() {
   document.getElementById('watchlistBtn').classList.toggle('active', i === -1);
 }
 function isInWatchlist(idx) {
-  return JSON.parse(localStorage.getItem('bloxyflix-watchlist') || '[]').includes(idx);
+  return JSON.parse(localStorage.getItem('mediacms-watchlist') || '[]').includes(idx);
 }
-function shareVideo() {
-  if (navigator.share) navigator.share({ title: curVid?.t || 'BloxyFlix', url: window.location.href });
-  else { navigator.clipboard.writeText(window.location.href); showToast('Link copied!'); }
+
+// ── Share Modal Functions ──
+function openShareModal() {
+  document.getElementById('shareModal').classList.add('active');
+  document.getElementById('shareLinkInput').value = window.location.href;
 }
-function getEmbedCode() {
-  if (!curVid) return '';
-  // Build embed URL with video data
-  const baseUrl = window.location.origin + window.location.pathname;
-  const params = new URLSearchParams();
-  params.set('embed', '1');
-  params.set('title', curVid.t || 'Video');
-  params.set('type', curVid.ty || 'Video');
+
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById('shareModal')) {
+    document.getElementById('shareModal').classList.remove('active');
+  }
+}
+
+function shareTo(platform) {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(curVid?.t || 'MediaCMS Video');
+  const desc = encodeURIComponent(curVid?.d?.substring(0, 100) || 'Watch this video on MediaCMS');
   
-  // For embed code videos, use the embedcode param
-  if (curVid.isEmbed || (curVid.u && curVid.u.startsWith('<'))) {
-    params.set('embedcode', encodeURIComponent(curVid.u));
-  } else {
-    params.set('url', encodeURIComponent(curVid.u || ''));
+  switch(platform) {
+    case 'twitter':
+      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
+      break;
+    case 'facebook':
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`, '_blank', 'width=600,height=400');
+      break;
+    case 'whatsapp':
+      window.open(`https://wa.me/?text=${title}%20-%20${url}`, '_blank');
+      break;
+    case 'telegram':
+      window.open(`https://t.me/share/url?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
+      break;
+    case 'reddit':
+      window.open(`https://www.reddit.com/submit?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
+      break;
+    case 'linkedin':
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+      break;
+    case 'email':
+      window.location.href = `mailto:?subject=${title}&body=${desc}%0A%0A${url}`;
+      break;
+    case 'wechat':
+      showWeChatQR();
+      break;
+    case 'qq':
+      window.open(`http://connect.qq.com/widget/shareqq/index.html?url=${url}&title=${title}&summary=${desc}&source=MediaCMS`, '_blank', 'width=700,height=500');
+      break;
+    case 'weibo':
+      window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${title}&pic=${encodeURIComponent(getThumb(curVid))}`, '_blank', 'width=700,height=500');
+      break;
+    case 'bilibili':
+      copyShareLink();
+      showToast('Link copied! Share to Bilibili dynamic or comments');
+      break;
+    case 'douyin':
+      copyShareLink();
+      showToast('Link copied! Share to Douyin or paste in app');
+      break;
+    case 'copy':
+      copyShareLink();
+      break;
+  }
+}
+
+function copyShareLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => showToast('Link copied to clipboard!'));
+}
+
+// ── WeChat QR Code ──
+function showWeChatQR() {
+  const modal = document.getElementById('wechatQRModal');
+  modal.classList.add('active');
+  generateQRCode(window.location.href);
+}
+
+function closeWeChatQR() {
+  document.getElementById('wechatQRModal').classList.remove('active');
+}
+
+function generateQRCode(text) {
+  const canvas = document.getElementById('qrCanvas');
+  const ctx = canvas.getContext('2d');
+  const size = 180;
+  const cells = 25;
+  const cellSize = size / cells;
+  
+  // Clear canvas
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, size, size);
+  
+  // Generate a simple QR-like pattern
+  ctx.fillStyle = '#000';
+  
+  // Position detection patterns (corners)
+  const drawPositionPattern = (x, y) => {
+    // Outer square
+    for(let i=0; i<7; i++) {
+      for(let j=0; j<7; j++) {
+        if(i===0 || i===6 || j===0 || j===6 || (i>=2 && i<=4 && j>=2 && j<=4)) {
+          ctx.fillRect((x+i)*cellSize, (y+j)*cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  };
+  
+  drawPositionPattern(2, 2);
+  drawPositionPattern(2, cells-9);
+  drawPositionPattern(cells-9, 2);
+  
+  // Generate pseudo-random data pattern based on URL
+  let hash = 0;
+  for(let i=0; i<text.length; i++) {
+    hash = ((hash << 5) - hash) + text.charCodeAt(i);
+    hash = hash & hash;
   }
   
-  if (curVid.isYouTube) params.set('youtube', '1');
-  if (curVid.isM3U8) params.set('m3u8', '1');
-  if (curVid.isExternal || curVid.u?.includes('koryo.tv')) params.set('external', '1');
-  if (curVid.isPinned || curVid.duration === 'LIVE') params.set('live', '1');
+  const seed = Math.abs(hash);
+  for(let i=8; i<cells-8; i++) {
+    for(let j=8; j<cells-8; j++) {
+      if(((seed * (i*cells+j)) % 100) < 50) {
+        ctx.fillRect(i*cellSize, j*cellSize, cellSize, cellSize);
+      }
+    }
+  }
   
-  const playerUrl = baseUrl + '?' + params.toString();
-  
-  return `<iframe src="${playerUrl}" style="width:100%;height:100%;border:none;background:#000;" scrolling="no" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+  // Add timing patterns
+  for(let i=8; i<cells-8; i++) {
+    if(i % 2 === 0) {
+      ctx.fillRect(i*cellSize, 6*cellSize, cellSize, cellSize);
+      ctx.fillRect(6*cellSize, i*cellSize, cellSize, cellSize);
+    }
+  }
 }
-function copyEmbedCode() {
-  const code = getEmbedCode();
-  navigator.clipboard.writeText(code).then(() => showToast('Embed code copied!'));
-}
+
 function triggerDownload() {
   if (!curVid?.u) return;
   const a = document.createElement('a');
@@ -846,6 +1145,7 @@ function triggerDownload() {
   a.download = (curVid.t || 'video').replace(/[^a-z0-9\s-]/gi,'').trim().replace(/\s+/g,'-') + '.mp4';
   a.click();
 }
+
 function toggleSubscribe() {
   const btn = document.getElementById('subscribeBtn');
   btn.classList.toggle('subscribed');
@@ -862,9 +1162,9 @@ function toggleAutoplay() {
   autoplay = !autoplay;
   document.getElementById('autoplayToggle').classList.toggle('active', autoplay);
   try {
-    const s = JSON.parse(localStorage.getItem('bloxyflix-settings') || '{}');
+    const s = JSON.parse(localStorage.getItem('mediacms-settings') || '{}');
     s.autoplay = autoplay;
-    localStorage.setItem('bloxyflix-settings', JSON.stringify(s));
+    localStorage.setItem('mediacms-settings', JSON.stringify(s));
   } catch(e) {}
 }
 function rateVideo(r) {
@@ -876,31 +1176,30 @@ function updateRatingStars(r) {
   document.querySelectorAll('#ratingStars .star').forEach((s,i) => s.classList.toggle('active', i < r));
 }
 function saveProgress(idx, pct) {
-  const p = JSON.parse(localStorage.getItem('bloxyflix-progress') || '{}');
+  const p = JSON.parse(localStorage.getItem('mediacms-progress') || '{}');
   p[idx] = Math.round(pct);
-  localStorage.setItem('bloxyflix-progress', JSON.stringify(p));
+  localStorage.setItem('mediacms-progress', JSON.stringify(p));
 }
 function addToHistory() {
-  if (curIdx < 0) return; // Skip for embedded mode
-  let h = JSON.parse(localStorage.getItem('bloxyflix-history') || '[]');
+  if (curIdx < 0) return;
+  let h = JSON.parse(localStorage.getItem('mediacms-history') || '[]');
   h = h.filter(i => i !== curIdx);
   h.unshift(curIdx);
   if (h.length > 50) h = h.slice(0, 50);
-  localStorage.setItem('bloxyflix-history', JSON.stringify(h));
+  localStorage.setItem('mediacms-history', JSON.stringify(h));
 }
 
-// ── Comments ──
-function getComments(id) { return JSON.parse(localStorage.getItem('bloxyflix-comments') || '{}')[id] || []; }
+function getComments(id) { return JSON.parse(localStorage.getItem('mediacms-comments') || '{}')[id] || []; }
 function saveComments(id, c) {
-  const all = JSON.parse(localStorage.getItem('bloxyflix-comments') || '{}');
-  all[id] = c; localStorage.setItem('bloxyflix-comments', JSON.stringify(all));
+  const all = JSON.parse(localStorage.getItem('mediacms-comments') || '{}');
+  all[id] = c; localStorage.setItem('mediacms-comments', JSON.stringify(all));
 }
 function postComment() {
   const inp = document.getElementById('commentInput');
   const txt = inp.value.trim();
   if (!txt) return;
   const cs = getComments(curIdx);
-  cs.unshift({ id: Date.now(), name: localStorage.getItem('bloxyflix-username') || 'Guest', text: txt, time: Date.now(), likes: 0, liked: false });
+  cs.unshift({ id: Date.now(), name: localStorage.getItem('mediacms-username') || 'Guest', text: txt, time: Date.now(), likes: 0, liked: false });
   saveComments(curIdx, cs);
   inp.value = ''; renderComments(curIdx); showToast('Comment posted!');
 }
@@ -910,7 +1209,7 @@ function likeComment(id) {
   if (c) { c.liked ? (c.likes--, c.liked = false) : (c.likes++, c.liked = true); saveComments(curIdx, cs); renderComments(curIdx); }
 }
 function deleteComment(id) {
-  const uname = localStorage.getItem('bloxyflix-username') || 'Guest';
+  const uname = localStorage.getItem('mediacms-username') || 'Guest';
   let cs = getComments(curIdx);
   const c = cs.find(x => x.id === id);
   if (c && c.name === uname) { cs = cs.filter(x => x.id !== id); saveComments(curIdx, cs); renderComments(curIdx); showToast('Deleted'); }
@@ -925,17 +1224,20 @@ function formatAgo(ts) {
 function renderComments(id) {
   const list = document.getElementById('commentsList');
   const count = document.getElementById('commentCount');
-  const uname = localStorage.getItem('bloxyflix-username') || 'Guest';
+  const uname = localStorage.getItem('mediacms-username') || 'Guest';
   const cs = getComments(id);
   count.textContent = cs.length;
   if (!cs.length) { list.innerHTML = '<div class="no-comments">No comments yet. Be the first!</div>'; return; }
   function sc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-  function col(s) { let h=0; for(let c of s) h=s.charCodeAt(0)+((h<<5)-h); return ['#1a7fff','#9c27b0','#2196f3','#4caf50','#ff9800','#00bcd4'][Math.abs(h)%6]; }
+  function col(s) { let h=0; for(let c of s) h=s.charCodeAt(0)+((h<<5)-h); return ['#58a6ff','#a371f7','#3fb950','#f0883e','#d2a8ff','#79c0ff'][Math.abs(h)%6]; }
   list.innerHTML = cs.map(c => `
     <div class="comment-item">
       <div class="comment-avatar" style="background:${col(c.name)};">${c.name.charAt(0).toUpperCase()}</div>
       <div class="comment-body">
-        <span class="comment-author">${sc(c.name)}</span><span class="comment-time">${formatAgo(c.time)}</span>
+        <div class="comment-header">
+          <span class="comment-author">${sc(c.name)}</span>
+          <span class="comment-time">${formatAgo(c.time)}</span>
+        </div>
         <div class="comment-txt">${sc(c.text)}</div>
         <div class="comment-acts">
           <span onclick="likeComment(${c.id})" style="${c.liked?'color:var(--accent)':''}">♥ ${c.likes||'Like'}</span>
@@ -946,14 +1248,12 @@ function renderComments(id) {
     </div>`).join('');
 }
 
-// ── Toast ──
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// ── Keyboard ──
 document.addEventListener('keydown', e => {
   if (document.activeElement.tagName === 'INPUT') return;
   if (e.key === ' ') { e.preventDefault(); if (radioPlaying || radioAudio) toggleRadio(); else if (bfPlayer) bfPlayer.paused() ? bfPlayer.play() : bfPlayer.pause(); }
@@ -961,9 +1261,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' && bfPlayer) bfPlayer.currentTime(Math.max(0, bfPlayer.currentTime()-10));
   if (e.key.toLowerCase() === 'f' && bfPlayer) bfPlayer.isFullscreen() ? bfPlayer.exitFullscreen() : bfPlayer.requestFullscreen();
   if (e.key.toLowerCase() === 'm' && bfPlayer) bfPlayer.muted(!bfPlayer.muted());
+  if (e.key === 'Escape') closeShareModal();
 });
 
-// ── Cross-Origin Messaging for Embedded Player ──
 window.addEventListener('message', (e) => {
   if (!isEmbedded) return;
   const { action, data } = e.data || {};
