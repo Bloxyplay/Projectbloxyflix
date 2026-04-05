@@ -3,79 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#070b14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b0c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>BloxyFlix Player</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@8.10.0/dist/video-js.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#070b14;--panel:#0d1525;--border:#1e2d4a;
-  --text:#cdd8f0;--muted:#5a7099;
-  --red:#1a7fff;--gold:#4db8ff;
+  --bg-primary:#0b0c0f;
+  --bg-secondary:#13141a;
+  --bg-card:#13141a;
+  --bg-hover:#1e1f28;
+  --text-primary:#d8d9e0;
+  --text-secondary:#6b6d7e;
+  --text-muted:#3a3b48;
+  --accent:#1a7fff;
+  --accent-hover:#0055cc;
+  --accent-glow:rgba(26,127,255,0.35);
+  --gold:#c9a84c;
+  --star:#c9a84c;
+  --border:#2a2b35;
+  --glass:rgba(240,240,240,0.04);
+  --glass-border:rgba(240,240,240,0.1);
+  --radius:10px;
+  --radius-lg:16px;
+  --radius-pill:99px;
+  --shadow:0 2px 16px rgba(0,0,0,0.7);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.85);
+  --shadow-accent:0 4px 20px rgba(26,127,255,0.4);
+  --gradient-accent:linear-gradient(135deg,#1a7fff 0%,#0a2a6e 100%);
+  --gradient-dark:linear-gradient(180deg,rgba(11,12,15,0) 0%,rgba(11,12,15,0.8) 60%,rgba(11,12,15,1) 100%);
   --font:'DM Sans',system-ui,sans-serif;
 }
-html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
+html,body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--font);min-height:100vh;}
 
 /* ── EMBEDDED MODE ── */
-body.embedded{background:#000!important}
+body.embedded{background:#000!important;overflow:hidden!important}
 body.embedded .pnav{display:none!important}
 body.embedded .player-info{display:none!important}
-body.embedded .player-wrap{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;background:#000!important}
-body.embedded #playerContainer,body.embedded #radioContainer,body.embedded #youtubeContainer{width:100%!important;height:100%!important}
+body.embedded .player-wrap{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;background:#000!important;display:flex!important;align-items:center!important;justify-content:center!important}
+body.embedded #playerContainer,body.embedded #radioContainer,body.embedded #youtubeContainer{width:100%!important;height:100%!important;display:block!important}
 body.embedded .video-js{width:100%!important;height:100%!important;aspect-ratio:unset!important}
-body.embedded .youtube-player{aspect-ratio:unset!important;height:100%!important}
+body.embedded .youtube-player{aspect-ratio:unset!important;width:100%!important;height:100%!important;position:relative!important}
+body.embedded .youtube-player iframe{position:absolute!important;top:0!important;left:0!important;width:100%!important;height:100%!important}
 body.embedded .radio-wrap{padding:0!important;height:100%!important;align-items:center!important}
 body.embedded .radio-card{max-width:100%!important;width:100%!important;height:100%!important;border-radius:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
-body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:none!important}
+body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:none!important;position:absolute!important;top:0!important;left:0!important}
 
 /* ── NAV ── */
 .pnav{
   position:sticky;top:0;z-index:100;
   display:flex;align-items:center;gap:1rem;
   padding:.75rem 1rem;
-  background:rgba(7,11,20,.95);
+  background:rgba(11,12,15,.95);
   border-bottom:1px solid var(--border);
   backdrop-filter:blur(12px);
 }
 .pnav-back{
   display:flex;align-items:center;gap:.5rem;
-  background:none;border:none;color:var(--muted);
+  background:none;border:none;color:var(--text-secondary);
   font-size:.88rem;font-weight:500;cursor:pointer;
-  padding:.4rem .6rem;border-radius:8px;transition:color .2s;
+  padding:.4rem .6rem;border-radius:var(--radius);transition:color .2s;
 }
-.pnav-back:hover{color:var(--text);}
+.pnav-back:hover{color:var(--text-primary);}
 .pnav-back svg{fill:currentColor;flex-shrink:0;}
 .pnav-logo{font-family:'DM Sans',sans-serif;font-weight:900;font-size:1.1rem;letter-spacing:-0.5px;color:#fff;}
-.pnav-logo span{color:var(--red);}
-.pnav-title{font-size:.85rem;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pnav-logo span{color:var(--accent);}
+.pnav-title{font-size:.85rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
 /* ── VIDEO PLAYER ── */
 .player-wrap{width:100%;background:#000;position:relative;}
-.player-wrap video{width:100%;display:block;}
-.vjs-big-play-button{border-color:var(--red)!important;}
-.vjs-big-play-button .vjs-icon-placeholder:before{color:var(--red)!important;}
+.player-wrap video{width:100%;height:100%;display:block;}
+.video-js .vjs-tech{width:100%!important;height:100%!important;}
+/* Fix player sizing issues */
+.video-js.vjs-fluid,
+.video-js.vjs-16-9,
+.video-js.vjs-4-3,
+.video-js.vjs-fill {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+}
+.vjs-video-canvas,
+.vjs-text-track-display,
+.vjs-poster {
+  width: 100% !important;
+  height: 100% !important;
+}
+.vjs-big-play-button{border-color:var(--accent)!important;background:rgba(26,127,255,0.2)!important;backdrop-filter:blur(4px);}
+.vjs-big-play-button .vjs-icon-placeholder:before{color:var(--accent)!important;}
 .video-js{width:100%!important;height:auto!important;aspect-ratio:16/9;}
 
 /* YouTube overlay inside Video.js */
 #yt-live-overlay{position:absolute;inset:0;z-index:5;}
 #yt-live-overlay iframe{width:100%;height:100%;border:none;}
 
-/* Google Drive Player */
-.gdrive-player{width:100%;aspect-ratio:16/9;background:#000;}
-.gdrive-player iframe{width:100%;height:100%;border:none;}
+/* YouTube iframe container */
+.youtube-player{width:100%;height:100%;aspect-ratio:16/9;background:#000;position:relative;}
+.youtube-player iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
 
 /* Radio */
 .radio-wrap{padding:2rem 1rem;display:flex;justify-content:center;}
 .radio-card{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:20px;padding:2rem;max-width:380px;width:100%;text-align:center;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:2rem;max-width:380px;width:100%;text-align:center;
 }
 .radio-visualizer-wrap{position:relative;width:140px;height:140px;margin:0 auto 1.5rem;}
 .radio-visualizer{position:absolute;inset:0;width:100%;height:100%;opacity:.5;}
 .radio-disc{
   position:absolute;inset:0;border-radius:50%;
-  background:linear-gradient(135deg,#071428,#0a1f3a);
+  background:var(--gradient-accent);
   border:2px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   animation:spin 6s linear infinite paused;
@@ -84,47 +124,43 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 @keyframes spin{to{transform:rotate(360deg);}}
 .radio-disc-inner{
   width:50px;height:50px;border-radius:50%;
-  background:linear-gradient(135deg,var(--red),#003d99);
+  background:var(--bg-primary);
   display:flex;align-items:center;justify-content:center;
 }
-.radio-disc-letter{color:#fff;font-weight:900;font-size:1.4rem;}
-.radio-station-name{font-weight:700;font-size:1.1rem;margin-bottom:.5rem;}
+.radio-disc-letter{color:var(--accent);font-weight:900;font-size:1.4rem;}
+.radio-station-name{font-weight:700;font-size:1.1rem;margin-bottom:.5rem;color:var(--text-primary);}
 .radio-live-badge{
   display:inline-flex;align-items:center;gap:.4rem;
   background:rgba(26,127,255,.15);border:1px solid rgba(26,127,255,.3);
-  color:var(--red);font-size:.72rem;font-weight:700;
-  padding:.25rem .75rem;border-radius:20px;margin-bottom:1.25rem;
+  color:var(--accent);font-size:.72rem;font-weight:700;
+  padding:.25rem .75rem;border-radius:var(--radius-pill);margin-bottom:1.25rem;
   text-transform:uppercase;letter-spacing:1px;
 }
-.radio-live-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.2s infinite;}
+.radio-live-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 .radio-btn-row{display:flex;align-items:center;gap:1rem;justify-content:center;}
 .radio-btn{
   width:52px;height:52px;border-radius:50%;
-  background:var(--red);border:none;color:#fff;
+  background:var(--gradient-accent);border:none;color:#fff;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:all .2s;box-shadow:0 4px 20px rgba(26,127,255,.4);
+  transition:all .2s;box-shadow:var(--shadow-accent);
 }
 .radio-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(26,127,255,.55);}
 .radio-btn svg{width:24px;height:24px;}
-.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:.6rem;color:var(--muted);}
+.radio-volume-wrap{flex:1;display:flex;align-items:center;gap:.6rem;color:var(--text-secondary);}
 .radio-volume{
   flex:1;-webkit-appearance:none;appearance:none;
   height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer;
 }
-.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--red);cursor:pointer;}
-
-/* YouTube iframe container */
-.youtube-player{width:100%;aspect-ratio:16/9;background:#000;}
-.youtube-player iframe{width:100%;height:100%;border:none;}
+.radio-volume::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;}
 
 /* ── INFO PANEL ── */
 .player-info{padding:1rem 1rem 2rem;max-width:860px;margin:0 auto;}
-.video-title{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:.3rem;margin-top:.75rem;}
-.video-kr{font-size:.9rem;color:var(--muted);margin-bottom:.75rem;}
+.video-title{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:.3rem;margin-top:.75rem;color:var(--text-primary);}
+.video-kr{font-size:.9rem;color:var(--text-secondary);margin-bottom:.75rem;}
 .video-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;
   margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
-.video-views{font-size:.82rem;color:var(--muted);}
+.video-views{font-size:.82rem;color:var(--text-secondary);}
 .rating-stars{display:flex;gap:2px;}
 .star{font-size:1.1rem;color:var(--border);cursor:pointer;transition:color .15s;}
 .star.active{color:var(--gold);}
@@ -134,27 +170,21 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 .action-btn{
   display:flex;align-items:center;gap:.4rem;
   padding:.55rem 1rem;
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:25px;color:var(--text);font-size:.82rem;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-pill);color:var(--text-primary);font-size:.82rem;
   cursor:pointer;transition:all .2s;font-weight:500;
 }
-.action-btn:hover{background:#0d1a30;transform:translateY(-1px);}
+.action-btn:hover{background:var(--bg-hover);transform:translateY(-1px);}
 .action-btn svg{width:18px;height:18px;fill:currentColor;}
-.action-btn.primary{background:linear-gradient(135deg,var(--red),#0055cc);border-color:transparent;}
-.action-btn.primary:hover{box-shadow:0 4px 14px rgba(26,127,255,.35);}
-.action-btn.active{color:var(--red);}
+.action-btn.primary{background:var(--gradient-accent);border-color:transparent;}
+.action-btn.primary:hover{box-shadow:var(--shadow-accent);}
+.action-btn.active{color:var(--accent);}
 
 /* Description */
-.desc-text{font-size:.87rem;color:var(--muted);line-height:1.7;
+.desc-text{font-size:.87rem;color:var(--text-secondary);line-height:1.7;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .desc-text.expanded{display:block;}
 .show-more{font-size:.82rem;color:var(--gold);cursor:pointer;margin-top:.35rem;font-weight:600;}
-
-/* Source link row */
-.source-link-row{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;flex-wrap:wrap;}
-.source-link-label{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;}
-.source-link-url{font-size:.78rem;color:var(--gold);text-decoration:none;word-break:break-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 5rem);display:block;}
-.source-link-url:hover{text-decoration:underline;color:#e0c06a;}
 
 /* Channel row */
 .channel-row{
@@ -164,30 +194,30 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 }
 .ch-avatar{
   width:38px;height:38px;border-radius:50%;
-  background:linear-gradient(135deg,var(--red),#003d99);
+  background:var(--gradient-accent);
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-weight:800;font-size:.9rem;flex-shrink:0;
 }
-.ch-name{font-size:.9rem;font-weight:600;}
-.ch-sub{font-size:.78rem;color:var(--muted);}
+.ch-name{font-size:.9rem;font-weight:600;color:var(--text-primary);}
+.ch-sub{font-size:.78rem;color:var(--text-secondary);}
 .subscribe-btn{
   margin-left:auto;padding:.45rem 1rem;
-  background:var(--text);border:none;color:#070b14;
-  font-weight:700;font-size:.82rem;border-radius:20px;cursor:pointer;transition:all .2s;
+  background:var(--text-primary);border:none;color:var(--bg-primary);
+  font-weight:700;font-size:.82rem;border-radius:var(--radius-pill);cursor:pointer;transition:all .2s;
 }
-.subscribe-btn.subscribed{background:var(--panel);color:var(--text);border:1px solid var(--border);}
+.subscribe-btn.subscribed{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);}
 
 /* Up Next */
 .up-next-header{
   display:flex;align-items:center;justify-content:space-between;
   margin-bottom:.75rem;margin-top:1.25rem;
 }
-.up-next-title{font-size:.95rem;font-weight:700;}
+.up-next-title{font-size:.95rem;font-weight:700;color:var(--text-primary);}
 .toggle-switch{
   width:38px;height:20px;background:var(--border);border-radius:10px;
   position:relative;cursor:pointer;transition:background .2s;
 }
-.toggle-switch.active{background:var(--red);}
+.toggle-switch.active{background:var(--accent);}
 .toggle-switch::after{
   content:'';position:absolute;top:2px;left:2px;
   width:16px;height:16px;background:#fff;border-radius:50%;
@@ -196,12 +226,12 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 .toggle-switch.active::after{transform:translateX(18px);}
 .up-next-item{
   display:flex;gap:.75rem;margin-bottom:.75rem;
-  cursor:pointer;border-radius:10px;padding:.5rem;transition:background .2s;
+  cursor:pointer;border-radius:var(--radius);padding:.5rem;transition:background .2s;
 }
-.up-next-item:hover{background:var(--panel);}
+.up-next-item:hover{background:var(--bg-card);}
 .up-next-thumb{
-  width:120px;height:68px;border-radius:8px;
-  background:#050d1a;flex-shrink:0;position:relative;overflow:hidden;
+  width:120px;height:68px;border-radius:var(--radius);
+  background:var(--bg-secondary);flex-shrink:0;position:relative;overflow:hidden;
 }
 .up-next-thumb img{width:100%;height:100%;object-fit:cover;}
 .up-next-dur{
@@ -210,46 +240,45 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
   padding:.1rem .3rem;border-radius:3px;font-family:'JetBrains Mono',monospace;
 }
 .up-next-info{flex:1;}
-.up-next-vtitle{font-size:.85rem;font-weight:600;line-height:1.3;
+.up-next-vtitle{font-size:.85rem;font-weight:600;line-height:1.3;color:var(--text-primary);
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.up-next-meta{font-size:.75rem;color:var(--muted);margin-top:.25rem;}
+.up-next-meta{font-size:.75rem;color:var(--text-secondary);margin-top:.25rem;}
 
 /* Comments */
 .comments-section{margin-top:1.5rem;}
-.comments-hdr{font-size:.95rem;font-weight:700;margin-bottom:1rem;}
+.comments-hdr{font-size:.95rem;font-weight:700;margin-bottom:1rem;color:var(--text-primary);}
 .comment-input-row{display:flex;gap:.6rem;align-items:center;margin-bottom:1rem;}
 .comment-avatar{
   width:32px;height:32px;border-radius:50%;flex-shrink:0;
-  background:var(--red);color:#fff;font-weight:700;font-size:.8rem;
+  background:var(--accent);color:#fff;font-weight:700;font-size:.8rem;
   display:flex;align-items:center;justify-content:center;
 }
 .comment-input-row input{
   flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);
-  color:var(--text);font-size:.87rem;padding:.5rem 0;outline:none;
+  color:var(--text-primary);font-size:.87rem;padding:.5rem 0;outline:none;
   font-family:var(--font);
 }
-.comment-input-row input::placeholder{color:var(--muted);}
+.comment-input-row input::placeholder{color:var(--text-secondary);}
 .comment-input-row button{
-  background:none;border:1px solid var(--border);color:var(--text);
-  padding:.4rem .9rem;border-radius:20px;font-size:.8rem;cursor:pointer;
+  background:none;border:1px solid var(--border);color:var(--text-primary);
+  padding:.4rem .9rem;border-radius:var(--radius-pill);font-size:.8rem;cursor:pointer;
   font-weight:600;transition:all .2s;
 }
-.comment-input-row button:hover{background:var(--red);border-color:var(--red);}
+.comment-input-row button:hover{background:var(--accent);border-color:var(--accent);}
 .comment-item{display:flex;gap:.65rem;margin-bottom:1rem;}
-.comment-body{}
-.comment-author{font-size:.82rem;font-weight:700;margin-right:.4rem;}
-.comment-time{font-size:.75rem;color:var(--muted);}
-.comment-txt{font-size:.85rem;line-height:1.55;margin:.3rem 0;}
-.comment-acts{display:flex;gap:.75rem;font-size:.75rem;color:var(--muted);}
+.comment-author{font-size:.82rem;font-weight:700;margin-right:.4rem;color:var(--text-primary);}
+.comment-time{font-size:.75rem;color:var(--text-secondary);}
+.comment-txt{font-size:.85rem;line-height:1.55;margin:.3rem 0;color:var(--text-primary);}
+.comment-acts{display:flex;gap:.75rem;font-size:.75rem;color:var(--text-secondary);}
 .comment-acts span{cursor:pointer;transition:color .15s;}
-.comment-acts span:hover{color:var(--text);}
-.no-comments{text-align:center;color:var(--muted);font-size:.85rem;padding:1.5rem 0;}
+.comment-acts span:hover{color:var(--text-primary);}
+.no-comments{text-align:center;color:var(--text-secondary);font-size:.85rem;padding:1.5rem 0;}
 
 /* Toast */
 .toast{
   position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
-  background:#0d1a30;border:1px solid var(--border);color:var(--text);
-  padding:.6rem 1.2rem;border-radius:25px;font-size:.85rem;
+  background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);
+  padding:.6rem 1.2rem;border-radius:var(--radius-pill);font-size:.85rem;
   opacity:0;transition:all .3s;pointer-events:none;z-index:9999;
   white-space:nowrap;
 }
@@ -258,11 +287,11 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 /* Loading */
 .player-loading{
   display:flex;align-items:center;justify-content:center;
-  min-height:60vh;flex-direction:column;gap:1rem;color:var(--muted);
+  min-height:60vh;flex-direction:column;gap:1rem;color:var(--text-secondary);
 }
 .player-loading-spinner{
   width:40px;height:40px;border:3px solid var(--border);
-  border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;
+  border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;
 }
 </style>
 </head>
@@ -312,10 +341,6 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
   <div id="youtubeContainer" class="youtube-player" style="display:none;">
     <iframe id="youtubeFrame" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
   </div>
-  <!-- Google Drive -->
-  <div id="gdriveContainer" class="gdrive-player" style="display:none;">
-    <iframe id="gdriveFrame" allow="autoplay;fullscreen;encrypted-media" allowfullscreen></iframe>
-  </div>
 </div>
 
 <!-- Info -->
@@ -345,9 +370,9 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
       <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
       Share
     </button>
-    <button class="action-btn" onclick="copySourceLink()">
-      <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
-      Source Link
+    <button class="action-btn" onclick="copyEmbedCode()">
+      <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+      Embed
     </button>
     <button class="action-btn primary" id="dlBtn" onclick="triggerDownload()" style="display:none;">
       <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
@@ -364,10 +389,6 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
   </div>
   <div id="pDesc" class="desc-text"></div>
   <div class="show-more" id="showMoreBtn" onclick="toggleDesc()">Show more</div>
-  <div class="source-link-row" id="sourceLinkRow" style="display:none;">
-    <span class="source-link-label">Source:</span>
-    <a class="source-link-url" id="sourceLinkUrl" href="#" target="_blank" rel="noopener noreferrer"></a>
-  </div>
 
   <!-- Up Next -->
   <div class="up-next-header">
@@ -402,75 +423,6 @@ let radioAudio = null, radioCtx = null, radioAnalyser = null, radioAnimFrame = n
 let autoplay = true;
 let isEmbedded = false;
 
-// ── URL Slug Utilities ──
-function createSlug(text) {
-  if (!text) return 'video';
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .substring(0, 60);
-}
-
-function updateURLWithVideoTitle(title) {
-  if (!title || isEmbedded) return;
-  const slug = createSlug(title);
-  const params = new URLSearchParams(window.location.search);
-  params.set('v', slug);
-  const newUrl = window.location.pathname + '?' + params.toString();
-  window.history.replaceState({ path: newUrl }, '', newUrl);
-}
-
-function getVideoTitleFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('v') || params.get('title') || null;
-}
-
-// ── Google Drive Utilities ──
-function isGoogleDriveUrl(url) {
-  if (!url) return false;
-  return url.includes('drive.google.com') || url.includes('docs.google.com');
-}
-
-function extractGoogleDriveFileId(url) {
-  if (!url) return null;
-  // Match patterns like:
-  // https://drive.google.com/file/d/FILE_ID/view
-  // https://drive.google.com/open?id=FILE_ID
-  // https://drive.google.com/uc?id=FILE_ID
-  // https://drive.google.com/drive/folders/FILE_ID  (folder, skip)
-  // https://docs.google.com/file/d/FILE_ID
-  // https://drive.google.com/file/d/FILE_ID/preview
-  const patterns = [
-    /\/file\/d\/([a-zA-Z0-9_-]+)/,
-    /[?&]id=([a-zA-Z0-9_-]+)/,
-    /\/uc\?.*id=([a-zA-Z0-9_-]+)/,
-    /\/open\?id=([a-zA-Z0-9_-]+)/,
-    /drive\.google\.com\/(?:file\/d\/|uc\?.*id=|open\?id=)([a-zA-Z0-9_-]+)/
-  ];
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match && match[1]) return match[1];
-  }
-  return null;
-}
-
-function getGoogleDriveDirectUrl(fileId) {
-  // Direct download URL (may require confirmation for large files)
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
-}
-
-function getGoogleDrivePreviewUrl(fileId) {
-  // Preview URL for iframe embedding
-  return `https://drive.google.com/file/d/${fileId}/preview`;
-}
-
-function getGoogleDriveStreamUrl(fileId) {
-  // Alternative streaming URL using the content proxy
-  return `https://drive.google.com/uc?export=download&id=${fileId}&confirm=t`;
-}
-
 // ── Detect Embedded Mode ──
 function detectEmbeddedMode() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -500,22 +452,6 @@ function getVideoFromURL() {
   // Support individual params
   const url = params.get('url');
   const embed = params.get('embedcode');
-  const gdrive = params.get('gdrive');
-  
-  // Google Drive file ID
-  if (gdrive) {
-    const fileId = gdrive;
-    return {
-      u: getGoogleDriveStreamUrl(fileId),
-      t: params.get('title') || 'Google Drive Video',
-      tk: params.get('title') || '',
-      ty: params.get('type') || 'Video',
-      isGoogleDrive: true,
-      gdriveFileId: fileId,
-      isPinned: params.get('live') === '1',
-      duration: params.get('live') === '1' ? 'LIVE' : ''
-    };
-  }
   
   if (embed) {
     // Raw HTML embed code passed as parameter
@@ -532,24 +468,6 @@ function getVideoFromURL() {
   
   if (url) {
     const decodedUrl = decodeURIComponent(url);
-    
-    // Check if it's a Google Drive URL
-    if (isGoogleDriveUrl(decodedUrl)) {
-      const fileId = extractGoogleDriveFileId(decodedUrl);
-      if (fileId) {
-        return {
-          u: getGoogleDriveStreamUrl(fileId),
-          t: params.get('title') || 'Google Drive Video',
-          tk: params.get('title') || '',
-          ty: params.get('type') || 'Video',
-          isGoogleDrive: true,
-          gdriveFileId: fileId,
-          isPinned: params.get('live') === '1',
-          duration: params.get('live') === '1' ? 'LIVE' : ''
-        };
-      }
-    }
-    
     const isExternal = params.get('external') === '1' || decodedUrl.includes('koryo.tv') || decodedUrl.includes('/channel/');
     const isEmbedCode = decodedUrl.startsWith('<');
     return {
@@ -610,15 +528,17 @@ window.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Update URL with video title slug
-  updateURLWithVideoTitle(curVid.t);
-
   // Init Video.js
   try {
     bfPlayer = videojs('bfplayer', {
-      controls: true, autoplay: false, preload: 'auto', fluid: true, aspectRatio: '16:9',
+      controls: true, autoplay: false, preload: 'auto', fluid: true,
       playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
       html5: { vhs: { overrideNative: true }, nativeVideoTracks: false, nativeAudioTracks: false }
+    });
+    // Ensure player fills container
+    bfPlayer.ready(function() {
+      this.el().style.width = '100%';
+      this.el().style.height = 'auto';
     });
     bfPlayer.on('ended', () => { if (autoplay) playNext(); });
   } catch(e) { console.warn('Video.js init failed', e); }
@@ -633,45 +553,28 @@ function playCurrentVideo() {
   const pc = document.getElementById('playerContainer');
   const rc = document.getElementById('radioContainer');
   const yc = document.getElementById('youtubeContainer');
-  const gdc = document.getElementById('gdriveContainer');
   const yf = document.getElementById('youtubeFrame');
-  const gdf = document.getElementById('gdriveFrame');
   const isRadio = v.ty === 'Radio';
   const isYTLive = v.isYouTube && v.isPinned && v.duration === 'LIVE';
   const isExternalIframe = v.isExternal || (v.u && (v.u.includes('koryo.tv') || v.u.includes('/channel/')));
   const isEmbedCode = v.isEmbed || (v.u && v.u.startsWith('<'));
-  // ── Resolve Google Drive file ID from all possible formats ──
-  // Handles: full URL, bare file ID, isGoogleDrive flag, gdriveFileId already set
-  function resolveGdriveId() {
-    if (v.gdriveFileId) return v.gdriveFileId;
-    if (isGoogleDriveUrl(v.u)) return extractGoogleDriveFileId(v.u);
-    // Bare file ID: alphanumeric+_- string 25-45 chars, no spaces, not a URL
-    if (v.isGoogleDrive && v.u && !v.u.startsWith('http') && !v.u.startsWith('<') && /^[a-zA-Z0-9_-]{20,60}$/.test(v.u.trim())) return v.u.trim();
-    return null;
-  }
-  const gdriveId = resolveGdriveId();
-  const isGoogleDrive = v.isGoogleDrive || isGoogleDriveUrl(v.u) || !!gdriveId;
-
-  // Store resolved ID back onto curVid for source link etc.
-  if (gdriveId && !v.gdriveFileId) { v.gdriveFileId = gdriveId; v.isGoogleDrive = true; }
 
   stopRadio();
 
-  // Hide all containers first
-  pc.style.display = 'none';
-  rc.style.display = 'none';
-  yc.style.display = 'none';
-  gdc.style.display = 'none';
-  yf.src = '';
-  gdf.src = '';
-
   if (isEmbedCode) {
     // Raw HTML embed code (from admin panel)
-    yc.style.display = 'block';
+    pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
+    // Write embed HTML to iframe using srcdoc
     const embedHtml = `<!DOCTYPE html>
 <html>
 <head>
-<style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;background:#000;overflow:hidden;}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;}
+body{display:flex;align-items:center;justify-content:center;}
+video,iframe,embed,object{max-width:100%;max-height:100%;width:100%;height:100%;}
+</style>
 </head>
 <body>${v.u}</body>
 </html>`;
@@ -680,26 +583,12 @@ function playCurrentVideo() {
     if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
   } else if (isExternalIframe) {
     // External iframe source (like koryo.tv)
-    yc.style.display = 'block';
+    pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
     yf.src = v.u;
     const ytOv = document.getElementById('yt-live-overlay');
     if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-  } else if (isGoogleDrive && gdriveId) {
-    // Google Drive video — always use the preview iframe, never Video.js
-    gdc.style.display = 'block';
-    gdf.src = getGoogleDrivePreviewUrl(gdriveId);
-    const ytOv = document.getElementById('yt-live-overlay');
-    if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
-    // Refresh source link row
-    const srcRow = document.getElementById('sourceLinkRow');
-    const srcUrl = document.getElementById('sourceLinkUrl');
-    if (srcRow && srcUrl) {
-      srcUrl.href = `https://drive.google.com/file/d/${gdriveId}/view`;
-      srcUrl.textContent = 'Google Drive';
-      srcRow.style.display = 'flex';
-    }
   } else if (isYTLive) {
-    pc.style.display = 'block';
+    pc.style.display = 'block'; rc.style.display = 'none'; yc.style.display = 'none'; yf.src = '';
     const ytSrc = `https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1&controls=0`;
     let ytOv = document.getElementById('yt-live-overlay');
     if (!ytOv) {
@@ -711,17 +600,17 @@ function playCurrentVideo() {
     ytOv.style.display = 'block';
     try { bfPlayer.pause(); bfPlayer.src(''); } catch(e) {}
   } else if (v.isYouTube) {
-    yc.style.display = 'block';
+    pc.style.display = 'none'; rc.style.display = 'none'; yc.style.display = 'block';
     yf.src = `https://www.youtube.com/embed/${v.u}?autoplay=1&rel=0&modestbranding=1`;
     const ytOv = document.getElementById('yt-live-overlay');
     if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
   } else if (isRadio) {
-    rc.style.display = 'flex';
+    pc.style.display = 'none'; rc.style.display = 'flex'; yc.style.display = 'none'; yf.src = '';
     document.getElementById('radioStationName').textContent = v.t;
     document.getElementById('radioDiscLetter').textContent = (v.tk || v.t).charAt(0).toUpperCase();
     startRadio(v.u);
   } else {
-    pc.style.display = 'block';
+    pc.style.display = 'block'; rc.style.display = 'none'; yc.style.display = 'none'; yf.src = '';
     const ytOv = document.getElementById('yt-live-overlay');
     if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
     const isHLS = v.isM3U8 || (v.u && v.u.endsWith('.m3u8'));
@@ -745,39 +634,7 @@ function renderInfo() {
   document.getElementById('pViews').textContent = (v.views || 0) + ' views • ' + (v.y || '');
   document.getElementById('pDesc').textContent = v.d || '';
   document.getElementById('playerInfo').style.display = 'block';
-  
-  // Show download button only for non-YouTube, non-Google Drive videos
-  const _isGdrive = v.isGoogleDrive || isGoogleDriveUrl(v.u) || (v.u && !v.u.startsWith('http') && /^[a-zA-Z0-9_-]{20,60}$/.test(v.u.trim()) && v.isGoogleDrive);
-  const canDownload = !v.isYouTube && !v.isM3U8 && !_isGdrive;
-  document.getElementById('dlBtn').style.display = canDownload ? 'flex' : 'none';
-
-  // Show source link row
-  const srcRow = document.getElementById('sourceLinkRow');
-  const srcUrl = document.getElementById('sourceLinkUrl');
-  let sourceHref = '';
-  let sourceDisplay = '';
-  // Resolve gdrive ID: already set, or extract from URL, or bare ID string
-  const _gdriveId = v.gdriveFileId
-    || (isGoogleDriveUrl(v.u) ? extractGoogleDriveFileId(v.u) : null)
-    || (v.isGoogleDrive && v.u && !v.u.startsWith('http') && !v.u.startsWith('<') && /^[a-zA-Z0-9_-]{20,60}$/.test(v.u.trim()) ? v.u.trim() : null);
-  if (_gdriveId) {
-    sourceHref = `https://drive.google.com/file/d/${_gdriveId}/view`;
-    sourceDisplay = 'Google Drive';
-  } else if (v.isYouTube) {
-    sourceHref = `https://www.youtube.com/watch?v=${v.u}`;
-    sourceDisplay = 'YouTube';
-  } else if (v.u && !v.u.startsWith('<')) {
-    sourceHref = v.u;
-    try { sourceDisplay = new URL(v.u).hostname.replace(/^www\./,''); } catch(e) { sourceDisplay = v.u.substring(0, 40) + (v.u.length > 40 ? '…' : ''); }
-  }
-  if (sourceHref) {
-    srcUrl.href = sourceHref;
-    srcUrl.textContent = sourceDisplay || sourceHref;
-    srcRow.style.display = 'flex';
-  } else {
-    srcRow.style.display = 'none';
-  }
-  
+  document.getElementById('dlBtn').style.display = (!v.isYouTube && !v.isM3U8) ? 'flex' : 'none';
   updateRatingStars(v.userRating || 0);
   
   // Only show up next and comments if we have sessionStorage data
@@ -800,8 +657,7 @@ function renderInfo() {
 function getThumb(v) {
   if (v.thumb) return v.thumb;
   if (v.isYouTube && v.u && !v.u.startsWith('http')) return `https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;
-  if (v.isGoogleDrive && v.gdriveFileId) return `https://drive.google.com/thumbnail?id=${v.gdriveFileId}&sz=w320`;
-  return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%230d1525'/><text x='160' y='95' font-family='Arial' font-size='12' fill='%235a7099' text-anchor='middle'>BloxyFlix</text></svg>`;
+  return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%2313141a'/><text x='160' y='95' font-family='Arial' font-size='12' fill='%236b6d7e' text-anchor='middle'>BloxyFlix</text></svg>`;
 }
 
 // ── Up Next ──
@@ -834,10 +690,6 @@ function loadVideo(idx) {
   curIdx = idx;
   sessionStorage.setItem('bf-player-vid', JSON.stringify(v));
   sessionStorage.setItem('bf-player-idx', idx);
-  
-  // Update URL with new video title
-  updateURLWithVideoTitle(v.t);
-  
   window.scrollTo(0, 0);
   playCurrentVideo();
   renderInfo();
@@ -906,7 +758,7 @@ function initVisualizer() {
       buf.forEach((v, i) => {
         const h = (v / 255) * canvas.height * .8;
         const g = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - h);
-        g.addColorStop(0,'rgba(26,127,255,.8)'); g.addColorStop(1,'rgba(77,184,255,.4)');
+        g.addColorStop(0,'rgba(232,38,58,.8)'); g.addColorStop(1,'rgba(201,168,76,.4)');
         ctx.fillStyle = g;
         ctx.fillRect(i * barW, canvas.height - h, barW - 1, h);
       });
@@ -919,9 +771,7 @@ function initVisualizer() {
 function stopAll() {
   stopRadio();
   const yf = document.getElementById('youtubeFrame');
-  const gdf = document.getElementById('gdriveFrame');
   if (yf) yf.src = '';
-  if (gdf) gdf.src = '';
   const ytOv = document.getElementById('yt-live-overlay');
   if (ytOv) { ytOv.innerHTML = ''; ytOv.style.display = 'none'; }
   if (bfPlayer) { try { bfPlayer.pause(); bfPlayer.src(''); } catch(e) {} }
@@ -931,6 +781,7 @@ function stopAll() {
 function goBack() {
   stopAll();
   if (isEmbedded) {
+    // In embedded mode, just pause and show a message
     showToast('Player paused');
   } else {
     window.location.href = 'index.html';
@@ -961,15 +812,15 @@ function shareVideo() {
 }
 function getEmbedCode() {
   if (!curVid) return '';
+  // Build embed URL with video data
   const baseUrl = window.location.origin + window.location.pathname;
   const params = new URLSearchParams();
   params.set('embed', '1');
   params.set('title', curVid.t || 'Video');
   params.set('type', curVid.ty || 'Video');
   
-  if (curVid.isGoogleDrive && curVid.gdriveFileId) {
-    params.set('gdrive', curVid.gdriveFileId);
-  } else if (curVid.isEmbed || (curVid.u && curVid.u.startsWith('<'))) {
+  // For embed code videos, use the embedcode param
+  if (curVid.isEmbed || (curVid.u && curVid.u.startsWith('<'))) {
     params.set('embedcode', encodeURIComponent(curVid.u));
   } else {
     params.set('url', encodeURIComponent(curVid.u || ''));
@@ -984,18 +835,9 @@ function getEmbedCode() {
   
   return `<iframe src="${playerUrl}" style="width:100%;height:100%;border:none;background:#000;" scrolling="no" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
 }
-function copySourceLink() {
-  if (!curVid) return;
-  let link = '';
-  if (curVid.isGoogleDrive && curVid.gdriveFileId) {
-    link = `https://drive.google.com/file/d/${curVid.gdriveFileId}/view`;
-  } else if (curVid.isYouTube) {
-    link = `https://www.youtube.com/watch?v=${curVid.u}`;
-  } else {
-    link = curVid.u || '';
-  }
-  if (!link) { showToast('No source link available'); return; }
-  navigator.clipboard.writeText(link).then(() => showToast('Source link copied!'));
+function copyEmbedCode() {
+  const code = getEmbedCode();
+  navigator.clipboard.writeText(code).then(() => showToast('Embed code copied!'));
 }
 function triggerDownload() {
   if (!curVid?.u) return;
@@ -1039,7 +881,7 @@ function saveProgress(idx, pct) {
   localStorage.setItem('bloxyflix-progress', JSON.stringify(p));
 }
 function addToHistory() {
-  if (curIdx < 0) return;
+  if (curIdx < 0) return; // Skip for embedded mode
   let h = JSON.parse(localStorage.getItem('bloxyflix-history') || '[]');
   h = h.filter(i => i !== curIdx);
   h.unshift(curIdx);
@@ -1096,7 +938,7 @@ function renderComments(id) {
         <span class="comment-author">${sc(c.name)}</span><span class="comment-time">${formatAgo(c.time)}</span>
         <div class="comment-txt">${sc(c.text)}</div>
         <div class="comment-acts">
-          <span onclick="likeComment(${c.id})" style="${c.liked?'color:var(--red)':''}">♥ ${c.likes||'Like'}</span>
+          <span onclick="likeComment(${c.id})" style="${c.liked?'color:var(--accent)':''}">♥ ${c.likes||'Like'}</span>
           <span onclick="document.getElementById('commentInput').value='@${sc(c.name)} ';document.getElementById('commentInput').focus()">Reply</span>
           ${c.name===uname?`<span onclick="deleteComment(${c.id})">Delete</span>`:''}
         </div>
