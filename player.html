@@ -290,48 +290,31 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 .no-comments{text-align:center;color:var(--text-secondary);font-size:.875rem;padding:2rem 0;}
 
 /* Share Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.2s ease;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-overlay.active{display:flex;}
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-.modal-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp 0.3s ease;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
-.modal-title{font-size:1.25rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;}
-.modal-title::before{content:'🔗';font-size:1rem;}
-.modal-close{background:var(--bg-hover);border:none;color:var(--text-secondary);cursor:pointer;padding:.5rem;border-radius:var(--radius);transition:all .2s;display:flex;align-items:center;justify-content:center;}
-.modal-close:hover{color:var(--text-primary);background:var(--border);transform:rotate(90deg);}
-.share-section-title{font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.5px;}
-.share-options{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1.5rem;}
-.share-option{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:0.875rem 0.5rem;border-radius:var(--radius-lg);cursor:pointer;transition:all .2s;border:1px solid transparent;background:var(--bg-primary);}
-.share-option:hover{background:var(--bg-hover);border-color:var(--border);transform:translateY(-3px);box-shadow:0 8px 16px rgba(0,0,0,0.3);}
-.share-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;transition:transform 0.2s;}
-.share-option:hover .share-icon{transform:scale(1.1);}
-.share-icon.copy{background:linear-gradient(135deg,#6b7280,#4b5563);color:#fff;}
-.share-icon.twitter{background:linear-gradient(135deg,#1da1f2,#0d8bd9);color:#fff;}
-.share-icon.facebook{background:linear-gradient(135deg,#4267b2,#365899);color:#fff;}
-.share-icon.whatsapp{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;}
-.share-icon.telegram{background:linear-gradient(135deg,#0088cc,#006699);color:#fff;}
-.share-icon.reddit{background:linear-gradient(135deg,#ff4500,#cc3700);color:#fff;}
-.share-icon.linkedin{background:linear-gradient(135deg,#0077b5,#005885);color:#fff;}
-.share-icon.email{background:linear-gradient(135deg,#ea4335,#c53929);color:#fff;}
-.share-icon.qq{background:linear-gradient(135deg,#12b7f5,#0a8fc4);color:#fff;}
-.share-icon.wechat{background:linear-gradient(135deg,#07c160,#059a4c);color:#fff;}
-.share-icon.weibo{background:linear-gradient(135deg,#e6162d,#b91224);color:#fff;}
-.share-icon.bilibili{background:linear-gradient(135deg,#fb7299,#e65a85);color:#fff;}
-.share-icon.douyin{background:linear-gradient(135deg,#000000,#333333);color:#fff;}
-.share-label{font-size:.6875rem;color:var(--text-secondary);font-weight:500;}
-.share-link-section{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);}
-.share-link-box{background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius);padding:.5rem;display:flex;gap:.5rem;align-items:center;}
-.share-link-box input{flex:1;background:none;border:none;color:var(--text-primary);font-size:.875rem;outline:none;padding:0.5rem;}
-.share-link-box button{padding:.625rem 1.25rem;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-size:.8125rem;font-weight:600;cursor:pointer;transition:all .2s;}
-.share-link-box button:hover{background:var(--accent-hover);transform:scale(1.02);}
-.wechat-qr-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:2000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;}
-.wechat-qr-modal.active{display:flex;}
-.wechat-qr-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;text-align:center;max-width:320px;}
-.wechat-qr-title{font-size:1.125rem;font-weight:600;color:var(--text-primary);margin-bottom:1rem;}
-.wechat-qr-code{width:200px;height:200px;background:#fff;border-radius:var(--radius);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#333;}
-.wechat-qr-hint{font-size:0.875rem;color:var(--text-secondary);margin-bottom:1rem;}
-.wechat-qr-close{padding:0.625rem 1.5rem;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-weight:600;cursor:pointer;}
+.modal-content{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.modal-title{font-size:1.125rem;font-weight:600;color:var(--text-primary);}
+.modal-close{background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:.25rem;border-radius:var(--radius);transition:color .2s;}
+.modal-close:hover{color:var(--text-primary);}
+.share-options{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+.share-option{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1rem .5rem;border-radius:var(--radius);cursor:pointer;transition:all .2s;border:1px solid transparent;}
+.share-option:hover{background:var(--bg-hover);border-color:var(--border);}
+.share-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.share-icon.copy{background:var(--bg-hover);}
+.share-icon.twitter{background:#1da1f2;}
+.share-icon.facebook{background:#4267b2;}
+.share-icon.email{background:var(--success);}
+.share-label{font-size:.75rem;color:var(--text-secondary);}
+.share-link-box{background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;display:flex;gap:.5rem;}
+.share-link-box input{flex:1;background:none;border:none;color:var(--text-primary);font-size:.875rem;outline:none;}
+.share-link-box button{padding:.5rem 1rem;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-size:.8125rem;font-weight:500;cursor:pointer;transition:background .2s;}
+.share-link-box button:hover{background:var(--accent-hover);}
+.embed-section{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+.embed-title{font-size:.875rem;font-weight:600;color:var(--text-primary);margin-bottom:.75rem;}
+.embed-code{background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;font-family:monospace;font-size:.75rem;color:var(--text-secondary);overflow-x:auto;white-space:pre-wrap;word-break:break-all;margin-bottom:.75rem;max-height:100px;overflow-y:auto;}
+.embed-copy-btn{width:100%;padding:.625rem;background:var(--bg-hover);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s;}
+.embed-copy-btn:hover{background:var(--border);}
 
 /* Toast */
 .toast{
@@ -490,13 +473,11 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
 <div class="modal-overlay" id="shareModal" onclick="closeShareModal(event)">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="modal-header">
-      <span class="modal-title">Share Video</span>
+      <span class="modal-title">Share</span>
       <button class="modal-close" onclick="closeShareModal()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
     </div>
-    
-    <div class="share-section-title">International</div>
     <div class="share-options">
       <div class="share-option" onclick="shareTo('copy')">
         <div class="share-icon copy">📋</div>
@@ -510,71 +491,20 @@ body.embedded #youtubeFrame{width:100%!important;height:100%!important;border:no
         <div class="share-icon facebook">f</div>
         <span class="share-label">Facebook</span>
       </div>
-      <div class="share-option" onclick="shareTo('whatsapp')">
-        <div class="share-icon whatsapp">📱</div>
-        <span class="share-label">WhatsApp</span>
-      </div>
-      <div class="share-option" onclick="shareTo('telegram')">
-        <div class="share-icon telegram">✈️</div>
-        <span class="share-label">Telegram</span>
-      </div>
-      <div class="share-option" onclick="shareTo('reddit')">
-        <div class="share-icon reddit">🔴</div>
-        <span class="share-label">Reddit</span>
-      </div>
-      <div class="share-option" onclick="shareTo('linkedin')">
-        <div class="share-icon linkedin">in</div>
-        <span class="share-label">LinkedIn</span>
-      </div>
       <div class="share-option" onclick="shareTo('email')">
         <div class="share-icon email">✉</div>
         <span class="share-label">Email</span>
       </div>
     </div>
-    
-    <div class="share-section-title">Chinese Platforms</div>
-    <div class="share-options">
-      <div class="share-option" onclick="shareTo('wechat')">
-        <div class="share-icon wechat">💬</div>
-        <span class="share-label">WeChat</span>
-      </div>
-      <div class="share-option" onclick="shareTo('qq')">
-        <div class="share-icon qq">🐧</div>
-        <span class="share-label">QQ</span>
-      </div>
-      <div class="share-option" onclick="shareTo('weibo')">
-        <div class="share-icon weibo">🌊</div>
-        <span class="share-label">Weibo</span>
-      </div>
-      <div class="share-option" onclick="shareTo('bilibili')">
-        <div class="share-icon bilibili">📺</div>
-        <span class="share-label">Bilibili</span>
-      </div>
-      <div class="share-option" onclick="shareTo('douyin')">
-        <div class="share-icon douyin">🎵</div>
-        <span class="share-label">Douyin</span>
-      </div>
+    <div class="share-link-box">
+      <input type="text" id="shareLinkInput" readonly>
+      <button onclick="copyShareLink()">Copy</button>
     </div>
-    
-    <div class="share-link-section">
-      <div class="share-section-title">Video Link</div>
-      <div class="share-link-box">
-        <input type="text" id="shareLinkInput" readonly>
-        <button onclick="copyShareLink()">Copy Link</button>
-      </div>
+    <div class="embed-section">
+      <div class="embed-title">Embed Code</div>
+      <div class="embed-code" id="embedCode"></div>
+      <button class="embed-copy-btn" onclick="copyEmbedCode()">Copy Embed Code</button>
     </div>
-  </div>
-</div>
-
-<!-- WeChat QR Modal -->
-<div class="wechat-qr-modal" id="wechatQRModal" onclick="closeWeChatQR()">
-  <div class="wechat-qr-box" onclick="event.stopPropagation()">
-    <div class="wechat-qr-title">Share to WeChat</div>
-    <div class="wechat-qr-code" id="wechatQRCode">
-      <canvas id="qrCanvas" width="180" height="180"></canvas>
-    </div>
-    <div class="wechat-qr-hint">Scan with WeChat to share</div>
-    <button class="wechat-qr-close" onclick="closeWeChatQR()">Close</button>
   </div>
 </div>
 
@@ -654,33 +584,19 @@ function getVideoFromURL() {
 
 // ── Generate URL Slug ──
 function generateSlug(text) {
-  if (!text) return '';
   return text.toLowerCase()
-    .replace(/[^\w\s\u4e00-\u9fa5-]/g, '') // Keep Chinese characters
+    .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
-    .substring(0, 80);
+    .substring(0, 60);
 }
 
 // ── Update URL with Video Name ──
 function updateURLWithVideoName() {
   if (!curVid || !curVid.t) return;
   const slug = generateSlug(curVid.t);
-  const params = new URLSearchParams(window.location.search);
-  params.set('video', slug);
-  if (curVid.id || curVid.u) {
-    params.set('id', curVid.id || btoa(curVid.u).substring(0, 20));
-  }
-  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  const newUrl = `${window.location.pathname}?v=${slug}${window.location.search.replace(/^\?/, '&')}`;
   window.history.replaceState({ video: curVid }, curVid.t, newUrl);
-}
-
-// ── Get video from URL on page load ──
-function getVideoFromURLParams() {
-  const params = new URLSearchParams(window.location.search);
-  const videoSlug = params.get('video');
-  const videoId = params.get('id');
-  return { videoSlug, videoId };
 }
 
 // ── Init ──
@@ -1010,6 +926,7 @@ function isInWatchlist(idx) {
 function openShareModal() {
   document.getElementById('shareModal').classList.add('active');
   document.getElementById('shareLinkInput').value = window.location.href;
+  document.getElementById('embedCode').textContent = getEmbedCode();
 }
 
 function closeShareModal(e) {
@@ -1021,46 +938,16 @@ function closeShareModal(e) {
 function shareTo(platform) {
   const url = encodeURIComponent(window.location.href);
   const title = encodeURIComponent(curVid?.t || 'MediaCMS Video');
-  const desc = encodeURIComponent(curVid?.d?.substring(0, 100) || 'Watch this video on MediaCMS');
   
   switch(platform) {
     case 'twitter':
-      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
+      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank');
       break;
     case 'facebook':
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`, '_blank', 'width=600,height=400');
-      break;
-    case 'whatsapp':
-      window.open(`https://wa.me/?text=${title}%20-%20${url}`, '_blank');
-      break;
-    case 'telegram':
-      window.open(`https://t.me/share/url?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
-      break;
-    case 'reddit':
-      window.open(`https://www.reddit.com/submit?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
-      break;
-    case 'linkedin':
-      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
       break;
     case 'email':
-      window.location.href = `mailto:?subject=${title}&body=${desc}%0A%0A${url}`;
-      break;
-    case 'wechat':
-      showWeChatQR();
-      break;
-    case 'qq':
-      window.open(`http://connect.qq.com/widget/shareqq/index.html?url=${url}&title=${title}&summary=${desc}&source=MediaCMS`, '_blank', 'width=700,height=500');
-      break;
-    case 'weibo':
-      window.open(`https://service.weibo.com/share/share.php?url=${url}&title=${title}&pic=${encodeURIComponent(getThumb(curVid))}`, '_blank', 'width=700,height=500');
-      break;
-    case 'bilibili':
-      copyShareLink();
-      showToast('Link copied! Share to Bilibili dynamic or comments');
-      break;
-    case 'douyin':
-      copyShareLink();
-      showToast('Link copied! Share to Douyin or paste in app');
+      window.location.href = `mailto:?subject=${title}&body=${url}`;
       break;
     case 'copy':
       copyShareLink();
@@ -1069,73 +956,36 @@ function shareTo(platform) {
 }
 
 function copyShareLink() {
-  navigator.clipboard.writeText(window.location.href).then(() => showToast('Link copied to clipboard!'));
+  navigator.clipboard.writeText(window.location.href).then(() => showToast('Link copied!'));
 }
 
-// ── WeChat QR Code ──
-function showWeChatQR() {
-  const modal = document.getElementById('wechatQRModal');
-  modal.classList.add('active');
-  generateQRCode(window.location.href);
+function getEmbedCode() {
+  if (!curVid) return '';
+  const baseUrl = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams();
+  params.set('embed', '1');
+  params.set('title', curVid.t || 'Video');
+  params.set('type', curVid.ty || 'Video');
+  
+  if (curVid.isEmbed || (curVid.u && curVid.u.startsWith('<'))) {
+    params.set('embedcode', encodeURIComponent(curVid.u));
+  } else {
+    params.set('url', encodeURIComponent(curVid.u || ''));
+  }
+  
+  if (curVid.isYouTube) params.set('youtube', '1');
+  if (curVid.isM3U8) params.set('m3u8', '1');
+  if (curVid.isExternal || curVid.u?.includes('koryo.tv')) params.set('external', '1');
+  if (curVid.isPinned || curVid.duration === 'LIVE') params.set('live', '1');
+  
+  const playerUrl = baseUrl + '?' + params.toString();
+  
+  return `<iframe src="${playerUrl}" style="width:100%;height:100%;border:none;background:#000;" scrolling="no" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
 }
 
-function closeWeChatQR() {
-  document.getElementById('wechatQRModal').classList.remove('active');
-}
-
-function generateQRCode(text) {
-  const canvas = document.getElementById('qrCanvas');
-  const ctx = canvas.getContext('2d');
-  const size = 180;
-  const cells = 25;
-  const cellSize = size / cells;
-  
-  // Clear canvas
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, size, size);
-  
-  // Generate a simple QR-like pattern
-  ctx.fillStyle = '#000';
-  
-  // Position detection patterns (corners)
-  const drawPositionPattern = (x, y) => {
-    // Outer square
-    for(let i=0; i<7; i++) {
-      for(let j=0; j<7; j++) {
-        if(i===0 || i===6 || j===0 || j===6 || (i>=2 && i<=4 && j>=2 && j<=4)) {
-          ctx.fillRect((x+i)*cellSize, (y+j)*cellSize, cellSize, cellSize);
-        }
-      }
-    }
-  };
-  
-  drawPositionPattern(2, 2);
-  drawPositionPattern(2, cells-9);
-  drawPositionPattern(cells-9, 2);
-  
-  // Generate pseudo-random data pattern based on URL
-  let hash = 0;
-  for(let i=0; i<text.length; i++) {
-    hash = ((hash << 5) - hash) + text.charCodeAt(i);
-    hash = hash & hash;
-  }
-  
-  const seed = Math.abs(hash);
-  for(let i=8; i<cells-8; i++) {
-    for(let j=8; j<cells-8; j++) {
-      if(((seed * (i*cells+j)) % 100) < 50) {
-        ctx.fillRect(i*cellSize, j*cellSize, cellSize, cellSize);
-      }
-    }
-  }
-  
-  // Add timing patterns
-  for(let i=8; i<cells-8; i++) {
-    if(i % 2 === 0) {
-      ctx.fillRect(i*cellSize, 6*cellSize, cellSize, cellSize);
-      ctx.fillRect(6*cellSize, i*cellSize, cellSize, cellSize);
-    }
-  }
+function copyEmbedCode() {
+  const code = getEmbedCode();
+  navigator.clipboard.writeText(code).then(() => showToast('Embed code copied!'));
 }
 
 function triggerDownload() {
