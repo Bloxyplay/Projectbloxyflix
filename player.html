@@ -921,23 +921,47 @@ document.addEventListener('keydown',e=>{
 // ── RADIO ─────────────────────────────────────────────────
 let radioSignalAnim=null;
 function startRadio(url){
-  radioAudio=new Audio();radioAudio.crossOrigin='anonymous';radioAudio.src=url;
-  radioAudio.volume=parseFloat(document.getElementById('radioVol').value);
-  radioAudio.play().then(()=>{
-    radioPlaying=true;
-    document.getElementById('radioIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-    document.getElementById('radioDisc').classList.add('on');
-    setRipples(true);initVis();animSig();
-    const t=curVid?.t||'Live Stream';
-    const el=document.getElementById('radioTickerTxt');
-    if(el){el.textContent=`🎙 Now playing: ${t} · BloxyFlix Radio · 24/7 Live`;
-    el.nextElementSibling&&(el.nextElementSibling.textContent=el.textContent);}
-  }).catch(()=>{radioPlaying=false;});
+  function doPlay(withCors){
+    radioAudio=new Audio();
+    if(withCors)radioAudio.crossOrigin='anonymous';
+    radioAudio.src=url;
+    radioAudio.volume=parseFloat(document.getElementById('radioVol').value);
+    radioAudio.play().then(()=>{
+      radioPlaying=true;
+      document.getElementById('radioIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+      document.getElementById('radioDisc').classList.add('on');
+      setRipples(true);initVis();animSig();
+      const t=curVid?.t||'Live Stream';
+      const el=document.getElementById('radioTickerTxt');
+      if(el){el.textContent=`\uD83C\uDF99 Now playing: ${t} \u00B7 BloxyFlix Radio \u00B7 24/7 Live`;
+      el.nextElementSibling&&(el.nextElementSibling.textContent=el.textContent);}
+    }).catch(err=>{
+      radioPlaying=false;
+      const name=err&&err.name?err.name:'';
+      const msg=String(err||'');
+      // CORS failure: retry without crossOrigin so audio still plays (no visualiser but sound works)
+      if(withCors&&(name==='NotSupportedError'||msg.includes('CORS')||msg.includes('cross-origin'))){
+        doPlay(false);return;
+      }
+      // Autoplay blocked by browser policy — show tap-to-start hint
+      radioSetAwaitingTap();
+      if(name!=='NotAllowedError')console.warn('Radio play error:',err);
+    });
+  }
+  doPlay(true);
+}
+function radioSetAwaitingTap(){
+  radioPlaying=false;
+  const ic=document.getElementById('radioIcon');if(ic)ic.setAttribute('d','M8 5v14l11-7z');
+  const d=document.getElementById('radioDisc');if(d)d.classList.remove('on');
+  setRipples(false);
+  toast('\uD83D\uDCFB Tap \u25B6 to start radio');
 }
 function stopRadio(){
   if(radioAnimFrame){cancelAnimationFrame(radioAnimFrame);radioAnimFrame=null;}
   if(radioSignalAnim){cancelAnimationFrame(radioSignalAnim);radioSignalAnim=null;}
   if(radioAudio){radioAudio.pause();radioAudio.src='';radioAudio=null;}
+  // Close and null the ctx so a fresh one is created for the next audio element
   if(radioCtx){radioCtx.close().catch(()=>{});radioCtx=null;}
   radioAnalyser=null;radioPlaying=false;
   const d=document.getElementById('radioDisc');if(d)d.classList.remove('on');
@@ -951,13 +975,21 @@ function toggleRadio(){
     document.getElementById('radioDisc').classList.remove('on');
     document.getElementById('radioIcon').setAttribute('d','M8 5v14l11-7z');
     setRipples(false);clearCanvas();
+    if(radioAnimFrame){cancelAnimationFrame(radioAnimFrame);radioAnimFrame=null;}
     if(radioSignalAnim){cancelAnimationFrame(radioSignalAnim);radioSignalAnim=null;}
   }else{
     radioAudio.play().then(()=>{
       radioPlaying=true;
       document.getElementById('radioDisc').classList.add('on');
       document.getElementById('radioIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-      setRipples(true);initVis();animSig();
+      setRipples(true);
+      // Resume existing AudioContext if suspended (autoplay policy), else init fresh
+      if(radioCtx&&radioCtx.state==='suspended'){
+        radioCtx.resume().then(()=>{if(radioAnimFrame)cancelAnimationFrame(radioAnimFrame);drawVis();}).catch(()=>drawFallback());
+      } else {
+        initVis();
+      }
+      animSig();
     }).catch(()=>{});
   }
 }
@@ -980,14 +1012,29 @@ function animSig(){
 function initVis(){
   if(!radioAudio)return;
   try{
-    if(radioCtx){radioCtx.close().catch(()=>{});radioCtx=null;}
-    radioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    const src=radioCtx.createMediaElementSource(radioAudio);
-    radioAnalyser=radioCtx.createAnalyser();
-    radioAnalyser.fftSize=256;radioAnalyser.smoothingTimeConstant=0.8;
-    src.connect(radioAnalyser);radioAnalyser.connect(radioCtx.destination);
+    // AudioContext and MediaElementSource can only be created once per audio element.
+    // Reuse existing ctx/source if already set up for this element.
+    if(!radioCtx||radioCtx.state==='closed'){
+      radioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      radioAudio._bfSrc=null; // reset stored source for new audio element
+    }
+    if(radioCtx.state==='suspended')radioCtx.resume().catch(()=>{});
+    if(!radioAudio._bfSrc){
+      const src=radioCtx.createMediaElementSource(radioAudio);
+      radioAudio._bfSrc=src;
+      radioAnalyser=radioCtx.createAnalyser();
+      radioAnalyser.fftSize=256;radioAnalyser.smoothingTimeConstant=0.8;
+      src.connect(radioAnalyser);radioAnalyser.connect(radioCtx.destination);
+    } else {
+      // Re-use existing analyser (pause/resume case)
+      if(!radioAnalyser){
+        radioAnalyser=radioCtx.createAnalyser();
+        radioAnalyser.fftSize=256;radioAnalyser.smoothingTimeConstant=0.8;
+        radioAudio._bfSrc.connect(radioAnalyser);radioAnalyser.connect(radioCtx.destination);
+      }
+    }
     drawVis();
-  }catch(e){drawFallback();}
+  }catch(e){console.warn('initVis err',e);drawFallback();}
 }
 function drawVis(){
   const wc=document.getElementById('radioWaveCanvas'),sc=document.getElementById('radioScopeCanvas');
@@ -998,8 +1045,8 @@ function drawVis(){
   (function frame(){
     if(!radioPlaying||!radioAnalyser){clearCanvas();return;}
     radioAnimFrame=requestAnimationFrame(frame);
-    const W=wc.width=wc.offsetWidth||420,H=wc.height=wc.offsetHeight||150;
-    const sW=sc.width=sc.offsetWidth||420,sH=sc.height=Math.floor((sc.offsetHeight||150)*.58);
+    const W=wc.width=wc.offsetWidth||wc.parentElement?.offsetWidth||420,H=wc.height=wc.offsetHeight||150;
+    const sW=sc.width=sc.offsetWidth||sc.parentElement?.offsetWidth||420,sH=sc.height=Math.floor((sc.offsetHeight||150)*.58);
     radioAnalyser.getByteFrequencyData(freqData);
     radioAnalyser.getByteTimeDomainData(timeData);
     // — Frequency bars —
@@ -1035,7 +1082,7 @@ function drawFallback(){
   (function frame(){
     if(!radioPlaying){ctx.clearRect(0,0,wc.width,wc.height);return;}
     radioAnimFrame=requestAnimationFrame(frame);
-    const W=wc.width=wc.offsetWidth||420,H=wc.height=wc.offsetHeight||150;
+    const W=wc.width=wc.offsetWidth||wc.parentElement?.offsetWidth||420,H=wc.height=wc.offsetHeight||150;
     ctx.clearRect(0,0,W,H);t+=0.07;
     const bars=60,bw=W/bars;
     for(let i=0;i<bars;i++){
