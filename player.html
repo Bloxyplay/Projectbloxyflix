@@ -123,10 +123,10 @@ body.theater .player-wrap{border-radius:0!important;}
 .radio-vol-row{flex:1;display:flex;align-items:center;gap:.45rem;color:var(--t2);}
 .radio-vol{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:var(--b2);outline:none;cursor:pointer;}
 .radio-vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--t1);cursor:pointer;border:2px solid var(--bg3);}
-.radio-ticker-wrap{border-top:1px solid var(--b);padding:.38rem 0 0;overflow:hidden;height:1.5rem;position:relative;}
-.radio-ticker{display:flex;white-space:nowrap;width:max-content;font-size:.68rem;color:var(--t2);animation:ticker 28s linear infinite;will-change:transform;}
-.radio-ticker span{padding-right:3.5rem;}
-@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.radio-ticker-wrap{border-top:1px solid var(--b);padding:.38rem .75rem 0;overflow:hidden;height:1.5rem;position:relative;}
+.radio-ticker{position:relative;width:100%;height:1.1rem;}
+.radio-ticker span{position:absolute;left:0;right:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.68rem;color:var(--t2);opacity:0;transition:opacity .6s ease;pointer-events:none;}
+.radio-ticker span.tick-active{opacity:1;}
 
 /* INFO */
 .player-info{padding:1rem 0;}
@@ -345,8 +345,8 @@ body.theater .player-wrap{border-radius:0!important;}
             </div>
             <div class="radio-ticker-wrap">
               <div class="radio-ticker" id="radioTicker">
-                <span id="radioTickerTxt">🎙 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
-                <span id="radioTickerTxt2" aria-hidden="true">🎙 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
+                <span id="radioTickerA" class="tick-active">🎙 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
+                <span id="radioTickerB"></span>
               </div>
             </div>
           </div>
@@ -1006,29 +1006,44 @@ const TICKER_PHRASES=[
   {lang:'fil-ty', text:(t)=>`\u2764\uFE0F Salamat sa paggamit ng BloxyFlix!`},
 ];
 let _tickerPhaseIdx=0;
+let _tickerActiveSlot='A'; // which span is currently visible
 function setTickerText(txt){
-  const a=document.getElementById('radioTickerTxt'),b=document.getElementById('radioTickerTxt2');
-  if(a)a.textContent=txt;
-  if(b)b.textContent=txt;
-  // Reset animation so it restarts from beginning
-  const el=document.getElementById('radioTicker');
-  if(el){el.style.animation='none';void el.offsetWidth;el.style.animation='';}
+  const a=document.getElementById('radioTickerA'),b=document.getElementById('radioTickerB');
+  if(!a||!b)return;
+  // Write to the hidden span, then crossfade
+  if(_tickerActiveSlot==='A'){
+    b.textContent=txt;
+    a.classList.remove('tick-active');
+    b.classList.add('tick-active');
+    _tickerActiveSlot='B';
+  }else{
+    a.textContent=txt;
+    b.classList.remove('tick-active');
+    a.classList.add('tick-active');
+    _tickerActiveSlot='A';
+  }
 }
 function startTicker(stationName){
   stopTicker();
   _tickerPhaseIdx=0;
-  setTickerText(TICKER_PHRASES[0].text(stationName));
+  _tickerActiveSlot='A';
+  // Set first phrase immediately on the active span without crossfade
+  const a=document.getElementById('radioTickerA'),b=document.getElementById('radioTickerB');
+  if(a){a.textContent=TICKER_PHRASES[0].text(stationName);a.classList.add('tick-active');}
+  if(b)b.classList.remove('tick-active');
   radioTickerInterval=setInterval(()=>{
     if(!radioPlaying){stopTicker();return;}
     _tickerPhaseIdx=(_tickerPhaseIdx+1)%TICKER_PHRASES.length;
     setTickerText(TICKER_PHRASES[_tickerPhaseIdx].text(stationName));
-  },5000);
+  },4500);
 }
 function stopTicker(){
   if(radioTickerInterval){clearInterval(radioTickerInterval);radioTickerInterval=null;}
-  const a=document.getElementById('radioTickerTxt'),b=document.getElementById('radioTickerTxt2');
-  const def='\uD83C\uDF99 Now streaming live \u00B7 BloxyFlix Radio \u00B7 Tune in and enjoy';
-  if(a)a.textContent=def;if(b)b.textContent=def;
+  const def='🎙 Now streaming live · BloxyFlix Radio · Tune in and enjoy';
+  const a=document.getElementById('radioTickerA'),b=document.getElementById('radioTickerB');
+  if(a){a.textContent=def;a.classList.add('tick-active');}
+  if(b){b.textContent='';b.classList.remove('tick-active');}
+  _tickerActiveSlot='A';
 }
 function radioSetAwaitingTap(){
   radioPlaying=false;
