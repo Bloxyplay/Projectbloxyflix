@@ -123,10 +123,10 @@ body.theater .player-wrap{border-radius:0!important;}
 .radio-vol-row{flex:1;display:flex;align-items:center;gap:.45rem;color:var(--t2);}
 .radio-vol{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:var(--b2);outline:none;cursor:pointer;}
 .radio-vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--t1);cursor:pointer;border:2px solid var(--bg3);}
-.radio-ticker-wrap{border-top:1px solid var(--b);padding:.42rem 0 0;overflow:hidden;height:1.4rem;}
-.radio-ticker{display:inline-block;white-space:nowrap;font-size:.68rem;color:var(--t3);animation:ticker 20s linear infinite;}
-.radio-ticker span{margin-right:2.5rem;}
-@keyframes ticker{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+.radio-ticker-wrap{border-top:1px solid var(--b);padding:.38rem 0 0;overflow:hidden;height:1.5rem;position:relative;}
+.radio-ticker{display:flex;white-space:nowrap;width:max-content;font-size:.68rem;color:var(--t2);animation:ticker 28s linear infinite;will-change:transform;}
+.radio-ticker span{padding-right:3.5rem;}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
 /* INFO */
 .player-info{padding:1rem 0;}
@@ -346,7 +346,7 @@ body.theater .player-wrap{border-radius:0!important;}
             <div class="radio-ticker-wrap">
               <div class="radio-ticker" id="radioTicker">
                 <span id="radioTickerTxt">🎙 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
-                <span aria-hidden="true">🎙 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
+                <span id="radioTickerTxt2" aria-hidden="true">🎙 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
               </div>
             </div>
           </div>
@@ -931,24 +931,104 @@ function startRadio(url){
       document.getElementById('radioIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
       document.getElementById('radioDisc').classList.add('on');
       setRipples(true);initVis();animSig();
-      const t=curVid?.t||'Live Stream';
-      const el=document.getElementById('radioTickerTxt');
-      if(el){el.textContent=`\uD83C\uDF99 Now playing: ${t} \u00B7 BloxyFlix Radio \u00B7 24/7 Live`;
-      el.nextElementSibling&&(el.nextElementSibling.textContent=el.textContent);}
+      startTicker(curVid?.t||'Live Stream');
     }).catch(err=>{
       radioPlaying=false;
       const name=err&&err.name?err.name:'';
       const msg=String(err||'');
-      // CORS failure: retry without crossOrigin so audio still plays (no visualiser but sound works)
       if(withCors&&(name==='NotSupportedError'||msg.includes('CORS')||msg.includes('cross-origin'))){
         doPlay(false);return;
       }
-      // Autoplay blocked by browser policy — show tap-to-start hint
       radioSetAwaitingTap();
       if(name!=='NotAllowedError')console.warn('Radio play error:',err);
     });
   }
   doPlay(true);
+}
+// ── MULTILINGUAL TICKER ───────────────────────────────────
+let radioTickerInterval=null;
+const TICKER_PHRASES=[
+  // English
+  {lang:'en', text:(t)=>`\uD83C\uDF99 Now playing: ${t} \u00B7 BloxyFlix Radio \u00B7 Live 24/7`},
+  // Korean (North Korean / Chosŏnmal — 조선말)
+  {lang:'ko-kp', text:(t)=>`\uD83C\uDF99 \uBC29\uC1A1\u0020\uC911: ${t} \u00B7 \uBE14\uB85D\uC2DC\uD50C\uB9AD\uC2A4 \uBC29\uC1A1 \u00B7 \uB85C\uB3D9\uC790 \uBC29\uC1A1\uAD6D 24\uC2DC\uAC04`},
+  // Chinese
+  {lang:'zh', text:(t)=>`\uD83C\uDF99 \u6B63\u5728\u64AD\u653E\uFF1A${t} \u00B7 BloxyFlix\u5E7F\u64AD \u00B7 24\u5C0F\u65F6\u76F4\u64AD`},
+  // Japanese
+  {lang:'ja', text:(t)=>`\uD83C\uDF99 \u653E\u9001\u4E2D\uFF1A${t} \u00B7 BloxyFlix\u30E9\u30B8\uFF1A24\u6642\u9593\u653E\u9001`},
+  // Russian
+  {lang:'ru', text:(t)=>`\uD83C\uDF99 \u0421\u0435\u0439\u0447\u0430\u0441 \u0438\u0433\u0440\u0430\u0435\u0442: ${t} \u00B7 BloxyFlix \u0420\u0430\u0434\u0438\u043E \u00B7 \u041F\u0440\u044F\u043C\u043E\u0439 \u044D\u0444\u0438\u0440`},
+  // Arabic
+  {lang:'ar', text:(t)=>`\uD83C\uDF99 \u064A\u0628\u062B \u0627\u0644\u0622\u0646: ${t} \u00B7 BloxyFlix \u0631\u0627\u062F\u064A\u0648 \u00B7 \u0628\u062B \u0645\u0628\u0627\u0634\u0631`},
+  // Spanish
+  {lang:'es', text:(t)=>`\uD83C\uDF99 Reproduciendo: ${t} \u00B7 BloxyFlix Radio \u00B7 En vivo 24/7`},
+  // Burmese
+  {lang:'my', text:(t)=>`\uD83C\uDF99 \u1014\u102C\u1019\u1014\u102C\u1015\u103C\u1014\u103A\u1019\u1014\u1014\u103A\u101E\u100A\u103A: ${t} \u00B7 BloxyFlix \u101B\u1031\u1012\u102D\u101A\u102D\u1031\u102C`},
+  // French
+  {lang:'fr', text:(t)=>`\uD83C\uDF99 En cours\u00A0: ${t} \u00B7 BloxyFlix Radio \u00B7 En direct 24h/24`},
+  // Afrikaans (South Africa)
+  {lang:'af', text:(t)=>`\uD83C\uDF99 Nou speel: ${t} \u00B7 BloxyFlix Radio \u00B7 Regstreeks 24/7`},
+  // Zulu (South Africa)
+  {lang:'zu', text:(t)=>`\uD83C\uDF99 Idlala manje: ${t} \u00B7 BloxyFlix Rediyo \u00B7 Bukhoma 24/7`},
+  // Xhosa (South Africa)
+  {lang:'xh', text:(t)=>`\uD83C\uDF99 Idlala ngoku: ${t} \u00B7 BloxyFlix Rediyo \u00B7 Ngqo 24/7`},
+  // Indonesian
+  {lang:'id', text:(t)=>`\uD83C\uDF99 Sedang diputar: ${t} \u00B7 BloxyFlix Radio \u00B7 Siaran langsung 24/7`},
+  // Filipino
+  {lang:'fil', text:(t)=>`\uD83C\uDF99 Kasalukuyang tumutugtog: ${t} \u00B7 BloxyFlix Radio \u00B7 Live 24/7`},
+  // Thank you — English
+  {lang:'en-ty', text:(t)=>`\u2764\uFE0F Thank you for using BloxyFlix!`},
+  // Thank you — North Korean
+  {lang:'ko-kp-ty', text:(t)=>`\u2764\uFE0F BloxyFlix\uB97C \uC774\uC6A9\uD574 \uC8FC\uC154\uC11C \uAC10\uC0AC\uD569\uB2C8\uB2E4!`},
+  // Thank you — Chinese
+  {lang:'zh-ty', text:(t)=>`\u2764\uFE0F \u611F\u8C22\u60A8\u4F7F\u7528 BloxyFlix\uFF01`},
+  // Thank you — Japanese
+  {lang:'ja-ty', text:(t)=>`\u2764\uFE0F BloxyFlix \u3092\u3054\u5229\u7528\u3044\u305F\u3060\u304D\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF01`},
+  // Thank you — Russian
+  {lang:'ru-ty', text:(t)=>`\u2764\uFE0F \u0421\u043F\u0430\u0441\u0438\u0431\u043E, \u0447\u0442\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0435 BloxyFlix!`},
+  // Thank you — Arabic
+  {lang:'ar-ty', text:(t)=>`\u2764\uFE0F \u0634\u0643\u0631\u0627\u064B \u0644\u0627\u0633\u062A\u062E\u062F\u0627\u0645\u0643 BloxyFlix!`},
+  // Thank you — Spanish
+  {lang:'es-ty', text:(t)=>`\u2764\uFE0F \u00A1Gracias por usar BloxyFlix!`},
+  // Thank you — Burmese
+  {lang:'my-ty', text:(t)=>`❤️ BloxyFlix ကို အသုံးပြုတဲ့အတွက် ကျေးဇူးတင်ပါတယ်!`},
+  // Thank you — French
+  {lang:'fr-ty', text:(t)=>`\u2764\uFE0F Merci d\u2019utiliser BloxyFlix\u00A0!`},
+  // Thank you — Afrikaans
+  {lang:'af-ty', text:(t)=>`\u2764\uFE0F Dankie dat jy BloxyFlix gebruik!`},
+  // Thank you — Zulu
+  {lang:'zu-ty', text:(t)=>`\u2764\uFE0F Siyabonga ngokusebenzisa i-BloxyFlix!`},
+  // Thank you — Xhosa
+  {lang:'xh-ty', text:(t)=>`\u2764\uFE0F Enkosi ngokusebenzisa i-BloxyFlix!`},
+  // Thank you — Indonesian
+  {lang:'id-ty', text:(t)=>`\u2764\uFE0F Terima kasih telah menggunakan BloxyFlix!`},
+  // Thank you — Filipino
+  {lang:'fil-ty', text:(t)=>`\u2764\uFE0F Salamat sa paggamit ng BloxyFlix!`},
+];
+let _tickerPhaseIdx=0;
+function setTickerText(txt){
+  const a=document.getElementById('radioTickerTxt'),b=document.getElementById('radioTickerTxt2');
+  if(a)a.textContent=txt;
+  if(b)b.textContent=txt;
+  // Reset animation so it restarts from beginning
+  const el=document.getElementById('radioTicker');
+  if(el){el.style.animation='none';void el.offsetWidth;el.style.animation='';}
+}
+function startTicker(stationName){
+  stopTicker();
+  _tickerPhaseIdx=0;
+  setTickerText(TICKER_PHRASES[0].text(stationName));
+  radioTickerInterval=setInterval(()=>{
+    if(!radioPlaying){stopTicker();return;}
+    _tickerPhaseIdx=(_tickerPhaseIdx+1)%TICKER_PHRASES.length;
+    setTickerText(TICKER_PHRASES[_tickerPhaseIdx].text(stationName));
+  },5000);
+}
+function stopTicker(){
+  if(radioTickerInterval){clearInterval(radioTickerInterval);radioTickerInterval=null;}
+  const a=document.getElementById('radioTickerTxt'),b=document.getElementById('radioTickerTxt2');
+  const def='\uD83C\uDF99 Now streaming live \u00B7 BloxyFlix Radio \u00B7 Tune in and enjoy';
+  if(a)a.textContent=def;if(b)b.textContent=def;
 }
 function radioSetAwaitingTap(){
   radioPlaying=false;
@@ -961,12 +1041,11 @@ function stopRadio(){
   if(radioAnimFrame){cancelAnimationFrame(radioAnimFrame);radioAnimFrame=null;}
   if(radioSignalAnim){cancelAnimationFrame(radioSignalAnim);radioSignalAnim=null;}
   if(radioAudio){radioAudio.pause();radioAudio.src='';radioAudio=null;}
-  // Close and null the ctx so a fresh one is created for the next audio element
   if(radioCtx){radioCtx.close().catch(()=>{});radioCtx=null;}
   radioAnalyser=null;radioPlaying=false;
   const d=document.getElementById('radioDisc');if(d)d.classList.remove('on');
   const ic=document.getElementById('radioIcon');if(ic)ic.setAttribute('d','M8 5v14l11-7z');
-  setRipples(false);clearCanvas();
+  setRipples(false);clearCanvas();stopTicker();
 }
 function toggleRadio(){
   if(!radioAudio)return;
