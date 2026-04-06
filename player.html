@@ -450,17 +450,47 @@ body.theater .player-wrap{border-radius:0!important;}
 
 <!-- Share Modal -->
 <div class="modal-bg" id="shareModal" onclick="closeShareModal(event)">
-  <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:480px;">
     <div class="m-hdr">
       <span class="m-ttl" id="lblShareModal">Share</span>
       <button class="m-x" onclick="closeShareModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
     </div>
-    <div class="share-grid">
-      <div class="share-opt" onclick="shareTo('copy')"><div class="share-ico" style="background:var(--bg4)">📋</div><span class="share-lbl" id="lblCopyLink">Copy</span></div>
-      <div class="share-opt" onclick="shareTo('twitter')"><div class="share-ico" style="background:#1da1f2">𝕏</div><span class="share-lbl">Twitter</span></div>
-      <div class="share-opt" onclick="shareTo('facebook')"><div class="share-ico" style="background:#4267b2">f</div><span class="share-lbl">Facebook</span></div>
-      <div class="share-opt" onclick="shareTo('email')"><div class="share-ico" style="background:#22c55e">✉</div><span class="share-lbl">Email</span></div>
+
+    <!-- Promo banner -->
+    <div style="background:linear-gradient(135deg,rgba(45,125,255,0.15),rgba(45,125,255,0.05));border:1px solid rgba(45,125,255,0.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.78rem;color:var(--t2);line-height:1.6;">
+      🌏 <strong style="color:var(--t1);">Explore North Korea through cinema.</strong> BloxyFlix is a free digital archive of Korean cultural films, documentaries &amp; historical broadcasts — preserved for research &amp; cross-cultural understanding.
     </div>
+
+    <!-- Global apps -->
+    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--t3);font-weight:700;margin-bottom:.5rem;">Share via</div>
+    <div class="share-grid" style="grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.75rem;">
+      <div class="share-opt" onclick="shareTo('copy')"><div class="share-ico" style="background:var(--bg4)">📋</div><span class="share-lbl" id="lblCopyLink">Copy</span></div>
+      <div class="share-opt" onclick="shareTo('twitter')"><div class="share-ico" style="background:#000;font-size:1rem;font-weight:900;font-family:serif;">𝕏</div><span class="share-lbl">X / Twitter</span></div>
+      <div class="share-opt" onclick="shareTo('whatsapp')"><div class="share-ico" style="background:#25d366;font-size:1.2rem;">💬</div><span class="share-lbl">WhatsApp</span></div>
+      <div class="share-opt" onclick="shareTo('telegram')"><div class="share-ico" style="background:#229ed9;font-size:1.1rem;">✈️</div><span class="share-lbl">Telegram</span></div>
+      <div class="share-opt" onclick="shareTo('facebook')"><div class="share-ico" style="background:#1877f2;font-weight:900;font-size:1.1rem;">f</div><span class="share-lbl">Facebook</span></div>
+      <div class="share-opt" onclick="shareTo('reddit')"><div class="share-ico" style="background:#ff4500;font-size:1.1rem;">🤖</div><span class="share-lbl">Reddit</span></div>
+      <div class="share-opt" onclick="shareTo('linkedin')"><div class="share-ico" style="background:#0a66c2;font-weight:900;font-size:.85rem;">in</div><span class="share-lbl">LinkedIn</span></div>
+      <div class="share-opt" onclick="shareTo('email')"><div class="share-ico" style="background:#22c55e;font-size:1rem;">✉️</div><span class="share-lbl">Email</span></div>
+    </div>
+
+    <!-- Chinese apps -->
+    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--t3);font-weight:700;margin-bottom:.5rem;">中文平台</div>
+    <div class="share-grid" style="grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem;">
+      <div class="share-opt" onclick="shareTo('wechat')">
+        <div class="share-ico" style="background:#07c160;font-size:1.1rem;">💚</div>
+        <span class="share-lbl">微信 WeChat</span>
+      </div>
+      <div class="share-opt" onclick="shareTo('qq')">
+        <div class="share-ico" style="background:#1aaddf;font-size:1rem;font-weight:900;">QQ</div>
+        <span class="share-lbl">QQ空间</span>
+      </div>
+      <div class="share-opt" onclick="shareTo('weibo')">
+        <div class="share-ico" style="background:#e6162d;font-size:.8rem;font-weight:900;">微博</div>
+        <span class="share-lbl">微博 Weibo</span>
+      </div>
+    </div>
+
     <div class="share-link">
       <input type="text" id="shareInput" readonly>
       <button onclick="copyShareLink()" id="lblCopyBtn">Copy</button>
@@ -470,6 +500,24 @@ body.theater .player-wrap{border-radius:0!important;}
       <div class="embed-pre" id="embedCode"></div>
       <button class="embed-cp" onclick="copyEmbedCode()" id="lblEmbedCopy">Copy Embed Code</button>
     </div>
+  </div>
+</div>
+
+<!-- WeChat QR Modal -->
+<div class="modal-bg" id="wechatModal" onclick="closeWeChatModal(event)" style="z-index:10001;">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:320px;text-align:center;">
+    <div class="m-hdr">
+      <span class="m-ttl">微信扫码分享</span>
+      <button class="m-x" onclick="closeWeChatModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div style="background:rgba(7,193,96,0.1);border:1px solid rgba(7,193,96,0.25);border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.78rem;color:#07c160;line-height:1.6;">
+      🌏 通过电影探索朝鲜文化与历史。<br>BloxyFlix — 朝鲜影视文化档案馆，供学术研究与跨文化理解。
+    </div>
+    <div id="wechatTitle" style="font-size:.85rem;color:var(--t2);margin-bottom:.75rem;"></div>
+    <div style="background:#fff;padding:.75rem;border-radius:12px;display:inline-block;margin-bottom:.75rem;">
+      <img id="wechatQRImg" width="180" height="180" alt="QR Code" style="display:block;">
+    </div>
+    <div style="font-size:.75rem;color:var(--t3);">用微信扫描上方二维码即可观看</div>
   </div>
 </div>
 
@@ -566,6 +614,10 @@ function detectEmbedded(){
 }
 function getVidFromURL(){
   const p=new URLSearchParams(window.location.search);
+  // New share link format
+  const share=p.get('share');
+  if(share){try{return JSON.parse(decodeURIComponent(escape(atob(share))));}catch(e){}}
+  // Legacy vid param
   const vid=p.get('vid');
   if(vid){try{return JSON.parse(decodeURIComponent(vid));}catch(e){try{return JSON.parse(atob(vid));}catch(e2){}}}
   const url=p.get('url'),embed=p.get('embedcode');
@@ -574,7 +626,20 @@ function getVidFromURL(){
   return null;
 }
 function slug(t){return t.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').substring(0,60);}
-function updateURL(){if(curVid?.t)window.history.replaceState({v:curVid},curVid.t,`${location.pathname}?v=${slug(curVid.t)}`);}
+function updateURL(){
+  if(!curVid?.t)return;
+  try{
+    const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(curVid))));
+    window.history.replaceState({v:curVid},curVid.t,`${location.pathname}?share=${encoded}&title=${encodeURIComponent(slug(curVid.t))}`);
+  }catch(e){}
+}
+function getShareURL(){
+  if(!curVid)return location.href;
+  try{
+    const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(curVid))));
+    return `${location.origin}${location.pathname}?share=${encoded}&title=${encodeURIComponent(slug(curVid.t))}`;
+  }catch(e){return location.href;}
+}
 
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
@@ -582,7 +647,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');autoplay=ss.autoplay!==false;if(!autoplay)document.getElementById('autoplayTog').classList.remove('on');}catch(e){}
   detectEmbedded();
   let loaded=false;
-  if(isEmbedded){const vf=getVidFromURL();if(vf){curVid=vf;curIdx=-1;loaded=true;}}
+  // Always try URL first (handles share links)
+  const vf=getVidFromURL();
+  if(vf){curVid=vf;curIdx=-1;loaded=true;}
   if(!loaded){
     try{
       const raw=sessionStorage.getItem('mediacms-player-vid')||sessionStorage.getItem('bf-player-vid');
@@ -735,9 +802,45 @@ function ago(ts){const sec=(Date.now()-ts)/1000;if(sec<60)return'just now';const
 function renderCmts(id){const list=document.getElementById('commentsList');const cnt=document.getElementById('commentCount');const uname=localStorage.getItem('mediacms-username')||'Guest';const cs=getCmts(id);cnt.textContent=cs.length;if(!cs.length){list.innerHTML=`<div class="no-c">${s('noCmts')}</div>`;return;}function col(str){let h=0;for(const c of str)h=str.charCodeAt(0)+((h<<5)-h);return['#2d7dff','#a371f7','#22c55e','#f59e0b','#ef4444','#06b6d4'][Math.abs(h)%6];}list.innerHTML=cs.map(c=>`<div class="cmt-item"><div class="cmt-av" style="background:${col(c.name)};flex-shrink:0;">${c.name.charAt(0).toUpperCase()}</div><div class="cmt-body"><div class="cmt-head"><span class="cmt-author">${esc(c.name)}</span><span class="cmt-time">${ago(c.time)}</span></div><div class="cmt-text">${esc(c.text)}</div><div class="cmt-btns"><span onclick="likeCmt(${c.id})" style="${c.liked?'color:var(--acc)':''}">♥ ${c.likes||s('like')}</span><span onclick="document.getElementById('commentInput').value='@${esc(c.name)} ';document.getElementById('commentInput').focus()">↩</span>${c.name===uname?`<span onclick="delCmt(${c.id})" style="color:var(--t3)">✕</span>`:''}</div></div></div>`).join('');}
 
 // ── SHARE ─────────────────────────────────────────────────
-function openShareModal(){const u=location.href;document.getElementById('shareInput').value=u;document.getElementById('embedCode').textContent=`<iframe src="${u}&embed=1" width="640" height="360" frameborder="0" allowfullscreen></iframe>`;document.getElementById('shareModal').classList.add('open');}
+function openShareModal(){const u=getShareURL();document.getElementById('shareInput').value=u;document.getElementById('embedCode').textContent=`<iframe src="${u}&embed=1" width="640" height="360" frameborder="0" allowfullscreen></iframe>`;document.getElementById('shareModal').classList.add('open');}
 function closeShareModal(e){if(!e||e.target===document.getElementById('shareModal'))document.getElementById('shareModal').classList.remove('open');}
-function shareTo(t){const u=encodeURIComponent(location.href);const tx=encodeURIComponent((curVid?.t||'BloxyFlix')+' — BloxyFlix');if(t==='copy'){copyShareLink();return;}const urls={twitter:`https://twitter.com/intent/tweet?url=${u}&text=${tx}`,facebook:`https://www.facebook.com/sharer/sharer.php?u=${u}`,email:`mailto:?subject=${tx}&body=${u}`};window.open(urls[t],'_blank','noopener,noreferrer');}
+function shareTo(t){
+  const u=encodeURIComponent(getShareURL());
+  const rawU=getShareURL();
+  const title=curVid?.t||'BloxyFlix';
+  // English promo — exploration/cultural angle
+  const enMsg=encodeURIComponent(`🌏 "${title}" — Explore North Korean cinema & culture on BloxyFlix, a free digital archive of Korean historical films, documentaries & broadcasts preserved for research and cross-cultural understanding.\n${rawU}`);
+  // Chinese promo for QQ/WeChat/Weibo
+  const zhMsg=encodeURIComponent(`🌏「${title}」——通过BloxyFlix探索朝鲜电影与文化。这是一个免费的朝鲜历史影视档案馆，收录纪录片、文化演出与历史广播，供学术研究与跨文化交流使用。\n${rawU}`);
+  const tx=encodeURIComponent(`🌏 "${title}" — Explore North Korean cinema & culture on BloxyFlix, a free historical archive`);
+  if(t==='copy'){copyShareLink();return;}
+  if(t==='whatsapp'){window.open(`https://api.whatsapp.com/send?text=${enMsg}`,'_blank','noopener');return;}
+  if(t==='telegram'){window.open(`https://t.me/share/url?url=${u}&text=${encodeURIComponent(`🌏 "${title}" — Explore North Korean cinema & culture on BloxyFlix`)}`,'_blank','noopener');return;}
+  if(t==='qq'){
+    window.open(`https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=${u}&title=${encodeURIComponent(`BloxyFlix｜${title}`)}&desc=${zhMsg}&summary=${encodeURIComponent('BloxyFlix — 朝鲜历史影视文化档案馆，学术研究专用')}`, '_blank','noopener');
+    return;
+  }
+  if(t==='wechat'){
+    showWeChatQR(rawU,title);return;
+  }
+  if(t==='weibo'){window.open(`https://service.weibo.com/share/share.php?url=${u}&title=${zhMsg}`,'_blank','noopener');return;}
+  const urls={
+    twitter:`https://twitter.com/intent/tweet?url=${u}&text=${tx}`,
+    facebook:`https://www.facebook.com/sharer/sharer.php?u=${u}`,
+    reddit:`https://reddit.com/submit?url=${u}&title=${encodeURIComponent(`"${title}" — North Korean Cinema & Culture | BloxyFlix Archive`)}`,
+    linkedin:`https://www.linkedin.com/sharing/share-offsite/?url=${u}`,
+    email:`mailto:?subject=${encodeURIComponent(`Explore "${title}" — North Korean Cinema on BloxyFlix`)}&body=${enMsg}`
+  };
+  if(urls[t])window.open(urls[t],'_blank','noopener,noreferrer');
+}
+function showWeChatQR(url,title){
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+  const modal=document.getElementById('wechatModal');
+  document.getElementById('wechatQRImg').src=qrUrl;
+  document.getElementById('wechatTitle').textContent=`「${title}」`;
+  modal.classList.add('open');
+}
+function closeWeChatModal(e){if(!e||e.target===document.getElementById('wechatModal'))document.getElementById('wechatModal').classList.remove('open');}
 function copyShareLink(){const v=document.getElementById('shareInput').value;if(navigator.clipboard)navigator.clipboard.writeText(v).then(()=>toast('🔗 '+s('toastCopy'))).catch(()=>fallbackCopy(v));else fallbackCopy(v)&&toast('🔗 '+s('toastCopy'));closeShareModal();}
 function copyEmbedCode(){const code=document.getElementById('embedCode').textContent;if(navigator.clipboard)navigator.clipboard.writeText(code).then(()=>toast(s('toastCopy'))).catch(()=>{});}
 
