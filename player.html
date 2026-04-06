@@ -125,8 +125,8 @@ body.theater .player-wrap{border-radius:0!important;}
 .radio-vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--t1);cursor:pointer;border:2px solid var(--bg3);}
 .radio-ticker-wrap{border-top:1px solid var(--b);padding:.38rem .75rem 0;overflow:hidden;height:1.5rem;position:relative;}
 .radio-ticker{position:relative;width:100%;height:1.1rem;}
-.radio-ticker span{position:absolute;left:0;right:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.68rem;color:var(--t2);opacity:0;transition:opacity .6s ease;pointer-events:none;}
-.radio-ticker span.tick-active{opacity:1;}
+.radio-ticker span{position:absolute;left:0;right:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.68rem;color:var(--t2);opacity:0;transform:translateY(6px);transition:opacity .5s ease,transform .5s ease;pointer-events:none;}
+.radio-ticker span.tick-active{opacity:1;transform:translateY(0);}
 
 /* INFO */
 .player-info{padding:1rem 0;}
@@ -925,6 +925,7 @@ function startRadio(url){
     radioAudio=new Audio();
     if(withCors)radioAudio.crossOrigin='anonymous';
     radioAudio.src=url;
+    radioAudio._isHLS=url.includes('.m3u8')||url.includes('m3u8');
     radioAudio.volume=parseFloat(document.getElementById('radioVol').value);
     radioAudio.play().then(()=>{
       radioPlaying=true;
@@ -1105,22 +1106,22 @@ function animSig(){
 }
 function initVis(){
   if(!radioAudio)return;
+  // HLS/m3u8 streams can't be routed through Web Audio API — use animated fallback
+  const src=radioAudio.src||'';
+  if(src.includes('.m3u8')||src.includes('m3u8')||radioAudio._isHLS){drawFallback();return;}
   try{
-    // AudioContext and MediaElementSource can only be created once per audio element.
-    // Reuse existing ctx/source if already set up for this element.
     if(!radioCtx||radioCtx.state==='closed'){
       radioCtx=new(window.AudioContext||window.webkitAudioContext)();
-      radioAudio._bfSrc=null; // reset stored source for new audio element
+      radioAudio._bfSrc=null;
     }
     if(radioCtx.state==='suspended')radioCtx.resume().catch(()=>{});
     if(!radioAudio._bfSrc){
-      const src=radioCtx.createMediaElementSource(radioAudio);
-      radioAudio._bfSrc=src;
+      const srcNode=radioCtx.createMediaElementSource(radioAudio);
+      radioAudio._bfSrc=srcNode;
       radioAnalyser=radioCtx.createAnalyser();
       radioAnalyser.fftSize=256;radioAnalyser.smoothingTimeConstant=0.8;
-      src.connect(radioAnalyser);radioAnalyser.connect(radioCtx.destination);
-    } else {
-      // Re-use existing analyser (pause/resume case)
+      srcNode.connect(radioAnalyser);radioAnalyser.connect(radioCtx.destination);
+    }else{
       if(!radioAnalyser){
         radioAnalyser=radioCtx.createAnalyser();
         radioAnalyser.fftSize=256;radioAnalyser.smoothingTimeConstant=0.8;
