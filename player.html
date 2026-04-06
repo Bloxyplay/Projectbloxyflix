@@ -924,25 +924,43 @@ function startRadio(url){
   function doPlay(withCors){
     radioAudio=new Audio();
     if(withCors)radioAudio.crossOrigin='anonymous';
-    radioAudio.src=url;
     radioAudio._isHLS=url.includes('.m3u8')||url.includes('m3u8');
+    // For HLS streams use Hls.js to attach — this keeps the audio element in the
+    // normal Web Audio graph so createMediaElementSource works
+    if(radioAudio._isHLS&&typeof Hls!=='undefined'&&Hls.isSupported()){
+      const hls=new Hls({enableWorker:false,lowLatencyMode:true});
+      hls.loadSource(url);
+      hls.attachMedia(radioAudio);
+      radioAudio._hlsInstance=hls;
+      radioAudio._isHLS=false; // now it's routed through Hls.js, Web Audio will work
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+        radioAudio.play().then(()=>onRadioPlaying()).catch(err=>onRadioError(err,withCors));
+      });
+      hls.on(Hls.Events.ERROR,(e,data)=>{
+        if(data.fatal){hls.destroy();radioAudio._hlsInstance=null;doPlay(false);}
+      });
+    } else {
+      radioAudio.src=url;
+      radioAudio.play().then(()=>onRadioPlaying()).catch(err=>onRadioError(err,withCors));
+    }
     radioAudio.volume=parseFloat(document.getElementById('radioVol').value);
-    radioAudio.play().then(()=>{
-      radioPlaying=true;
-      document.getElementById('radioIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-      document.getElementById('radioDisc').classList.add('on');
-      setRipples(true);initVis();animSig();
-      startTicker(curVid?.t||'Live Stream');
-    }).catch(err=>{
-      radioPlaying=false;
-      const name=err&&err.name?err.name:'';
-      const msg=String(err||'');
-      if(withCors&&(name==='NotSupportedError'||msg.includes('CORS')||msg.includes('cross-origin'))){
-        doPlay(false);return;
-      }
-      radioSetAwaitingTap();
-      if(name!=='NotAllowedError')console.warn('Radio play error:',err);
-    });
+  }
+  function onRadioPlaying(){
+    radioPlaying=true;
+    document.getElementById('radioIcon').setAttribute('d','M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+    document.getElementById('radioDisc').classList.add('on');
+    setRipples(true);initVis();animSig();
+    startTicker(curVid?.t||'Live Stream');
+  }
+  function onRadioError(err,withCors){
+    radioPlaying=false;
+    const name=err&&err.name?err.name:'';
+    const msg=String(err||'');
+    if(withCors&&(name==='NotSupportedError'||msg.includes('CORS')||msg.includes('cross-origin'))){
+      doPlay(false);return;
+    }
+    radioSetAwaitingTap();
+    if(name!=='NotAllowedError')console.warn('Radio play error:',err);
   }
   doPlay(true);
 }
@@ -1056,7 +1074,10 @@ function radioSetAwaitingTap(){
 function stopRadio(){
   if(radioAnimFrame){cancelAnimationFrame(radioAnimFrame);radioAnimFrame=null;}
   if(radioSignalAnim){cancelAnimationFrame(radioSignalAnim);radioSignalAnim=null;}
-  if(radioAudio){radioAudio.pause();radioAudio.src='';radioAudio=null;}
+  if(radioAudio){
+    if(radioAudio._hlsInstance){radioAudio._hlsInstance.destroy();radioAudio._hlsInstance=null;}
+    radioAudio.pause();radioAudio.src='';radioAudio=null;
+  }
   if(radioCtx){radioCtx.close().catch(()=>{});radioCtx=null;}
   radioAnalyser=null;radioPlaying=false;
   const d=document.getElementById('radioDisc');if(d)d.classList.remove('on');
@@ -1106,9 +1127,6 @@ function animSig(){
 }
 function initVis(){
   if(!radioAudio)return;
-  // HLS/m3u8 streams can't be routed through Web Audio API — use animated fallback
-  const src=radioAudio.src||'';
-  if(src.includes('.m3u8')||src.includes('m3u8')||radioAudio._isHLS){drawFallback();return;}
   try{
     if(!radioCtx||radioCtx.state==='closed'){
       radioCtx=new(window.AudioContext||window.webkitAudioContext)();
