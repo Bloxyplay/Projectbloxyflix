@@ -36,14 +36,14 @@
   /* Specular top-edge shine — the #1 iOS glass tell */
   --spec: inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.10);
   /* Outer shadow stack */
-  --gshadow: 0 2px 8px rgba(0,0,0,0.25), 0 8px 32px rgba(0,0,0,0.35), 0 0 0 0.5px rgba(255,255,255,0.08);
-  --gshadow-lg: 0 4px 16px rgba(0,0,0,0.35), 0 16px 56px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(255,255,255,0.10);
-  --gshadow-xl: 0 8px 24px rgba(0,0,0,0.45), 0 32px 80px rgba(0,0,0,0.70), 0 0 0 0.5px rgba(255,255,255,0.12);
+  --gshadow: 0 4px 20px rgba(0,0,0,0.30), 0 0 0 0.5px rgba(255,255,255,0.08);
+  --gshadow-lg: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(255,255,255,0.10);
+  --gshadow-xl: 0 12px 48px rgba(0,0,0,0.60), 0 0 0 0.5px rgba(255,255,255,0.12);
   /* Blur levels — iOS uses 40–80px for UI chrome */
-  --blur-sm:  blur(20px) saturate(160%);
-  --blur-md:  blur(40px) saturate(180%);
-  --blur-lg:  blur(60px) saturate(200%);
-  --blur-xl:  blur(80px) saturate(220%);
+  --blur-sm:  blur(12px) saturate(150%);
+  --blur-md:  blur(24px) saturate(170%);
+  --blur-lg:  blur(36px) saturate(185%);
+  --blur-xl:  blur(48px) saturate(200%);
 
   /* ── Chromatic / iridescent shimmer ─────────────── */
   --iris: linear-gradient(
@@ -210,7 +210,6 @@ body:not(.liquid-glass) .meta-chip{
   background:rgba(10,20,48,0.97)!important;border-color:rgba(59,130,246,0.14)!important;
 }
 body:not(.liquid-glass) .share-opt:hover{background:rgba(10,20,48,0.95)!important;}
-body:not(.liquid-glass) .mini-bar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(5,12,30,0.99)!important;}
 body:not(.liquid-glass) .warn-box{background:rgba(5,11,28,0.99)!important;}
 /* Blue-accent pnav brand dot in normal mode */
 body:not(.liquid-glass) .pnav-dot{
@@ -219,6 +218,58 @@ body:not(.liquid-glass) .pnav-dot{
 }
 /* Blue-tinted separator */
 body:not(.liquid-glass) .qsep{background:rgba(37,99,235,0.12)!important;}
+/* Now-playing badge — blue tint in normal mode */
+body:not(.liquid-glass) .np-badge{
+  background:rgba(37,99,235,0.14)!important;
+  border-color:rgba(59,130,246,0.30)!important;
+  color:#60a5fa!important;
+}
+body:not(.liquid-glass) .np-badge .np-dot{background:#60a5fa!important;}
+/* Up-next items in normal mode */
+body:not(.liquid-glass) .up-item:hover{
+  background:rgba(10,22,55,0.97)!important;
+  border-color:rgba(59,130,246,0.18)!important;
+  box-shadow:0 2px 10px rgba(0,0,0,0.30)!important;
+}
+/* Sidebar panel in normal mode */
+body:not(.liquid-glass) .sb-panel{
+  background:rgba(7,14,32,0.99)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  border-color:rgba(37,99,235,0.12)!important;
+  box-shadow:0 2px 12px rgba(0,0,0,0.35),inset 0 1px 0 rgba(37,99,235,0.06)!important;
+}
+body:not(.liquid-glass) .sb-panel::after{display:none!important;}
+
+/* ── Liquid Glass mode enhancements for new elements ── */
+/* Up-next hover gets real glass shimmer in LG mode */
+body.liquid-glass .up-item:hover{
+  background:rgba(255,255,255,0.09)!important;
+  border-color:rgba(255,255,255,0.16)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 4px 16px rgba(0,0,0,0.22)!important;
+}
+/* Now-playing badge gets iridescent tint in LG mode */
+body.liquid-glass .np-badge{
+  background:rgba(79,158,255,0.14)!important;
+  border-color:rgba(79,158,255,0.28)!important;
+  backdrop-filter:blur(20px) saturate(180%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(180%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 0 12px rgba(79,158,255,0.20)!important;
+}
+/* QoL bar in LG mode — glass shimmer */
+body.liquid-glass .qol{
+  backdrop-filter:var(--blur-lg)!important;
+  -webkit-backdrop-filter:var(--blur-lg)!important;
+}
+/* QoL buttons in LG mode — subtle glass */
+body.liquid-glass .qbtn{
+  backdrop-filter:var(--blur-md)!important;
+  -webkit-backdrop-filter:var(--blur-md)!important;
+}
+body.liquid-glass .qbtn.on{
+  background:rgba(79,158,255,0.18)!important;
+  border-color:rgba(79,158,255,0.35)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.22),0 0 14px rgba(79,158,255,0.25)!important;
+}
 
 /* ── Liquid Glass Toggle Button in Nav ─────────── */
 .lg-toggle{
@@ -310,19 +361,22 @@ body::before{
     radial-gradient(ellipse 50% 40% at 30% 90%,  rgba(150,60,200,0.08) 0%,transparent 45%),
     radial-gradient(ellipse 100% 100% at 50% 50%, rgba(8,8,22,1) 40%, rgba(5,5,14,1) 100%);
 }
-/* Slow-drift animation layer */
+/* Slow-drift animation layer — only active in liquid glass mode */
 body::after{
-  content:'';position:fixed;inset:-50%;z-index:-1;pointer-events:none;
+  content:'';position:fixed;inset:-20%;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(ellipse 60% 50% at 40% 40%, rgba(79,158,255,0.06) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 45% at 65% 65%, rgba(160,80,255,0.05) 0%,transparent 55%);
-  animation:auroraFloat 28s ease-in-out infinite alternate;
+    radial-gradient(ellipse 60% 50% at 40% 40%, rgba(79,158,255,0.05) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 45% at 65% 65%, rgba(160,80,255,0.04) 0%,transparent 55%);
+  will-change:transform;
+  animation:none;
+}
+body.liquid-glass::after{
+  animation:auroraFloat 40s ease-in-out infinite alternate;
 }
 @keyframes auroraFloat{
-  0%  {transform:translate(0%,0%) scale(1);}
-  33% {transform:translate(3%,-4%) scale(1.04);}
-  66% {transform:translate(-3%,3%) scale(0.97);}
-  100%{transform:translate(2%,-2%) scale(1.02);}
+  0%  {transform:translate(0%,0%);}
+  50% {transform:translate(4%,-5%);}
+  100%{transform:translate(-3%,4%);}
 }
 
 /* ═══════════════════════════════════════════════════
@@ -343,12 +397,14 @@ body::after{
   backdrop-filter:var(--blur-md);
   -webkit-backdrop-filter:var(--blur-md);
 }
-/* Iris shimmer overlay */
+/* Iris shimmer overlay — only active in LG mode */
 .lg::before{
   content:'';position:absolute;inset:0;
   background:var(--iris);
   pointer-events:none;z-index:1;border-radius:inherit;
+  opacity:0;transition:opacity 0.3s;
 }
+body.liquid-glass .lg::before{opacity:1;}
 /* Inner-edge specular glow (bright rim on top-left) */
 .lg::after{
   content:'';position:absolute;
@@ -428,6 +484,7 @@ body.theater .player-wrap{border-radius:0!important;}
 /* ── NAV — iOS 26 translucent bar ──────────────────── */
 .pnav{
   position:sticky;top:0;z-index:200;
+  will-change:transform;
   display:flex;align-items:center;gap:.75rem;
   padding:.6rem 1.25rem;
   /* Exact iOS navigation bar recipe */
@@ -483,6 +540,15 @@ body.theater .player-wrap{border-radius:0!important;}
 }
 .pnav-title{font-size:.77rem;color:var(--t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;letter-spacing:.01em;}
 .pnav-acts{display:flex;gap:.38rem;flex-shrink:0;}
+/* Now playing pulse indicator */
+.np-badge{
+  display:inline-flex;align-items:center;gap:.28rem;
+  background:rgba(48,209,88,0.12);border:1px solid rgba(48,209,88,0.25);
+  color:#30d158;font-size:.65rem;font-weight:700;
+  padding:.18rem .52rem;border-radius:var(--rp);
+  letter-spacing:.8px;text-transform:uppercase;flex-shrink:0;
+}
+.np-dot{width:5px;height:5px;background:#30d158;border-radius:50%;animation:rdot 1.2s ease-in-out infinite;}
 .pnav-btn{
   display:flex;align-items:center;justify-content:center;
   width:34px;height:34px;border-radius:11px;
@@ -713,15 +779,14 @@ body.theater .player-wrap{border-radius:0!important;}
 .radio-vol::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,0.95);cursor:pointer;border:1.5px solid rgba(79,158,255,0.40);}
 .radio-ticker-wrap{overflow:hidden;height:1.5rem;border-top:1px solid rgba(255,255,255,0.07);padding-top:.55rem;}
 .radio-ticker{display:inline-block;white-space:nowrap;font-size:.72rem;color:var(--t3);animation:ticker-scroll 18s linear infinite;}
-}
 .radio-ticker span{margin-right:3rem;}
 @keyframes ticker-scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 
 /* ── INFO ──────────────────────────────────────────── */
 .player-info{padding:1rem 0;}
-@media(max-width:1100px){.player-info{padding:.9rem .75rem 0;}}
-.video-title{font-size:1.25rem;font-weight:700;line-height:1.33;color:var(--t1);margin-bottom:.26rem;letter-spacing:-.35px;}
-.video-kr{font-size:.875rem;color:var(--t2);margin-bottom:.7rem;font-style:italic;}
+@media(max-width:1100px){.player-info{padding:.85rem .75rem .25rem;}}
+.video-title{font-size:1.2rem;font-weight:700;line-height:1.35;color:var(--t1);margin-bottom:.22rem;letter-spacing:-.3px;}
+.video-kr{font-size:.82rem;color:var(--t2);margin-bottom:.65rem;font-style:italic;letter-spacing:.01em;}
 
 /* Meta strip */
 .meta-strip{
@@ -733,12 +798,12 @@ body.theater .player-wrap{border-radius:0!important;}
 }
 .meta-chip{
   display:inline-flex;align-items:center;gap:.28rem;
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14),0 1px 4px rgba(0,0,0,0.15);
+  background:rgba(255,255,255,0.065);
+  border:1px solid rgba(255,255,255,0.11);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.13),0 1px 3px rgba(0,0,0,0.12);
   backdrop-filter:var(--blur-sm);-webkit-backdrop-filter:var(--blur-sm);
-  color:var(--t2);font-size:.74rem;font-weight:500;
-  padding:.24rem .62rem;border-radius:var(--rp);
+  color:var(--t2);font-size:.72rem;font-weight:500;
+  padding:.22rem .58rem;border-radius:var(--rp);letter-spacing:.01em;
 }
 .meta-chip svg{width:11px;height:11px;fill:var(--t3);}
 .rating-stars{display:flex;gap:2px;margin-left:auto;}
@@ -784,13 +849,13 @@ body.theater .player-wrap{border-radius:0!important;}
 
 /* ── QOL BAR — frosted tray ──────────────────────── */
 .qol{
-  display:flex;align-items:center;flex-wrap:wrap;gap:.36rem;
-  padding:.65rem .88rem;
-  background:rgba(255,255,255,0.055);
-  border:1px solid rgba(255,255,255,0.10);
-  border-radius:var(--rl);margin-bottom:.9rem;
+  display:flex;align-items:center;flex-wrap:wrap;gap:.32rem;
+  padding:.55rem .75rem;
+  background:rgba(255,255,255,0.045);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:var(--rl);margin-bottom:.85rem;
   backdrop-filter:var(--blur-md);-webkit-backdrop-filter:var(--blur-md);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14),0 2px 12px rgba(0,0,0,0.20);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 2px 10px rgba(0,0,0,0.18);
 }
 .qlbl{
   font-size:.63rem;font-weight:700;color:var(--acc);
@@ -802,15 +867,15 @@ body.theater .player-wrap{border-radius:0!important;}
 }
 .qsep{width:1px;height:18px;background:rgba(255,255,255,0.09);margin:0 .10rem;flex-shrink:0;}
 .qbtn{
-  display:inline-flex;align-items:center;gap:.26rem;
-  padding:.28rem .58rem;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.10);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
-  border-radius:var(--r);color:var(--t2);font-size:.74rem;
+  display:inline-flex;align-items:center;gap:.24rem;
+  padding:.26rem .52rem;
+  background:rgba(255,255,255,0.055);
+  border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.13);
+  border-radius:var(--rp);color:var(--t2);font-size:.73rem;
   cursor:pointer;font-weight:500;white-space:nowrap;font-family:inherit;
   backdrop-filter:var(--blur-sm);-webkit-backdrop-filter:var(--blur-sm);
-  transition:transform 0.18s var(--spring),background 0.14s,box-shadow 0.14s;
+  transition:transform 0.18s var(--spring),background 0.14s,box-shadow 0.14s,color 0.12s;
 }
 .qbtn:hover{
   color:var(--t1);background:rgba(255,255,255,0.12);
@@ -963,11 +1028,11 @@ body.theater .player-wrap{border-radius:0!important;}
 
 /* ── SIDEBAR — frosted panels ─────────────────────── */
 .sb-panel{
-  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14),0 4px 20px rgba(0,0,0,0.22);
-  border-radius:var(--rl);padding:.9rem;margin-bottom:.9rem;overflow:hidden;
+  background:rgba(255,255,255,0.048);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.13),0 4px 18px rgba(0,0,0,0.20);
+  border-radius:var(--rl);padding:.85rem;margin-bottom:.85rem;overflow:hidden;
   backdrop-filter:var(--blur-md);-webkit-backdrop-filter:var(--blur-md);
-  position:relative;
+  position:relative;contain:layout style;
 }
 /* Top specular rim on each panel */
 .sb-panel::after{
@@ -1001,20 +1066,20 @@ body.theater .player-wrap{border-radius:0!important;}
 }
 .tog.on::after{transform:translateX(18px);}
 .up-item{
-  display:flex;gap:.6rem;margin-bottom:.55rem;cursor:pointer;
-  border-radius:var(--r);padding:.45rem;
-  transition:transform 0.18s var(--spring),background 0.14s,border-color 0.14s;
+  display:flex;gap:.55rem;margin-bottom:.5rem;cursor:pointer;
+  border-radius:var(--rl);padding:.5rem .55rem;
+  transition:transform 0.18s var(--spring),background 0.14s,border-color 0.14s,box-shadow 0.14s;
   border:1px solid transparent;
 }
-.up-item:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);transform:translateX(3px);}
-.up-item:active{transform:scale(0.97);}
+.up-item:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.11);transform:translateX(2px);box-shadow:0 2px 12px rgba(0,0,0,0.15);}
+.up-item:active{transform:scale(0.975);}
 .up-item:last-child{margin-bottom:0;}
-.up-thumb{width:108px;height:61px;border-radius:var(--r);background:var(--bg2);flex-shrink:0;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.07);}
+.up-thumb{width:110px;height:62px;border-radius:10px;background:var(--bg2);flex-shrink:0;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.08);box-shadow:0 2px 8px rgba(0,0,0,0.30);}
 .up-thumb img{width:100%;height:100%;object-fit:cover;}
 .up-dur{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.88);color:#fff;font-size:.62rem;padding:.1rem .32rem;border-radius:4px;font-family:monospace;font-weight:600;}
 .up-info{flex:1;min-width:0;}
-.up-ttl{font-size:.79rem;font-weight:500;line-height:1.33;color:var(--t1);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.up-meta{font-size:.7rem;color:var(--t3);margin-top:.22rem;}
+.up-ttl{font-size:.78rem;font-weight:600;line-height:1.35;color:var(--t1);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:-.1px;}
+.up-meta{font-size:.68rem;color:var(--t3);margin-top:.2rem;display:flex;align-items:center;gap:.3rem;}
 
 /* ── SHARE MODAL — iOS sheet ─────────────────────── */
 .modal-bg{
@@ -1154,6 +1219,23 @@ body.theater .player-wrap{border-radius:0!important;}
   border-radius:50%;animation:spinr 0.9s linear infinite;
 }
 @keyframes spinr{to{transform:rotate(360deg);}}
+
+/* ── PERFORMANCE: Respect reduced-motion preference ── */
+@media(prefers-reduced-motion:reduce){
+  body::after,body.liquid-glass::after{animation:none!important;}
+  .radio-disc,.radio-ripple{animation:none!important;}
+  *{transition-duration:0.01ms!important;animation-duration:0.01ms!important;}
+}
+
+/* ── PERFORMANCE: Lighter glass on small/low-res screens ── */
+@media(max-width:768px){
+  :root{
+    --blur-sm:  blur(8px) saturate(140%);
+    --blur-md:  blur(16px) saturate(160%);
+    --blur-lg:  blur(24px) saturate(170%);
+    --blur-xl:  blur(32px) saturate(180%);
+  }
+}
 </style>
 </head>
 <body>
@@ -1314,6 +1396,7 @@ body.theater .player-wrap{border-radius:0!important;}
       </div>
 
       <div class="actions">
+        <div class="np-badge"><span class="np-dot"></span>Now Playing</div>
         <button class="abtn" id="likeBtn" onclick="likeVideo()">
           <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
           <span id="lblLike">Like</span>
@@ -1332,186 +1415,44 @@ body.theater .player-wrap{border-radius:0!important;}
         </button>
       </div>
 
-      <!-- QoL Bar — 20 features in 4 groups -->
+      <!-- QoL Bar — essential controls -->
       <div class="qol" id="qolBar">
-
-        <!-- GROUP 1: PLAYBACK -->
-        <span class="qlbl">▶ Playback</span>
-        <!-- 1. Speed -->
+        <!-- Speed -->
         <select class="qsel" id="speedSel" onchange="setSpeed(this.value)" title="Playback speed">
-          <option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="0.75">0.75×</option>
+          <option value="0.5">0.5×</option><option value="0.75">0.75×</option>
           <option value="1" selected>1×</option><option value="1.25">1.25×</option>
-          <option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option><option value="3">3×</option>
+          <option value="1.5">1.5×</option><option value="2">2×</option>
         </select>
-        <!-- 2. Loop -->
+        <!-- Loop -->
         <button class="qbtn" id="loopBtn" onclick="toggleLoop()" title="Loop video">
           <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
           <span id="lblLoop">Loop</span>
         </button>
-        <!-- 3. Skip Back 10s -->
-        <button class="qbtn" onclick="skipVid(-10)" title="Skip back 10s">
-          <svg viewBox="0 0 24 24"><path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6h-2c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8.01-8z"/><text x="7.5" y="14.5" font-size="5.5" font-weight="700" fill="currentColor" font-family="Arial">10</text></svg>
-          −10s
-        </button>
-        <!-- 4. Skip Forward 10s -->
-        <button class="qbtn" onclick="skipVid(10)" title="Skip forward 10s">
-          <svg viewBox="0 0 24 24"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/><text x="7.5" y="14.5" font-size="5.5" font-weight="700" fill="currentColor" font-family="Arial">10</text></svg>
-          +10s
-        </button>
-        <!-- 5. Autoplay toggle -->
-        <button class="qbtn" id="autoplayQolBtn" onclick="toggleAutoplayQol()" title="Toggle autoplay">
+        <!-- Skip Back 10s -->
+        <button class="qbtn" onclick="skipVid(-10)" title="Skip back 10s">−10s</button>
+        <!-- Skip Forward 10s -->
+        <button class="qbtn" onclick="skipVid(10)" title="Skip forward 10s">+10s</button>
+        <!-- Autoplay -->
+        <button class="qbtn on" id="autoplayQolBtn" onclick="toggleAutoplayQol()" title="Toggle autoplay">
           <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           <span id="lblAutoplayQol">Autoplay</span>
         </button>
-
-        <!-- More / Less toggle button — always visible at the end of group 1 -->
-        <button class="qbtn-more" id="qolMoreBtn" onclick="toggleQolCollapse()" title="Show more / fewer controls">
-          <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
-          <span id="qolMoreLbl">More</span>
-        </button>
-
-        <!-- COLLAPSIBLE SECTION: Groups 2–5 -->
-        <div class="qol-extra" id="qolExtra">
-
-        <div class="qsep"></div>
-
-        <!-- GROUP 2: DISPLAY -->
-        <span class="qlbl">🖥 Display</span>
-        <!-- 6. Theater mode -->
-        <button class="qbtn" id="theaterQolBtn" onclick="toggleTheater()" title="Theater mode">
-          <svg viewBox="0 0 24 24"><path d="M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"/></svg>
-          <span id="lblTheater">Theater</span>
-        </button>
-        <!-- 7. Fullscreen -->
+        <!-- Fullscreen -->
         <button class="qbtn" onclick="reqFullscreen()" title="Fullscreen (F)">
           <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
           Full
         </button>
-        <!-- 8. Brightness -->
-        <button class="qbtn" onclick="cycleBrightness()" id="brightBtn" title="Cycle brightness">
-          <svg viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/></svg>
-          <span id="brightLbl">Bright</span>
-        </button>
-        <!-- 9. Picture-in-Picture -->
-        <button class="qbtn" onclick="togglePiP()" id="pipBtn" title="Picture-in-Picture">
-          <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg>
-          PiP
-        </button>
-        <!-- 10. Mute toggle -->
+        <!-- Mute -->
         <button class="qbtn" id="muteBtn" onclick="toggleMuteQol()" title="Mute/Unmute (M)">
-          <svg viewBox="0 0 24 24" id="muteIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
           <span id="muteLbl">Mute</span>
         </button>
-
-        <div class="qsep"></div>
-
-        <!-- GROUP 3: TOOLS -->
-        <span class="qlbl">🛠 Tools</span>
-        <!-- 11. Timestamp copy -->
-        <button class="qbtn" onclick="copyTimestamp()" title="Copy timestamp link">
-          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
-          <span id="lblTs">Timestamp</span>
-        </button>
-        <!-- 12. Sleep timer -->
+        <!-- Sleep timer -->
         <button class="qbtn" id="sleepBtn" onclick="openSleepModal()" title="Sleep timer">
           <svg viewBox="0 0 24 24"><path d="M9.5 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5.5 8.65C5.97 21.5 7.68 22 9.5 22A10 10 0 0019.5 12 10 10 0 009.5 2z"/></svg>
           <span id="lblSleep">Sleep</span>
         </button>
         <span class="sleep-cd" id="sleepCd" style="display:none;"></span>
-        <!-- 13. Screenshot -->
-        <button class="qbtn" onclick="takeScreenshot()" title="Screenshot current frame">
-          <svg viewBox="0 0 24 24"><path d="M12 15.2A3.2 3.2 0 018.8 12 3.2 3.2 0 0112 8.8 3.2 3.2 0 0115.2 12 3.2 3.2 0 0112 15.2M12 7a5 5 0 00-5 5 5 5 0 005 5 5 5 0 005-5 5 5 0 00-5-5m0-1.4c1.15.28 2.2.79 3.1 1.5L16.5 5.7A9 9 0 0012 4.1V5.6m2.54 14.26c-.81.27-1.67.44-2.54.44a7 7 0 01-7-7h-1.5a8.5 8.5 0 008.5 8.5c1.15 0 2.25-.23 3.26-.63l-.72-1.31M21 11h-1.5a7 7 0 00-3.96-6.3l-.72 1.32c.92.5 1.69 1.23 2.24 2.11L18.4 7.5A8.46 8.46 0 0121 11z"/></svg>
-          Shot
-        </button>
-        <!-- 14. Keyboard shortcuts help -->
-        <button class="qbtn" onclick="showShortcuts()" title="Keyboard shortcuts">
-          <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 5H5v-2h2v2zm10 0H9v-2h8v2zm0-3h-2v-2h2v2zm0-3h-2V8h2v2zm3 6h-2v-2h2v2z"/></svg>
-          Keys
-        </button>
-        <!-- 15. Mini player (scroll-sticky) -->
-        <button class="qbtn" id="miniBtn" onclick="toggleMini()" title="Mini sticky player">
-          <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v5h-9z"/></svg>
-          Mini
-        </button>
-
-        <div class="qsep"></div>
-
-        <!-- GROUP 4: SETTINGS -->
-        <span class="qlbl">⚙ Settings</span>
-        <!-- 16. Quality picker (placeholder for future HLS) -->
-        <select class="qsel" id="qualSel" onchange="setQuality(this.value)" title="Quality">
-          <option value="auto" selected>Auto</option>
-          <option value="1080">1080p</option>
-          <option value="720">720p</option>
-          <option value="480">480p</option>
-          <option value="360">360p</option>
-        </select>
-        <!-- 17. Subtitle/CC toggle -->
-        <button class="qbtn" id="ccBtn" onclick="toggleCC()" title="Captions / Subtitles">
-          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-9 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z"/></svg>
-          CC
-        </button>
-        <!-- 18. Language toggle -->
-        <button class="qbtn" onclick="toggleLang()" title="Switch UI language EN/中文">
-          <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
-          <span id="langLbl">EN</span>
-        </button>
-        <!-- 19. Volume scroll nudge display -->
-        <button class="qbtn" onclick="openVolModal()" id="volBtn" title="Volume fine control">
-          <svg viewBox="0 0 24 24"><path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg>
-          <span id="volPct">100%</span>
-        </button>
-        <!-- 20. Keyboard shortcut: reset all settings -->
-        <button class="qbtn" onclick="resetPlayer()" title="Reset playback settings">
-          <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-          Reset
-        </button>
-
-        </div><!-- end .qol-extra -->
-
-      </div>
-
-      <!-- Bookmarks modal -->
-      <div class="modal-bg" id="bookmarksModal" onclick="if(event.target===this)closeBookmarks()" style="z-index:1003;">
-        <div class="modal-box" onclick="event.stopPropagation()" style="max-width:340px;">
-          <div class="m-hdr"><span class="m-ttl">🔖 Saved Clips</span><button class="m-x" onclick="closeBookmarks()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
-          <div id="bookmarksList" style="max-height:300px;overflow-y:auto;"></div>
-          <button class="embed-cp" onclick="clearBookmarks()" style="margin-top:.7rem;color:var(--err);border-color:rgba(255,69,58,.20);">Clear All Clips</button>
-        </div>
-      </div>
-
-      <!-- Vol modal -->
-      <div class="modal-bg" id="volModal" onclick="if(event.target===this)closeVolModal()" style="z-index:1002;">
-        <div class="modal-box" onclick="event.stopPropagation()" style="max-width:300px;text-align:center;">
-          <div class="m-hdr"><span class="m-ttl">🔊 Volume</span><button class="m-x" onclick="closeVolModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
-          <div style="font-size:2rem;font-weight:800;color:var(--t1);margin:.5rem 0;" id="volModalPct">100%</div>
-          <input type="range" id="volModalRange" min="0" max="100" value="100" oninput="setVolFromModal(this.value)" style="width:100%;accent-color:var(--acc);margin-bottom:1rem;">
-          <div style="display:flex;gap:.5rem;justify-content:center;">
-            <button class="qbtn" onclick="setVolFromModal(0)">0%</button>
-            <button class="qbtn" onclick="setVolFromModal(50)">50%</button>
-            <button class="qbtn" onclick="setVolFromModal(100)">100%</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Shortcuts modal -->
-      <div class="modal-bg" id="shortcutsModal" onclick="if(event.target===this)closeShortcuts()">
-        <div class="modal-box" onclick="event.stopPropagation()" style="max-width:360px;">
-          <div class="m-hdr"><span class="m-ttl">⌨ Keyboard Shortcuts</span><button class="m-x" onclick="closeShortcuts()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
-          <div style="display:grid;grid-template-columns:auto 1fr;gap:.4rem .9rem;font-size:.82rem;color:var(--t2);">
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);white-space:nowrap;">Space / K</kbd><span>Play / Pause</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">← →</kbd><span>Skip ±10 seconds</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">↑ ↓</kbd><span>Volume ±5%</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">F</kbd><span>Fullscreen</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">M</kbd><span>Mute / Unmute</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">L</kbd><span>Toggle Loop</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">T</kbd><span>Theater Mode</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">N</kbd><span>Next video</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">0–9</kbd><span>Jump to % of video</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">P</kbd><span>Picture-in-Picture</span>
-            <kbd style="background:var(--bg4);border:1px solid var(--b2);border-radius:4px;padding:.1rem .45rem;font-family:monospace;color:var(--t1);">Esc</kbd><span>Close modals</span>
-          </div>
-        </div>
       </div>
 
       <!-- Channel row -->
@@ -1751,12 +1692,7 @@ body.theater .player-wrap{border-radius:0!important;}
       <button class="sleep-opt cancel" onclick="cancelSleep()" id="lblSleepCancel">Cancel Timer</button>
     </div>
   </div>
-</div>
 
-<!-- Mini player -->
-<div class="mini-wrap" id="miniWrap">
-  <div id="miniVidSlot"></div>
-  <div class="mini-bar"><span class="mini-ttl" id="miniTitle"></span><button class="mini-close" onclick="toggleMini()" title="Close mini">✕</button></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1908,21 +1844,25 @@ function getShareURL(){
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   try{uiLang=sessionStorage.getItem('bf-player-lang')||'en';if(!['en','zh'].includes(uiLang))uiLang='en';}catch(e){}
-  try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');autoplay=ss.autoplay!==false;if(!autoplay)document.getElementById('autoplayTog').classList.remove('on');}catch(e){}
+  try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');autoplay=ss.autoplay!==false;const at=document.getElementById('autoplayTog');if(at&&!autoplay)at.classList.remove('on');const aqb=document.getElementById('autoplayQolBtn');if(aqb)aqb.classList.toggle('on',autoplay);}catch(e){}
   detectEmbedded();
   let loaded=false;
-  // Always try URL first (handles share links and ?v= index)
-  const vf=getVidFromURL();
-  if(vf){curVid=vf;if(curIdx<0)curIdx=-1;loaded=true;}
-  if(!loaded){
-    try{
-      const raw=sessionStorage.getItem('mediacms-player-vid')||sessionStorage.getItem('bf-player-vid');
+  // Prioritize sessionStorage — this is a fresh click from index.html.
+  // Fall back to URL params only when sessionStorage is empty (shared links / bookmarks).
+  try{
+    const rawSS=sessionStorage.getItem('mediacms-player-vid')||sessionStorage.getItem('bf-player-vid');
+    if(rawSS){
       const rawSlim=sessionStorage.getItem('mediacms-player-slim')||sessionStorage.getItem('bf-player-slim');
       const rawIdx=sessionStorage.getItem('mediacms-player-idx')||sessionStorage.getItem('bf-player-idx');
-      if(!raw){goBack();return;}
-      curVid=JSON.parse(raw);curIdx=parseInt(rawIdx||'0',10);slimVids=rawSlim?JSON.parse(rawSlim):[];loaded=true;
-    }catch(e){goBack();return;}
+      curVid=JSON.parse(rawSS);curIdx=parseInt(rawIdx||'0',10);slimVids=rawSlim?JSON.parse(rawSlim):[];loaded=true;
+    }
+  }catch(e){}
+  if(!loaded){
+    // No sessionStorage — try URL params (shared links, bookmarks)
+    const vf=getVidFromURL();
+    if(vf){curVid=vf;if(curIdx<0)curIdx=-1;loaded=true;}
   }
+  if(!loaded){goBack();return;}
   if(!loaded||!curVid){toast('No video data');return;}
   applyLang();updateURL();
   try{
@@ -1993,7 +1933,7 @@ function renderInfo(){
   if(curIdx>=0&&isLiked(curIdx)){document.getElementById('likeBtn').classList.add('liked');document.getElementById('lblLike').textContent=s('liked');}
 }
 function thumb(v){if(v.thumb)return v.thumb;if(v.isYouTube&&v.u&&!v.u.startsWith('http'))return`https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;return`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%23161924'/><text x='160' y='95' font-family='Arial' font-size='11' fill='%238892a4' text-anchor='middle'>BloxyFlix</text></svg>`;}
-function renderUpNext(){const list=document.getElementById('upNextList');if(slimVids.length<2){list.innerHTML=`<div class="no-c">${s('noVids')}</div>`;return;}const items=[];for(let i=1;i<=6;i++){const idx=(curIdx+i)%slimVids.length;if(idx!==curIdx)items.push({...slimVids[idx],_idx:idx});}list.innerHTML=items.map(v=>`<div class="up-item" onclick="loadVid(${v._idx})"><div class="up-thumb"><img src="${thumb(v)}" alt="${esc(v.t||'')}" loading="lazy"><span class="up-dur">${v.duration||''}</span></div><div class="up-info"><div class="up-ttl">${esc(v.t||'')}</div><div class="up-meta">${v.ty||''} · ${v.views||0}${s('views')}</div></div></div>`).join('');}
+function renderUpNext(){const list=document.getElementById('upNextList');if(slimVids.length<2){list.innerHTML=`<div class="no-c">${s('noVids')}</div>`;return;}const items=[];for(let i=1;i<=6;i++){const idx=(curIdx+i)%slimVids.length;if(idx!==curIdx)items.push({...slimVids[idx],_idx:idx});}list.innerHTML=items.map(v=>`<div class="up-item" onclick="loadVid(${v._idx})"><div class="up-thumb"><img src="${thumb(v)}" alt="${esc(v.t||'')}" loading="lazy"><span class="up-dur">${v.duration||''}</span></div><div class="up-info"><div class="up-ttl">${esc(v.t||'')}</div><div class="up-meta">${v.ty?`<span>${esc(v.ty)}</span><span style="opacity:.35">·</span>`:''}${v.views||0}${s('views')}</div></div></div>`).join('');}
 
 function loadVid(idx){const v=slimVids[idx];if(!v)return;stopAll();curVid=v;curIdx=idx;sessionStorage.setItem('mediacms-player-vid',JSON.stringify(v));sessionStorage.setItem('mediacms-player-idx',idx);window.scrollTo(0,0);updateURL();renderInfo();addHistory();document.getElementById('resumeBanner').classList.remove('show');setTimeout(()=>playVid(),50);}
 function playNext(){if(slimVids.length>1)loadVid((curIdx+1)%slimVids.length);}
@@ -2009,14 +1949,9 @@ function skipVid(sec){if(bfPlayer)try{bfPlayer.currentTime(Math.max(0,bfPlayer.c
 // 4. Autoplay (QoL button mirrors toggle)
 function toggleAutoplayQol(){toggleAutoplay();const on=autoplay;document.getElementById('autoplayQolBtn').classList.toggle('on',on);document.getElementById('lblAutoplayQol').textContent=on?'Autoplay':'No Auto';}
 // 5. Theater
-function toggleTheater(){theaterOn=!theaterOn;document.body.classList.toggle('theater',theaterOn);document.getElementById('theaterNavBtn').classList.toggle('on',theaterOn);document.getElementById('theaterQolBtn').classList.toggle('on',theaterOn);toast(theaterOn?s('toastTheater'):s('toastTheaterOff'));}
+function toggleTheater(){theaterOn=!theaterOn;document.body.classList.toggle('theater',theaterOn);const nb=document.getElementById('theaterNavBtn');if(nb)nb.classList.toggle('on',theaterOn);toast(theaterOn?s('toastTheater'):s('toastTheaterOff'));}
 // 6. Fullscreen
 function reqFullscreen(){if(bfPlayer)try{bfPlayer.isFullscreen()?bfPlayer.exitFullscreen():bfPlayer.requestFullscreen();}catch(e){}}
-// 7. Brightness cycle
-const _bls=[70,85,100,115,130];let _bIdx=2;
-function cycleBrightness(){_bIdx=(_bIdx+1)%_bls.length;const v=_bls[_bIdx];const pw=document.getElementById('playerWrap');if(pw)pw.style.filter=`brightness(${v}%)`;document.getElementById('brightLbl').textContent=v+'%';toast('☀ Brightness '+v+'%');}
-// 8. Picture-in-Picture
-async function togglePiP(){try{const vid=bfPlayer?.el()?.querySelector('video');if(!vid)return;if(document.pictureInPictureElement){await document.exitPictureInPicture();document.getElementById('pipBtn').classList.remove('on');}else{await vid.requestPictureInPicture();document.getElementById('pipBtn').classList.add('on');}}catch(e){toast('⚠ PiP not supported');}}
 // 9. Mute toggle
 function toggleMuteQol(){if(bfPlayer){const m=!bfPlayer.muted();bfPlayer.muted(m);document.getElementById('muteLbl').textContent=m?'Unmute':'Mute';document.getElementById('muteBtn').classList.toggle('on',m);toast(m?'🔇 Muted':'🔊 Unmuted');}else toast('No player active');}
 // 10. Timestamp
@@ -2027,46 +1962,6 @@ function closeSleepModal(e){if(!e||e.target===document.getElementById('sleepModa
 function setSleepTimer(mins){clearSleep();sleepEnd=Date.now()+mins*60000;document.getElementById('sleepModal').classList.remove('open');document.getElementById('sleepCd').style.display='';document.getElementById('sleepBtn').classList.add('on');toast(s('toastSleep')+mins+' min');sleepInterval=setInterval(()=>{const rem=sleepEnd-Date.now();if(rem<=0){clearSleep();if(bfPlayer)try{bfPlayer.pause();}catch(e){}if(radioAudio&&radioPlaying)toggleRadio();toast(s('sleepPause'));}else{const m=Math.floor(rem/60000),sec=Math.floor((rem%60000)/1000);document.getElementById('sleepCd').textContent=m+':'+String(sec).padStart(2,'0');}},1000);}
 function cancelSleep(){clearSleep();document.getElementById('sleepModal').classList.remove('open');toast(s('toastSleepOff'));}
 function clearSleep(){if(sleepInterval)clearInterval(sleepInterval);sleepInterval=null;sleepEnd=null;document.getElementById('sleepCd').style.display='none';document.getElementById('sleepBtn').classList.remove('on');}
-// 12. Screenshot
-function takeScreenshot(){try{const vid=bfPlayer?.el()?.querySelector('video');if(!vid)return toast('⚠ No video to capture');const c=document.createElement('canvas');c.width=vid.videoWidth;c.height=vid.videoHeight;c.getContext('2d').drawImage(vid,0,0);c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(slug(curVid?.t||'frame'))+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);toast('📸 Screenshot saved!');});} catch(e){toast('⚠ Screenshot failed');}}
-// 13. Keyboard shortcuts modal
-function showShortcuts(){document.getElementById('shortcutsModal').classList.add('open');}
-function closeShortcuts(){document.getElementById('shortcutsModal').classList.remove('open');}
-// 14. Mini sticky player
-let miniOn=false;
-function toggleMini(){
-  miniOn=!miniOn;
-  const wrap=document.getElementById('miniWrap');
-  const pWrap=document.getElementById('playerWrap');
-  const btn=document.getElementById('miniBtn');
-  wrap.classList.toggle('show',miniOn);
-  btn.classList.toggle('on',miniOn);
-  if(miniOn){
-    document.getElementById('miniTitle').textContent=curVid?.t||'';
-    const slot=document.getElementById('miniVidSlot');
-    // Clone the youtube iframe or create a small mirror notice
-    if(curVid?.isYouTube&&curVid?.u){
-      slot.innerHTML=`<iframe src="https://www.youtube.com/embed/${curVid.u}?autoplay=0&rel=0&modestbranding=1" style="width:100%;aspect-ratio:16/9;border:none;" allowfullscreen></iframe>`;
-    } else {
-      slot.innerHTML=`<div style="aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:.75rem;">Scroll up to player</div>`;
-    }
-    toast('📌 Mini player on — scroll freely');
-  } else {
-    document.getElementById('miniVidSlot').innerHTML='';
-  }
-}
-// 15. Quality selector (wires into VJS for HLS, shows toast for non-HLS)
-function setQuality(v){if(!bfPlayer)return;try{const ql=bfPlayer.qualityLevels?.();if(ql&&ql.length){for(let i=0;i<ql.length;i++){ql[i].enabled=v==='auto'||String(ql[i].height)===v;}toast('📺 Quality: '+(v==='auto'?'Auto':v+'p'));}else toast('📺 Quality switching not available for this source');}catch(e){toast('📺 Quality: '+(v==='auto'?'Auto':v+'p'));}}
-// 16. CC / Subtitles toggle
-function toggleCC(){if(!bfPlayer)return toast('⚠ No player active');try{const tracks=bfPlayer.textTracks();let found=false;for(let i=0;i<tracks.length;i++){if(tracks[i].kind==='subtitles'||tracks[i].kind==='captions'){found=true;const on=tracks[i].mode!=='showing';tracks[i].mode=on?'showing':'disabled';document.getElementById('ccBtn').classList.toggle('on',on);toast(on?'CC On':'CC Off');break;}}if(!found)toast('⚠ No subtitle tracks found');}catch(e){toast('⚠ No tracks');}}
-// 17. Language toggle
-function toggleLang(){uiLang=uiLang==='en'?'zh':'en';try{sessionStorage.setItem('bf-player-lang',uiLang);}catch(e){}document.getElementById('langLbl').textContent=uiLang==='en'?'EN':'中';applyLang();toast(uiLang==='en'?'Language: English':'语言：中文');}
-// 18. Volume fine control modal
-function openVolModal(){const v=bfPlayer?Math.round(bfPlayer.volume()*100):100;document.getElementById('volModalRange').value=v;document.getElementById('volModalPct').textContent=v+'%';document.getElementById('volModal').classList.add('open');}
-function closeVolModal(){document.getElementById('volModal').classList.remove('open');}
-function setVolFromModal(v){const pct=parseInt(v,10);if(bfPlayer)try{bfPlayer.volume(pct/100);bfPlayer.muted(pct===0);}catch(e){}document.getElementById('volModalRange').value=pct;document.getElementById('volModalPct').textContent=pct+'%';document.getElementById('volPct').textContent=pct+'%';document.getElementById('muteLbl').textContent=pct===0?'Unmute':'Mute';}
-// 19. Reset player settings
-function resetPlayer(){try{if(bfPlayer){bfPlayer.playbackRate(1);bfPlayer.volume(1);bfPlayer.muted(false);}loopOn=false;_bIdx=2;const pw=document.getElementById('playerWrap');if(pw)pw.style.filter='';document.getElementById('brightLbl').textContent='Bright';document.getElementById('loopBtn').classList.remove('on');document.getElementById('muteBtn').classList.remove('on');document.getElementById('muteLbl').textContent='Mute';document.getElementById('speedSel').value='1';document.getElementById('volPct').textContent='100%';toast('↺ Player settings reset');}catch(e){}}
 // Continue watching
 function doResume(){if(resumeTime&&bfPlayer){bfPlayer.currentTime(resumeTime);bfPlayer.play().catch(()=>{});}document.getElementById('resumeBanner').classList.remove('show');}
 function hideResume(){document.getElementById('resumeBanner').classList.remove('show');}
@@ -2077,16 +1972,15 @@ document.addEventListener('keydown',e=>{
   if(e.key===' '||e.key.toLowerCase()==='k'){e.preventDefault();if(radioPlaying||radioAudio)toggleRadio();else if(bfPlayer)bfPlayer.paused()?bfPlayer.play():bfPlayer.pause();}
   if(e.key==='ArrowRight'&&bfPlayer){e.preventDefault();skipVid(10);}
   if(e.key==='ArrowLeft'&&bfPlayer){e.preventDefault();skipVid(-10);}
-  if(e.key==='ArrowUp'&&bfPlayer){e.preventDefault();const v=Math.min(1,bfPlayer.volume()+.05);bfPlayer.volume(v);document.getElementById('volPct').textContent=Math.round(v*100)+'%';toast('🔊 '+Math.round(v*100)+'%');}
-  if(e.key==='ArrowDown'&&bfPlayer){e.preventDefault();const v=Math.max(0,bfPlayer.volume()-.05);bfPlayer.volume(v);document.getElementById('volPct').textContent=Math.round(v*100)+'%';toast('🔉 '+Math.round(v*100)+'%');}
+  if(e.key==='ArrowUp'&&bfPlayer){e.preventDefault();const v=Math.min(1,bfPlayer.volume()+.05);bfPlayer.volume(v);toast('🔊 '+Math.round(v*100)+'%');}
+  if(e.key==='ArrowDown'&&bfPlayer){e.preventDefault();const v=Math.max(0,bfPlayer.volume()-.05);bfPlayer.volume(v);toast('🔉 '+Math.round(v*100)+'%');}
   if(e.key.toLowerCase()==='f'&&bfPlayer)reqFullscreen();
   if(e.key.toLowerCase()==='m')toggleMuteQol();
   if(e.key.toLowerCase()==='l')toggleLoop();
   if(e.key.toLowerCase()==='t')toggleTheater();
   if(e.key.toLowerCase()==='n'){e.preventDefault();playNext();}
-  if(e.key.toLowerCase()==='p'){e.preventDefault();togglePiP();}
   if(/^[0-9]$/.test(e.key)&&bfPlayer){e.preventDefault();try{const pct=parseInt(e.key,10)/10;bfPlayer.currentTime(bfPlayer.duration()*pct);toast('⏩ '+Math.round(pct*100)+'%');}catch(ex){}}
-  if(e.key==='Escape'){closeShareModal();closeSleepModal();closeShortcuts();closeVolModal();}
+  if(e.key==='Escape'){closeShareModal();closeSleepModal();}
 });
 
 // ── RADIO ─────────────────────────────────────────────────
@@ -2403,7 +2297,7 @@ function drawVisFallback(){
 
 // ── ACTIONS ───────────────────────────────────────────────
 function stopAll(){stopRadio();if(radioSignalFrame){cancelAnimationFrame(radioSignalFrame);radioSignalFrame=null;}if(bfPlayer)try{bfPlayer.pause();bfPlayer.src('');}catch(e){}const yf=document.getElementById('youtubeFrame');if(yf)yf.src='';clearOv();}
-function toggleAutoplay(){autoplay=!autoplay;document.getElementById('autoplayTog').classList.toggle('on',autoplay);try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');ss.autoplay=autoplay;localStorage.setItem('mediacms-settings',JSON.stringify(ss));}catch(e){}}
+function toggleAutoplay(){autoplay=!autoplay;const at=document.getElementById('autoplayTog');if(at)at.classList.toggle('on',autoplay);const aqb=document.getElementById('autoplayQolBtn');if(aqb)aqb.classList.toggle('on',autoplay);try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');ss.autoplay=autoplay;localStorage.setItem('mediacms-settings',JSON.stringify(ss));}catch(e){}}
 function likeVideo(){if(!curVid)return;let lk=JSON.parse(localStorage.getItem('mediacms-likes')||'[]');const btn=document.getElementById('likeBtn'),lbl=document.getElementById('lblLike');if(isLiked(curIdx)){lk=lk.filter(i=>i!==curIdx);btn.classList.remove('liked');lbl.textContent=s('like');toast(s('toastUnlike'));}else{lk.push(curIdx);btn.classList.add('liked');lbl.textContent=s('liked');toast(s('toastLike'));}localStorage.setItem('mediacms-likes',JSON.stringify(lk));}
 function isLiked(i){try{return JSON.parse(localStorage.getItem('mediacms-likes')||'[]').includes(i);}catch(e){return false;}}
 function toggleWatchlist(){if(curIdx<0)return;let wl=JSON.parse(localStorage.getItem('mediacms-watchlist')||'[]');const btn=document.getElementById('watchlistBtn');if(inWL(curIdx)){wl=wl.filter(i=>i!==curIdx);btn.classList.remove('inwl');toast(s('toastUnwl'));}else{wl.push(curIdx);btn.classList.add('inwl');toast(s('toastWl'));}localStorage.setItem('mediacms-watchlist',JSON.stringify(wl));}
@@ -2479,24 +2373,7 @@ function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return m+':'+String(sec).p
 function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
 function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();return true;}
 
-// ── QOL COLLAPSE ─────────────────────────────────────────
-let qolCollapsed = true;
-function toggleQolCollapse(){
-  qolCollapsed = !qolCollapsed;
-  const bar = document.getElementById('qolBar');
-  const lbl = document.getElementById('qolMoreLbl');
-  bar.classList.toggle('collapsed', qolCollapsed);
-  lbl.textContent = qolCollapsed ? 'More' : 'Less';
-  try{ localStorage.setItem('bf-qol-collapsed', qolCollapsed ? '1' : '0'); }catch(e){}
-}
-function initQolCollapse(){
-  try{ const s = localStorage.getItem('bf-qol-collapsed'); if(s !== null) qolCollapsed = s === '1'; }catch(e){}
-  const bar = document.getElementById('qolBar');
-  const lbl = document.getElementById('qolMoreLbl');
-  if(bar) bar.classList.toggle('collapsed', qolCollapsed);
-  if(lbl) lbl.textContent = qolCollapsed ? 'More' : 'Less';
-}
-document.addEventListener('DOMContentLoaded', initQolCollapse);
+
 
 // ── LIQUID GLASS TOGGLE ───────────────────────────────────
 let liquidGlassOn = false;
@@ -2538,135 +2415,7 @@ function enableLiquidGlass(){
   toast('✨ Liquid Glass enabled!');
 }
 
-// ── EXTRA QOL: ZOOM ──────────────────────────────────────
-const zoomLevels = ['100%','110%','125%','150%','75%'];
-let zoomIdx = 0;
-function cycleZoom(){
-  zoomIdx = (zoomIdx+1) % zoomLevels.length;
-  const z = zoomLevels[zoomIdx];
-  const wrap = document.getElementById('playerWrap');
-  if(wrap) wrap.style.transform = zoomIdx===0 ? '' : `scale(${parseFloat(z)/100})`;
-  if(wrap) wrap.style.transformOrigin = 'top center';
-  document.getElementById('zoomLbl').textContent = z;
-  toast('🔍 Zoom: '+z);
-}
 
-// ── EXTRA QOL: FLIP / MIRROR ─────────────────────────────
-let flipped = false;
-function toggleFlip(){
-  flipped = !flipped;
-  const wrap = document.getElementById('playerWrap');
-  if(wrap) wrap.style.transform = flipped ? 'scaleX(-1)' : '';
-  document.getElementById('flipBtn').classList.toggle('on', flipped);
-  toast(flipped ? '🔄 Mirror on' : '🔄 Mirror off');
-}
-
-// ── EXTRA QOL: ROTATE ────────────────────────────────────
-const rotateDeg = [0,90,180,270];
-let rotateIdx = 0;
-function cycleRotate(){
-  rotateIdx = (rotateIdx+1) % rotateDeg.length;
-  const deg = rotateDeg[rotateIdx];
-  const vid = document.querySelector('#playerWrap video, #playerWrap iframe');
-  if(vid){
-    vid.style.transform = deg===0 ? '' : `rotate(${deg}deg)`;
-    vid.style.transformOrigin = 'center center';
-  }
-  document.getElementById('rotateBtn').classList.toggle('on', rotateIdx!==0);
-  toast('↻ Rotate: '+deg+'°');
-}
-
-// ── EXTRA QOL: GRAYSCALE ─────────────────────────────────
-let grayscaleOn = false;
-function toggleGrayscale(){
-  grayscaleOn = !grayscaleOn;
-  const wrap = document.getElementById('playerWrap');
-  if(wrap) wrap.style.filter = grayscaleOn ? 'grayscale(1)' : '';
-  document.getElementById('bwBtn').classList.toggle('on', grayscaleOn);
-  toast(grayscaleOn ? '⬛ B&W on' : '🎨 Color restored');
-}
-
-// ── EXTRA QOL: BOOKMARK / CLIP ────────────────────────────
-function bookmarkTime(){
-  if(!bfPlayer) return toast('No video playing');
-  const t = Math.floor(bfPlayer.currentTime());
-  const title = curVid?.t || 'Untitled';
-  let bm = [];
-  try{ bm = JSON.parse(localStorage.getItem('bf-bookmarks') || '[]'); }catch(e){}
-  bm.unshift({ title, time: t, vidIdx: curIdx, ts: Date.now() });
-  if(bm.length > 50) bm = bm.slice(0,50);
-  try{ localStorage.setItem('bf-bookmarks', JSON.stringify(bm)); }catch(e){}
-  toast('🔖 Clipped at '+fmtTime(t));
-}
-function showBookmarks(){
-  let bm = [];
-  try{ bm = JSON.parse(localStorage.getItem('bf-bookmarks') || '[]'); }catch(e){}
-  const list = document.getElementById('bookmarksList');
-  if(!bm.length){ list.innerHTML = '<div style="text-align:center;color:var(--t3);padding:1.2rem .5rem;font-size:.82rem;">No clips saved yet.<br>Use the Clip button while watching.</div>'; }
-  else{
-    list.innerHTML = bm.map((b,i) =>
-      `<div style="display:flex;align-items:center;gap:.55rem;padding:.5rem .4rem;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;" onclick="seekToBookmark(${b.vidIdx},${b.time})">
-        <span style="font-size:1rem;">🔖</span>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:.78rem;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(b.title)}</div>
-          <div style="font-size:.68rem;color:var(--t3);">${fmtTime(b.time)}</div>
-        </div>
-        <span onclick="event.stopPropagation();deleteBookmark(${i})" style="color:var(--t3);font-size:.9rem;cursor:pointer;padding:.1rem .3rem;" title="Delete">✕</span>
-      </div>`
-    ).join('');
-  }
-  document.getElementById('bookmarksModal').classList.add('open');
-}
-function closeBookmarks(){ document.getElementById('bookmarksModal').classList.remove('open'); }
-function seekToBookmark(vidIdx, time){
-  closeBookmarks();
-  if(bfPlayer){ bfPlayer.currentTime(time); toast('⏩ Jumped to '+fmtTime(time)); }
-}
-function deleteBookmark(i){
-  let bm = [];
-  try{ bm = JSON.parse(localStorage.getItem('bf-bookmarks') || '[]'); }catch(e){}
-  bm.splice(i,1);
-  try{ localStorage.setItem('bf-bookmarks', JSON.stringify(bm)); }catch(e){}
-  showBookmarks();
-}
-function clearBookmarks(){
-  try{ localStorage.removeItem('bf-bookmarks'); }catch(e){}
-  showBookmarks();
-  toast('🗑 All clips cleared');
-}
-
-// ── EXTRA QOL: AMBIENT GLOW ───────────────────────────────
-let ambientOn = false;
-let ambientFrame = null;
-function toggleAmbient(){
-  ambientOn = !ambientOn;
-  document.getElementById('ambientBtn').classList.toggle('on', ambientOn);
-  const wrap = document.getElementById('playerWrap');
-  if(!ambientOn){
-    cancelAnimationFrame(ambientFrame);
-    if(wrap) wrap.style.boxShadow = '';
-    toast('💡 Ambient glow off');
-    return;
-  }
-  toast('💡 Ambient glow on');
-  animateAmbient();
-}
-function animateAmbient(){
-  if(!ambientOn) return;
-  const t = Date.now()/1000;
-  const r = Math.round(40 + 20*Math.sin(t*0.4));
-  const g = Math.round(80 + 40*Math.sin(t*0.3+1));
-  const b = Math.round(200 + 55*Math.sin(t*0.5+2));
-  const wrap = document.getElementById('playerWrap');
-  if(wrap) wrap.style.boxShadow = `0 0 60px 10px rgba(${r},${g},${b},0.35), 0 0 120px 30px rgba(${r},${g},${b},0.15), 0 24px 64px rgba(0,0,0,0.85)`;
-  ambientFrame = requestAnimationFrame(animateAmbient);
-}
-
-// ── EXTRA QOL: SCROLL TO PLAYER ───────────────────────────
-function scrollToPlayer(){
-  const pw = document.getElementById('playerWrap');
-  if(pw) pw.scrollIntoView({behavior:'smooth', block:'start'});
-}
 
 // Hook liquid glass init into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', initLiquidGlass);
