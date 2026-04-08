@@ -236,7 +236,7 @@ body.theater .player-wrap{border-radius:0!important;}
   animation:ticker-scroll 18s linear infinite;
 }
 .radio-ticker span{margin-right:3rem;}
-@keyframes ticker-scroll{0%{transform:translateX(0%);}100%{transform:translateX(-50%);}}
+@keyframes ticker-scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
 
 /* INFO */
 .player-info{padding:1rem 0;}
@@ -1339,7 +1339,7 @@ function updateTickerText(){
   if(t2)t2.textContent=txt;
 }
 
-// radioSignalFrame declared in top-level state
+let radioSignalFrame=null;
 function animSignal(){
   const bars=[document.getElementById('sb1'),document.getElementById('sb2'),document.getElementById('sb3'),document.getElementById('sb4'),document.getElementById('sb5')];
   let t=0;
