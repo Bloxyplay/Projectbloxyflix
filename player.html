@@ -1307,7 +1307,7 @@ body.theater .player-wrap{border-radius:0!important;}
     <!-- Player -->
     <div class="player-wrap" id="playerWrap">
       <div id="playerContainer">
-        <video id="mediacms-player" class="video-js vjs-big-play-centered" playsinline></video>
+        <video id="bf-player" class="video-js vjs-big-play-centered" playsinline></video>
       </div>
       <div id="radioContainer" class="radio-wrap" style="display:none;">
         <div class="radio-card">
@@ -1776,7 +1776,7 @@ function getVidFromURL(){
   const vi=p.get('v');
   if(vi!==null){
     try{
-      const rawSlim=sessionStorage.getItem('mediacms-player-slim')||sessionStorage.getItem('bf-player-slim');
+      const rawSlim=sessionStorage.getItem('bf-player-slim');
       const sv=rawSlim?JSON.parse(rawSlim):[];
       const idx=parseInt(vi,10);
       if(sv[idx]){slimVids=sv;curIdx=idx;return sv[idx];}
@@ -1844,42 +1844,45 @@ function getShareURL(){
 // ── INIT ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   try{uiLang=sessionStorage.getItem('bf-player-lang')||'en';if(!['en','zh'].includes(uiLang))uiLang='en';}catch(e){}
-  try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');autoplay=ss.autoplay!==false;const at=document.getElementById('autoplayTog');if(at&&!autoplay)at.classList.remove('on');const aqb=document.getElementById('autoplayQolBtn');if(aqb)aqb.classList.toggle('on',autoplay);}catch(e){}
+  try{const ss=JSON.parse(localStorage.getItem('bf-settings')||'{}');autoplay=ss.autoplay!==false;const at=document.getElementById('autoplayTog');if(at&&!autoplay)at.classList.remove('on');const aqb=document.getElementById('autoplayQolBtn');if(aqb)aqb.classList.toggle('on',autoplay);}catch(e){}
   detectEmbedded();
+
   let loaded=false;
-  // If URL has a ?v= param, always use it — it reflects the user's explicit selection.
-  // Only fall back to sessionStorage when there is no URL param (e.g. page refresh).
-  const _urlParams=new URLSearchParams(window.location.search);
-  const _urlV=_urlParams.get('v');
-  if(_urlV!==null){
-    try{
-      const rawSlim=sessionStorage.getItem('mediacms-player-slim')||sessionStorage.getItem('bf-player-slim');
-      const sv=rawSlim?JSON.parse(rawSlim):[];
-      const idx=parseInt(_urlV,10);
-      if(sv[idx]){slimVids=sv;curIdx=idx;curVid=sv[idx];loaded=true;}
-    }catch(e){}
+  // ALWAYS prefer sessionStorage (bf-player-*) as the source of truth.
+  // loadVid() keeps these updated whenever the user picks a video in Up Next,
+  // so sessionStorage always reflects the last video the user actually chose.
+  // The ?v= URL param comes from replaceState which does NOT persist across
+  // navigation — so we cannot rely on it as the primary source.
+  try{
+    const rawSS=sessionStorage.getItem('bf-player-vid');
+    if(rawSS){
+      const rawSlim=sessionStorage.getItem('bf-player-slim');
+      const rawIdx=sessionStorage.getItem('bf-player-idx');
+      curVid=JSON.parse(rawSS);curIdx=parseInt(rawIdx||'0',10);slimVids=(rawSlim?JSON.parse(rawSlim):[]).map(enrichSlim);if(curIdx>=0&&slimVids[curIdx])curVid=enrichSlim(curVid);loaded=true;
+    }
+  }catch(e){}
+  if(!loaded){
+    // No sessionStorage — try URL params (shared links, bookmarks, ?v= deep links)
+    const _urlParams=new URLSearchParams(window.location.search);
+    const _urlV=_urlParams.get('v');
+    if(_urlV!==null){
+      try{
+        const rawSlim=sessionStorage.getItem('bf-player-slim');
+        const sv=rawSlim?JSON.parse(rawSlim):[];
+        const idx=parseInt(_urlV,10);
+        if(sv[idx]){slimVids=sv;curIdx=idx;curVid=sv[idx];loaded=true;}
+      }catch(e){}
+    }
   }
   if(!loaded){
-    // No URL ?v= param — try sessionStorage (page refresh, direct open)
-    try{
-      const rawSS=sessionStorage.getItem('mediacms-player-vid')||sessionStorage.getItem('bf-player-vid');
-      if(rawSS){
-        const rawSlim=sessionStorage.getItem('mediacms-player-slim')||sessionStorage.getItem('bf-player-slim');
-        const rawIdx=sessionStorage.getItem('mediacms-player-idx')||sessionStorage.getItem('bf-player-idx');
-        curVid=JSON.parse(rawSS);curIdx=parseInt(rawIdx||'0',10);slimVids=rawSlim?JSON.parse(rawSlim):[];loaded=true;
-      }
-    }catch(e){}
-  }
-  if(!loaded){
-    // No sessionStorage — try full URL params (shared links, bookmarks)
+    // Last resort — legacy URL params (shared links, bookmarks)
     const vf=getVidFromURL();
     if(vf){curVid=vf;if(curIdx<0)curIdx=-1;loaded=true;}
   }
-  if(!loaded){goBack();return;}
-  if(!loaded||!curVid){toast('No video data');return;}
+  if(!loaded||!curVid){show404();return;}
   applyLang();updateURL();
   try{
-    bfPlayer=videojs('mediacms-player',{controls:true,autoplay:false,preload:'auto',fluid:true,playbackRates:[0.5,0.75,1,1.25,1.5,2],html5:{vhs:{overrideNative:true},nativeVideoTracks:false,nativeAudioTracks:false}});
+    bfPlayer=videojs('bf-player',{controls:true,autoplay:false,preload:'auto',fluid:true,playbackRates:[0.5,0.75,1,1.25,1.5,2],html5:{vhs:{overrideNative:true},nativeVideoTracks:false,nativeAudioTracks:false}});
     bfPlayer.ready(function(){this.el().style.width='100%';this.el().style.height='auto';});
     bfPlayer.on('ended',()=>{if(loopOn){bfPlayer.currentTime(0);bfPlayer.play();}else if(autoplay)playNext();});
     bfPlayer.on('timeupdate',()=>{if(bfPlayer.duration())saveProg(curIdx,(bfPlayer.currentTime()/bfPlayer.duration())*100);});
@@ -1940,7 +1943,7 @@ function renderInfo(){
   updateStars(v.userRating||0);
   if(curIdx>=0&&slimVids.length>0){renderUpNext();renderCmts(curIdx);}
   else{document.getElementById('upNextList').innerHTML=`<div class="no-c">${s('noVids')}</div>`;document.getElementById('commentsList').innerHTML=`<div class="no-c">${s('noCmts')}</div>`;document.getElementById('commentCount').textContent='0';}
-  const uname=localStorage.getItem('mediacms-username')||'Guest';
+  const uname=localStorage.getItem('bf-username')||'Guest';
   document.getElementById('commentAvatar').textContent=uname.charAt(0).toUpperCase();
   if(curIdx>=0&&inWL(curIdx))document.getElementById('watchlistBtn').classList.add('inwl');
   if(curIdx>=0&&isLiked(curIdx)){document.getElementById('likeBtn').classList.add('liked');document.getElementById('lblLike').textContent=s('liked');}
@@ -1948,13 +1951,84 @@ function renderInfo(){
 function thumb(v){if(v.thumb)return v.thumb;if(v.isYouTube&&v.u&&!v.u.startsWith('http'))return`https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;return`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%23161924'/><text x='160' y='95' font-family='Arial' font-size='11' fill='%238892a4' text-anchor='middle'>BloxyFlix</text></svg>`;}
 function renderUpNext(){const list=document.getElementById('upNextList');if(slimVids.length<2){list.innerHTML=`<div class="no-c">${s('noVids')}</div>`;return;}const items=[];for(let i=1;i<=6;i++){const idx=(curIdx+i)%slimVids.length;if(idx!==curIdx)items.push({...slimVids[idx],_idx:idx});}list.innerHTML=items.map(v=>`<div class="up-item" onclick="loadVid(${v._idx})"><div class="up-thumb"><img src="${thumb(v)}" alt="${esc(v.t||'')}" loading="lazy"><span class="up-dur">${v.duration||''}</span></div><div class="up-info"><div class="up-ttl">${esc(v.t||'')}</div><div class="up-meta">${v.ty?`<span>${esc(v.ty)}</span><span style="opacity:.35">·</span>`:''}${v.views||0}${s('views')}</div></div></div>`).join('');}
 
-function loadVid(idx){const v=slimVids[idx];if(!v)return;stopAll();curVid=v;curIdx=idx;sessionStorage.setItem('mediacms-player-vid',JSON.stringify(v));sessionStorage.setItem('mediacms-player-idx',String(idx));sessionStorage.setItem('mediacms-player-slim',JSON.stringify(slimVids));sessionStorage.setItem('bf-player-vid',JSON.stringify(v));sessionStorage.setItem('bf-player-idx',String(idx));sessionStorage.setItem('bf-player-slim',JSON.stringify(slimVids));window.scrollTo(0,0);updateURL();renderInfo();addHistory();document.getElementById('resumeBanner').classList.remove('show');setTimeout(()=>playVid(),50);}
+function enrichSlim(v){
+  // Restore fields that index.html slim builder may have omitted
+  if(!v)return v;
+  const o={...v};
+  if(!('isEmbed' in o))o.isEmbed=typeof o.u==='string'&&(o.u.startsWith('<iframe')||o.u.startsWith('<'));
+  if(!('isExternal' in o))o.isExternal=typeof o.u==='string'&&(o.u.includes('koryo.tv')||o.u.includes('/channel/'));
+  if(o.isGoogleDrive&&!o.gdriveFileId&&typeof o.u==='string'){
+    const m=o.u.match(/([A-Za-z0-9_-]{20,})/);
+    if(m)o.gdriveFileId=m[1];
+  }
+  return o;
+}
+function loadVid(idx){
+  const raw=slimVids[idx];if(!raw)return;
+  const vid=enrichSlim({...raw});delete vid.thumb;
+  // Enrich the entire slim list too so Up Next works correctly after reload
+  const enrichedSlim=slimVids.map(enrichSlim);
+  sessionStorage.setItem('bf-player-vid',JSON.stringify(vid));
+  sessionStorage.setItem('bf-player-idx',String(idx));
+  sessionStorage.setItem('bf-player-slim',JSON.stringify(enrichedSlim));
+  window.location.href='player.html';
+}
 function playNext(){if(slimVids.length>1)loadVid((curIdx+1)%slimVids.length);}
 function goBack(){stopAll();if(document.referrer&&document.referrer.includes(location.hostname))history.back();else location.href='index.html';}
+function show404(){
+  // Hide all player UI
+  document.querySelectorAll('.pnav,.player-main').forEach(el=>{if(el)el.style.display='none';});
+  // Build 404 page
+  const overlay=document.createElement('div');
+  overlay.id='bf-404';
+  overlay.style.cssText=`
+    position:fixed;inset:0;z-index:99999;
+    background:#05050e;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;
+    padding:2rem;text-align:center;
+  `;
+  overlay.innerHTML=`
+    <div style="max-width:520px;width:100%;">
+      <div style="font-size:6rem;margin-bottom:.5rem;line-height:1;">📼</div>
+      <h1 style="font-size:2.8rem;font-weight:700;color:#f2f2ff;margin-bottom:.5rem;letter-spacing:-.5px;">404</h1>
+      <h2 style="font-size:1.3rem;font-weight:600;color:#a0a0cc;margin-bottom:1.2rem;letter-spacing:-.2px;">Video Not Found</h2>
+      <p style="font-size:.98rem;color:#4e4e7a;line-height:1.7;margin-bottom:2.2rem;">
+        The player couldn't find any video here — please check that you don't load this on the actual GitHub player page!
+      </p>
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:1rem 1.4rem;margin-bottom:2rem;display:inline-block;">
+        <span style="color:#4e4e7a;font-size:.82rem;">Redirecting to BloxyFlix in&nbsp;</span>
+        <span id="bf-404-count" style="color:#4f9eff;font-weight:700;font-size:.95rem;">5</span>
+        <span style="color:#4e4e7a;font-size:.82rem;">&nbsp;seconds…</span>
+      </div>
+      <br>
+      <a href="https://bloxyflix.netlify.app" style="
+        display:inline-flex;align-items:center;gap:.5rem;
+        background:linear-gradient(135deg,rgba(79,158,255,0.9),rgba(130,60,230,0.85));
+        color:#fff;font-size:.9rem;font-weight:600;
+        padding:.7rem 1.6rem;border-radius:999px;text-decoration:none;
+        box-shadow:0 4px 20px rgba(79,158,255,0.35);
+        transition:transform .2s,box-shadow .2s;
+      " onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 6px 28px rgba(79,158,255,0.55)'"
+         onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(79,158,255,0.35)'">
+        ← Take me to BloxyFlix
+      </a>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  // Countdown + redirect
+  let secs=5;
+  const countdown=document.getElementById('bf-404-count');
+  const timer=setInterval(()=>{
+    secs--;
+    if(countdown)countdown.textContent=secs;
+    if(secs<=0){clearInterval(timer);window.location.href='https://bloxyflix.netlify.app';}
+  },1000);
+}
 
 // ── QOL — 20 FEATURES ────────────────────────────────────
 // 1. Speed
-function setSpeed(v){if(bfPlayer)try{bfPlayer.playbackRate(parseFloat(v));}catch(e){}try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');ss.speed=v;localStorage.setItem('mediacms-settings',JSON.stringify(ss));}catch(e){}}
+function setSpeed(v){if(bfPlayer)try{bfPlayer.playbackRate(parseFloat(v));}catch(e){}try{const ss=JSON.parse(localStorage.getItem('bf-settings')||'{}');ss.speed=v;localStorage.setItem('bf-settings',JSON.stringify(ss));}catch(e){}}
 // 2. Loop
 function toggleLoop(){loopOn=!loopOn;document.getElementById('loopBtn').classList.toggle('on',loopOn);if(bfPlayer)try{bfPlayer.loop(loopOn);}catch(e){}toast(loopOn?s('toastLoop'):s('toastLoopOff'));}
 // 3. Skip ±Ns
@@ -2310,11 +2384,11 @@ function drawVisFallback(){
 
 // ── ACTIONS ───────────────────────────────────────────────
 function stopAll(){stopRadio();if(radioSignalFrame){cancelAnimationFrame(radioSignalFrame);radioSignalFrame=null;}if(bfPlayer)try{bfPlayer.pause();bfPlayer.src('');}catch(e){}const yf=document.getElementById('youtubeFrame');if(yf)yf.src='';clearOv();}
-function toggleAutoplay(){autoplay=!autoplay;const at=document.getElementById('autoplayTog');if(at)at.classList.toggle('on',autoplay);const aqb=document.getElementById('autoplayQolBtn');if(aqb)aqb.classList.toggle('on',autoplay);try{const ss=JSON.parse(localStorage.getItem('mediacms-settings')||'{}');ss.autoplay=autoplay;localStorage.setItem('mediacms-settings',JSON.stringify(ss));}catch(e){}}
-function likeVideo(){if(!curVid)return;let lk=JSON.parse(localStorage.getItem('mediacms-likes')||'[]');const btn=document.getElementById('likeBtn'),lbl=document.getElementById('lblLike');if(isLiked(curIdx)){lk=lk.filter(i=>i!==curIdx);btn.classList.remove('liked');lbl.textContent=s('like');toast(s('toastUnlike'));}else{lk.push(curIdx);btn.classList.add('liked');lbl.textContent=s('liked');toast(s('toastLike'));}localStorage.setItem('mediacms-likes',JSON.stringify(lk));}
-function isLiked(i){try{return JSON.parse(localStorage.getItem('mediacms-likes')||'[]').includes(i);}catch(e){return false;}}
-function toggleWatchlist(){if(curIdx<0)return;let wl=JSON.parse(localStorage.getItem('mediacms-watchlist')||'[]');const btn=document.getElementById('watchlistBtn');if(inWL(curIdx)){wl=wl.filter(i=>i!==curIdx);btn.classList.remove('inwl');toast(s('toastUnwl'));}else{wl.push(curIdx);btn.classList.add('inwl');toast(s('toastWl'));}localStorage.setItem('mediacms-watchlist',JSON.stringify(wl));}
-function inWL(i){try{return JSON.parse(localStorage.getItem('mediacms-watchlist')||'[]').includes(i);}catch(e){return false;}}
+function toggleAutoplay(){autoplay=!autoplay;const at=document.getElementById('autoplayTog');if(at)at.classList.toggle('on',autoplay);const aqb=document.getElementById('autoplayQolBtn');if(aqb)aqb.classList.toggle('on',autoplay);try{const ss=JSON.parse(localStorage.getItem('bf-settings')||'{}');ss.autoplay=autoplay;localStorage.setItem('bf-settings',JSON.stringify(ss));}catch(e){}}
+function likeVideo(){if(!curVid)return;let lk=JSON.parse(localStorage.getItem('bf-likes')||'[]');const btn=document.getElementById('likeBtn'),lbl=document.getElementById('lblLike');if(isLiked(curIdx)){lk=lk.filter(i=>i!==curIdx);btn.classList.remove('liked');lbl.textContent=s('like');toast(s('toastUnlike'));}else{lk.push(curIdx);btn.classList.add('liked');lbl.textContent=s('liked');toast(s('toastLike'));}localStorage.setItem('bf-likes',JSON.stringify(lk));}
+function isLiked(i){try{return JSON.parse(localStorage.getItem('bf-likes')||'[]').includes(i);}catch(e){return false;}}
+function toggleWatchlist(){if(curIdx<0)return;let wl=JSON.parse(localStorage.getItem('bf-watchlist')||'[]');const btn=document.getElementById('watchlistBtn');if(inWL(curIdx)){wl=wl.filter(i=>i!==curIdx);btn.classList.remove('inwl');toast(s('toastUnwl'));}else{wl.push(curIdx);btn.classList.add('inwl');toast(s('toastWl'));}localStorage.setItem('bf-watchlist',JSON.stringify(wl));}
+function inWL(i){try{return JSON.parse(localStorage.getItem('bf-watchlist')||'[]').includes(i);}catch(e){return false;}}
 function triggerDownload(){if(!curVid?.u)return;toast(s('toastDl'));const ext=curVid.u.split('.').pop().split('?')[0].toLowerCase()||'mp4';const name=((curVid.t||'video').replace(/[^a-z0-9\s-]/gi,'').trim().replace(/\s+/g,'-')||'video')+'.'+ext;function sv(blob){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove();},2000);}fetch(curVid.u).then(r=>{if(!r.ok)throw new Error();return r.blob();}).then(sv).catch(()=>fetch('https://corsproxy.io/?'+encodeURIComponent(curVid.u)).then(r=>r.blob()).then(sv).catch(()=>window.open(curVid.u,'_blank')));}
 function toggleDesc(){const d=document.getElementById('pDesc'),lbl=document.getElementById('lblMore');d.classList.toggle('open');lbl.textContent=d.classList.contains('open')?s('less'):s('more');}
 function rateVideo(r){if(curVid)curVid.userRating=r;updateStars(r);toast(s('rate')+r+s('stars'));}
@@ -2322,18 +2396,18 @@ function updateStars(r){document.querySelectorAll('#ratingStars .star').forEach(
 function clearInput(){document.getElementById('commentInput').value='';}
 
 // ── PROGRESS / HISTORY ────────────────────────────────────
-function saveProg(idx,pct){if(idx<0)return;const p=JSON.parse(localStorage.getItem('mediacms-progress')||'{}');p[idx]=Math.round(pct);localStorage.setItem('mediacms-progress',JSON.stringify(p));}
-function getProg(idx){try{return JSON.parse(localStorage.getItem('mediacms-progress')||'{}')[idx]||0;}catch(e){return 0;}}
-function addHistory(){if(curIdx<0)return;let h=JSON.parse(localStorage.getItem('mediacms-history')||'[]');h=h.filter(i=>i!==curIdx);h.unshift(curIdx);if(h.length>50)h=h.slice(0,50);localStorage.setItem('mediacms-history',JSON.stringify(h));}
+function saveProg(idx,pct){if(idx<0)return;const p=JSON.parse(localStorage.getItem('bf-progress')||'{}');p[idx]=Math.round(pct);localStorage.setItem('bf-progress',JSON.stringify(p));}
+function getProg(idx){try{return JSON.parse(localStorage.getItem('bf-progress')||'{}')[idx]||0;}catch(e){return 0;}}
+function addHistory(){if(curIdx<0)return;let h=JSON.parse(localStorage.getItem('bf-history')||'[]');h=h.filter(i=>i!==curIdx);h.unshift(curIdx);if(h.length>50)h=h.slice(0,50);localStorage.setItem('bf-history',JSON.stringify(h));}
 
 // ── COMMENTS ──────────────────────────────────────────────
-function getCmts(id){return JSON.parse(localStorage.getItem('mediacms-comments')||'{}')[id]||[];}
-function saveCmts(id,c){const all=JSON.parse(localStorage.getItem('mediacms-comments')||'{}');all[id]=c;localStorage.setItem('mediacms-comments',JSON.stringify(all));}
-function postComment(){const inp=document.getElementById('commentInput');const txt=inp.value.trim();if(!txt)return;const cs=getCmts(curIdx);cs.unshift({id:Date.now(),name:localStorage.getItem('mediacms-username')||'Guest',text:txt,time:Date.now(),likes:0,liked:false});saveCmts(curIdx,cs);inp.value='';renderCmts(curIdx);toast('💬 '+s('post')+'ed!');}
+function getCmts(id){return JSON.parse(localStorage.getItem('bf-comments')||'{}')[id]||[];}
+function saveCmts(id,c){const all=JSON.parse(localStorage.getItem('bf-comments')||'{}');all[id]=c;localStorage.setItem('bf-comments',JSON.stringify(all));}
+function postComment(){const inp=document.getElementById('commentInput');const txt=inp.value.trim();if(!txt)return;const cs=getCmts(curIdx);cs.unshift({id:Date.now(),name:localStorage.getItem('bf-username')||'Guest',text:txt,time:Date.now(),likes:0,liked:false});saveCmts(curIdx,cs);inp.value='';renderCmts(curIdx);toast('💬 '+s('post')+'ed!');}
 function likeCmt(id){const cs=getCmts(curIdx);const c=cs.find(x=>x.id===id);if(c){c.liked?(c.likes--,c.liked=false):(c.likes++,c.liked=true);saveCmts(curIdx,cs);renderCmts(curIdx);}}
-function delCmt(id){const uname=localStorage.getItem('mediacms-username')||'Guest';let cs=getCmts(curIdx);const c=cs.find(x=>x.id===id);if(c&&c.name===uname){cs=cs.filter(x=>x.id!==id);saveCmts(curIdx,cs);renderCmts(curIdx);}}
+function delCmt(id){const uname=localStorage.getItem('bf-username')||'Guest';let cs=getCmts(curIdx);const c=cs.find(x=>x.id===id);if(c&&c.name===uname){cs=cs.filter(x=>x.id!==id);saveCmts(curIdx,cs);renderCmts(curIdx);}}
 function ago(ts){const sec=(Date.now()-ts)/1000;if(sec<60)return'just now';const m=Math.floor(sec/60);if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
-function renderCmts(id){const list=document.getElementById('commentsList');const cnt=document.getElementById('commentCount');const uname=localStorage.getItem('mediacms-username')||'Guest';const cs=getCmts(id);cnt.textContent=cs.length;if(!cs.length){list.innerHTML=`<div class="no-c">${s('noCmts')}</div>`;return;}function col(str){let h=0;for(const c of str)h=str.charCodeAt(0)+((h<<5)-h);return['#2d7dff','#a371f7','#22c55e','#f59e0b','#ef4444','#06b6d4'][Math.abs(h)%6];}list.innerHTML=cs.map(c=>`<div class="cmt-item"><div class="cmt-av" style="background:${col(c.name)};flex-shrink:0;">${c.name.charAt(0).toUpperCase()}</div><div class="cmt-body"><div class="cmt-head"><span class="cmt-author">${esc(c.name)}</span><span class="cmt-time">${ago(c.time)}</span></div><div class="cmt-text">${esc(c.text)}</div><div class="cmt-btns"><span onclick="likeCmt(${c.id})" style="${c.liked?'color:var(--acc)':''}">♥ ${c.likes||s('like')}</span><span onclick="document.getElementById('commentInput').value='@${esc(c.name)} ';document.getElementById('commentInput').focus()">↩</span>${c.name===uname?`<span onclick="delCmt(${c.id})" style="color:var(--t3)">✕</span>`:''}</div></div></div>`).join('');}
+function renderCmts(id){const list=document.getElementById('commentsList');const cnt=document.getElementById('commentCount');const uname=localStorage.getItem('bf-username')||'Guest';const cs=getCmts(id);cnt.textContent=cs.length;if(!cs.length){list.innerHTML=`<div class="no-c">${s('noCmts')}</div>`;return;}function col(str){let h=0;for(const c of str)h=str.charCodeAt(0)+((h<<5)-h);return['#2d7dff','#a371f7','#22c55e','#f59e0b','#ef4444','#06b6d4'][Math.abs(h)%6];}list.innerHTML=cs.map(c=>`<div class="cmt-item"><div class="cmt-av" style="background:${col(c.name)};flex-shrink:0;">${c.name.charAt(0).toUpperCase()}</div><div class="cmt-body"><div class="cmt-head"><span class="cmt-author">${esc(c.name)}</span><span class="cmt-time">${ago(c.time)}</span></div><div class="cmt-text">${esc(c.text)}</div><div class="cmt-btns"><span onclick="likeCmt(${c.id})" style="${c.liked?'color:var(--acc)':''}">♥ ${c.likes||s('like')}</span><span onclick="document.getElementById('commentInput').value='@${esc(c.name)} ';document.getElementById('commentInput').focus()">↩</span>${c.name===uname?`<span onclick="delCmt(${c.id})" style="color:var(--t3)">✕</span>`:''}</div></div></div>`).join('');}
 
 // ── SHARE ─────────────────────────────────────────────────
 function openShareModal(){const u=getShareURL();document.getElementById('shareInput').value=u;document.getElementById('embedCode').textContent=`<iframe src="${u}&embed=1" width="640" height="360" frameborder="0" allowfullscreen></iframe>`;document.getElementById('shareModal').classList.add('open');}
