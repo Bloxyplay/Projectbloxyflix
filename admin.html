@@ -579,6 +579,11 @@ select.form-input{cursor:pointer;}
           <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
           Video Editor
         </div>
+        <div class="nav-item" onclick="showPage('announcements',this)">
+          <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+          Announcements
+          <span class="nav-badge blue" id="annCountBadge">—</span>
+        </div>
       </div>
 
       <div class="nav-section">
@@ -1938,6 +1943,138 @@ select.form-input{cursor:pointer;}
           </div>
         </div>
       </div>
+
+      <!-- ═══════════════════ ANNOUNCEMENTS PAGE ═══════════════════ -->
+      <div id="page-announcements" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>Announcements</h1>
+            <p>Add &amp; edit announcements, then download the updated file to upload to GitHub</p>
+          </div>
+          <div class="page-header-actions">
+            <input type="file" id="annLocalInput" accept=".html,text/html" style="display:none;" onchange="annLoadLocalFile(this)" />
+            <button class="topbar-btn" onclick="document.getElementById('annLocalInput').click()">
+              <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+              Load announcement.html
+            </button>
+            <button class="topbar-btn primary" onclick="annShowAddForm()">
+              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              New Announcement
+            </button>
+          </div>
+        </div>
+
+        <!-- FILE STATUS BANNER -->
+        <div id="annFileBanner" class="git-status warning" style="margin-bottom:1.25rem;">
+          <svg viewBox="0 0 24 24" style="color:var(--gold);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <div class="git-status-text"><strong>No file loaded.</strong> <span>Click "Load announcement.html" to load your current file before downloading.</span></div>
+        </div>
+
+        <!-- DOWNLOAD BUTTON -->
+        <div class="card" style="margin-bottom:1.25rem;">
+          <div class="card-body" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <div style="flex:1;min-width:180px;">
+              <div style="font-size:.88rem;font-weight:700;">Download announcement.html</div>
+              <div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;">Bakes all your current announcements into the file — ready to upload to GitHub.</div>
+            </div>
+            <button class="topbar-btn primary" id="annDownloadBtn" onclick="annDownload()" style="gap:.55rem;padding:.65rem 1.2rem;font-size:.88rem;">
+              <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.17l-3.59-3.58L7 10l5 5 5-5-1.41-1.41L13 12.17V2h-2z"/></svg>
+              Download announcement.html
+            </button>
+          </div>
+        </div>
+
+        <!-- ADD / EDIT FORM (hidden by default) -->
+        <div id="annFormCard" class="card" style="display:none;margin-bottom:1.75rem;">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title" id="annFormTitle">New Announcement</div>
+              <div class="card-head-sub">Fill in the fields and click Save — then download the file when ready</div>
+            </div>
+            <button class="card-action" onclick="annHideForm()">
+              <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              Close
+            </button>
+          </div>
+          <div class="card-body">
+            <input type="hidden" id="annEditId" value="" />
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Banner Title *</label>
+                <input class="form-input" id="annTitle" type="text" placeholder="e.g. New Feature Rollout" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Writer Name *</label>
+                <input class="form-input" id="annAuthor" type="text" placeholder="e.g. BlockyTom By BloxyFlix Team" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Writer Role</label>
+                <input class="form-input" id="annAuthorRole" type="text" placeholder="e.g. Owner, Staff, Editor" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tag</label>
+                <select class="form-input" id="annTag">
+                  <option value="news">News</option>
+                  <option value="update">Update</option>
+                  <option value="feature">Feature</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="event">Event</option>
+                  <option value="important">Important</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label class="form-label">Paragraph / Subtitle</label>
+                <input class="form-input" id="annSubtitle" type="text" placeholder="Short subtitle or teaser sentence shown on the card" />
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label class="form-label">Body Text *</label>
+                <textarea class="form-input" id="annBody" rows="8" style="min-height:160px;" placeholder="Write the full announcement text here. Separate paragraphs with a blank line."></textarea>
+                <div class="form-hint">Separate paragraphs with a blank line. Markdown is not supported.</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Banner Image URL</label>
+                <input class="form-input" id="annBanner" type="text" placeholder="https://…/image.jpg (optional)" />
+              </div>
+              <div class="form-group" style="flex-direction:row;align-items:center;gap:.75rem;padding-top:1.6rem;">
+                <div class="toggle" id="annPinnedToggle" onclick="this.classList.toggle('on')"></div>
+                <span style="font-size:.85rem;font-weight:600;">Pin to top</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem;">
+              <button class="topbar-btn primary" onclick="annSave()">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                Save to List
+              </button>
+              <button class="topbar-btn" onclick="annHideForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANNOUNCEMENTS LIST -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">All Announcements</div>
+              <div class="card-head-sub" id="annListSub">—</div>
+            </div>
+            <button class="card-action" onclick="annRenderList()">
+              <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              Refresh
+            </button>
+          </div>
+          <div id="annListBody">
+            <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.85rem;">Loading announcements…</div>
+          </div>
+        </div>
+      </div><!-- /page-announcements -->
 
     </div><!-- /content -->
   </main>
@@ -3951,6 +4088,258 @@ document.addEventListener('input', e=>{
     generateCode();
   }
 });
+
+// ─── ANNOUNCEMENTS ────────────────────────────────────────────
+const ANN_KEY = 'bf-announcements';
+let annSourceHtml = null; // loaded announcement.html content
+
+function annLoad(){
+  try{ return JSON.parse(localStorage.getItem(ANN_KEY)||'[]'); }catch(e){ return []; }
+}
+function annSaveAll(arr){
+  localStorage.setItem(ANN_KEY, JSON.stringify(arr));
+}
+function annGenId(){
+  return 'ann-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+}
+
+// ── Load local announcement.html file ──
+function annLoadLocalFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    annSourceHtml = e.target.result;
+
+    // Try to read existing ANNOUNCEMENTS array from the loaded file and merge into localStorage
+    try{
+      const m = annSourceHtml.match(/window\.ANNOUNCEMENTS\s*=\s*(\[[\s\S]*?\]);/);
+      if(m){
+        const existing = JSON.parse(m[1]);
+        if(Array.isArray(existing) && existing.length){
+          // Merge: existing file data takes base, localStorage additions sit on top
+          const stored = annLoad();
+          const map = new Map();
+          existing.forEach(a => map.set(a.id, a));
+          stored.forEach(a => map.set(a.id, a));
+          annSaveAll([...map.values()]);
+        }
+      }
+    }catch(err){}
+
+    // Update banner to green
+    const banner = document.getElementById('annFileBanner');
+    banner.className = 'git-status';
+    banner.innerHTML = `<svg viewBox="0 0 24 24" style="color:var(--green);width:16px;height:16px;fill:currentColor;flex-shrink:0;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      <div class="git-status-text"><strong>File loaded:</strong> <span>${file.name} — ${(annSourceHtml.length/1024).toFixed(1)} KB. Ready to download after edits.</span></div>`;
+
+    toast(`Loaded ${file.name}!`);
+    annRenderList();
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ── Download updated announcement.html ──
+function annDownload(){
+  if(!annSourceHtml){
+    toast('Load your announcement.html file first using the button above.','var(--gold)');
+    return;
+  }
+  const all = annLoad();
+  if(!all.length){ toast('No announcements to save.','var(--gold)'); return; }
+
+  // Serialise the array as clean JSON
+  const jsonStr = JSON.stringify(all);
+
+  // Replace window.ANNOUNCEMENTS = [...]; in the source
+  // Handles both compact and multiline versions
+  let newHtml = annSourceHtml.replace(
+    /window\.ANNOUNCEMENTS\s*=\s*\[[\s\S]*?\];/,
+    `window.ANNOUNCEMENTS = ${jsonStr};`
+  );
+
+  if(newHtml === annSourceHtml){
+    // Marker not found — maybe it uses a slightly different format; try broader replace
+    toast('Could not find window.ANNOUNCEMENTS in the file. Make sure you loaded the correct announcement.html.','var(--red)');
+    return;
+  }
+
+  const blob = new Blob([newHtml], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'announcement.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+
+  // Update loaded source so further edits in same session stay in sync
+  annSourceHtml = newHtml;
+
+  toast(`✓ Downloaded announcement.html with ${all.length} announcement${all.length!==1?'s':''}. Upload to GitHub!`);
+}
+
+// ── Form helpers ──
+function annShowAddForm(){
+  document.getElementById('annFormTitle').textContent = 'New Announcement';
+  document.getElementById('annEditId').value = '';
+  ['annTitle','annAuthor','annAuthorRole','annSubtitle','annBody','annBanner'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('annTag').value = 'news';
+  document.getElementById('annPinnedToggle').classList.remove('on');
+  document.getElementById('annFormCard').style.display = 'block';
+  document.getElementById('annFormCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function annHideForm(){
+  document.getElementById('annFormCard').style.display = 'none';
+}
+
+function annEditLoad(id){
+  const ann = annLoad().find(a=>a.id===id);
+  if(!ann){ toast('Announcement not found','var(--red)'); return; }
+  document.getElementById('annFormTitle').textContent = 'Edit Announcement';
+  document.getElementById('annEditId').value = ann.id;
+  document.getElementById('annTitle').value = ann.title||'';
+  document.getElementById('annAuthor').value = ann.author||'';
+  document.getElementById('annAuthorRole').value = ann.authorRole||'';
+  document.getElementById('annSubtitle').value = ann.subtitle||'';
+  document.getElementById('annBody').value = ann.body||'';
+  document.getElementById('annBanner').value = ann.banner||'';
+  document.getElementById('annTag').value = ann.tag||'news';
+  document.getElementById('annPinnedToggle').classList.toggle('on', !!ann.pinned);
+  document.getElementById('annFormCard').style.display = 'block';
+  document.getElementById('annFormCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function annSave(){
+  const title  = document.getElementById('annTitle').value.trim();
+  const author = document.getElementById('annAuthor').value.trim();
+  const body   = document.getElementById('annBody').value.trim();
+  if(!title){ toast('Banner title is required','var(--gold)'); return; }
+  if(!author){ toast('Writer name is required','var(--gold)'); return; }
+  if(!body){ toast('Body text is required','var(--gold)'); return; }
+
+  const editId = document.getElementById('annEditId').value;
+  const all = annLoad();
+  const entry = {
+    id:         editId || annGenId(),
+    title,
+    author,
+    authorRole: document.getElementById('annAuthorRole').value.trim() || 'Staff',
+    subtitle:   document.getElementById('annSubtitle').value.trim(),
+    body,
+    banner:     document.getElementById('annBanner').value.trim(),
+    tag:        document.getElementById('annTag').value || 'news',
+    pinned:     document.getElementById('annPinnedToggle').classList.contains('on'),
+    date:       editId ? (all.find(a=>a.id===editId)?.date || new Date().toISOString().slice(0,10))
+                       : new Date().toISOString().slice(0,10),
+  };
+
+  if(editId){
+    const idx = all.findIndex(a=>a.id===editId);
+    if(idx>-1) all[idx]=entry; else all.unshift(entry);
+    toast('Announcement updated — hit Download to save the file.');
+  } else {
+    all.unshift(entry);
+    toast('Announcement added — hit Download to save the file.');
+  }
+  annSaveAll(all);
+  annHideForm();
+  annRenderList();
+  annUpdateBadge();
+}
+
+function annDelete(id){
+  if(!confirm('Delete this announcement? This cannot be undone.')) return;
+  annSaveAll(annLoad().filter(a=>a.id!==id));
+  annRenderList();
+  annUpdateBadge();
+  toast('Deleted — hit Download to save the file.');
+}
+
+function annTogglePin(id){
+  const all = annLoad();
+  const idx = all.findIndex(a=>a.id===id);
+  if(idx>-1){ all[idx].pinned=!all[idx].pinned; annSaveAll(all); annRenderList(); }
+}
+
+const ANN_TAG_COLORS = {
+  news:'var(--green)',update:'var(--blue)',feature:'#b464ff',
+  maintenance:'var(--orange)',event:'#ff9f0a',important:'var(--red)'
+};
+
+function annRenderList(){
+  const all = annLoad();
+  const bodyEl = document.getElementById('annListBody');
+  const sub    = document.getElementById('annListSub');
+  annUpdateBadge(all.length);
+
+  if(!all.length){
+    bodyEl.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);font-size:.85rem;">
+      <div style="font-size:2rem;margin-bottom:.75rem;opacity:.4;">📭</div>
+      No announcements yet. Click <strong>New Announcement</strong> to add one.
+    </div>`;
+    sub.textContent = '0 announcements';
+    return;
+  }
+
+  const sorted = [...all].sort((a,b)=>{
+    if(a.pinned&&!b.pinned)return-1; if(!a.pinned&&b.pinned)return 1;
+    return new Date(b.date||0)-new Date(a.date||0);
+  });
+  sub.textContent = `${all.length} announcement${all.length!==1?'s':''}`;
+
+  bodyEl.innerHTML = sorted.map(ann=>{
+    const tagColor = ANN_TAG_COLORS[ann.tag||'news'] || 'var(--muted)';
+    const teaser = (ann.body||'').split(/\n\n+/)[0]?.slice(0,120) || '';
+    return `
+    <div style="display:flex;align-items:flex-start;gap:1rem;padding:1.1rem 1.25rem;border-bottom:1px solid var(--border2);flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.35rem;flex-wrap:wrap;">
+          ${ann.pinned?`<span style="font-size:.63rem;font-weight:700;padding:.18rem .5rem;border-radius:4px;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);text-transform:uppercase;letter-spacing:.8px;">📌 Pinned</span>`:''}
+          <span style="font-size:.63rem;font-weight:700;padding:.18rem .5rem;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:${tagColor};text-transform:uppercase;letter-spacing:.8px;">${ann.tag||'news'}</span>
+          <span style="font-size:.72rem;color:var(--muted);font-family:var(--mono);">${ann.date||''}</span>
+        </div>
+        <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:.25rem;">${ann.title||'(Untitled)'}</div>
+        ${ann.subtitle?`<div style="font-size:.78rem;color:var(--muted);margin-bottom:.25rem;font-style:italic;">${ann.subtitle}</div>`:''}
+        <div style="font-size:.78rem;color:var(--muted);">
+          By <strong style="color:var(--text);">${ann.author||'—'}</strong>
+          ${ann.authorRole?`<span style="opacity:.6;"> · ${ann.authorRole}</span>`:''}
+        </div>
+        ${teaser?`<div style="font-size:.78rem;color:var(--muted);margin-top:.4rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${teaser}${teaser.length>=120?'…':''}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0;flex-wrap:wrap;">
+        <button onclick="annTogglePin('${ann.id}')" style="padding:.35rem .75rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:${ann.pinned?'rgba(59,130,246,.1)':'none'};color:${ann.pinned?'var(--blue)':'var(--muted)'};">
+          ${ann.pinned?'📌 Unpin':'📌 Pin'}
+        </button>
+        <button onclick="annEditLoad('${ann.id}')" style="padding:.35rem .75rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle;margin-right:.3rem;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Edit
+        </button>
+        <button onclick="annDelete('${ann.id}')" style="padding:.35rem .75rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid rgba(232,38,58,.3);background:none;color:var(--red);" onmouseover="this.style.background='rgba(232,38,58,.1)'" onmouseout="this.style.background='none'">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor;vertical-align:middle;margin-right:.3rem;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function annUpdateBadge(count){
+  const c = count !== undefined ? count : annLoad().length;
+  const badge = document.getElementById('annCountBadge');
+  if(badge) badge.textContent = c || '0';
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{ annUpdateBadge(); });
+(function(){
+  const origShowPage = window.showPage;
+  window.showPage = function(name, el){
+    if(typeof origShowPage==='function') origShowPage(name, el);
+    if(name==='announcements') annRenderList();
+  };
+})();
 
 // ─── GitHub ───────────────────────────────
 function saveGithubConfig(){
