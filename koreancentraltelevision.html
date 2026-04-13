@@ -1,0 +1,214 @@
+<!-- HLS Player Embed Code -->
+<div class="hls-player-container" id="hlsPlayer" style="position:relative;width:100%;max-width:100%;background:#000;border-radius:8px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+    <video id="video" playsinline style="width:100%;height:100%;display:block;object-fit:contain;"></video>
+    
+    <!-- Thumbnail Overlay - Shows before clicking play -->
+    <div class="hls-thumbnail" id="thumbnail" style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('https://i.postimg.cc/nhrTS003/Screenshot-2026-04-02-19-11-34-049-com-google-android-youtube-edit.jpg') center center/cover no-repeat;z-index:15;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;">
+            <div style="width:80px;height:80px;background:rgba(255,68,68,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;transition:transform 0.2s ease;">
+                <svg viewBox="0 0 24 24" style="width:35px;height:35px;fill:#fff;margin-left:5px;"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div style="color:#fff;font-family:sans-serif;font-size:16px;text-shadow:0 2px 4px rgba(0,0,0,0.8);">Click to Play Live Stream</div>
+        </div>
+    </div>
+    
+    <!-- Loading Stream Overlay -->
+    <div class="hls-loading" id="loading" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;">
+        <div style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.2);border-top-color:#ff4444;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:15px;"></div>
+        <div style="color:#fff;font-family:sans-serif;font-size:18px;font-weight:500;">Loading Stream...</div>
+        <div style="color:rgba(255,255,255,0.6);font-family:sans-serif;font-size:12px;margin-top:8px;">Please wait while we connect</div>
+    </div>
+    
+    <!-- Error Overlay -->
+    <div class="hls-error" id="error" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#ff4444;text-align:center;font-family:sans-serif;display:none;padding:20px;z-index:25;">
+        <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:#ff4444;margin-bottom:10px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <div style="font-size:16px;font-weight:500;">Failed to load stream</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:5px;">Please try again later</div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="hls-controls" style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.8));padding:15px 10px 10px;display:flex;align-items:center;gap:10px;opacity:0;transition:opacity 0.3s ease;z-index:30;">
+        <button class="hls-btn" id="playBtn" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" id="playIcon" style="width:18px;height:18px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
+            <svg viewBox="0 0 24 24" id="pauseIcon" style="width:18px;height:18px;fill:currentColor;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        
+        <div class="hls-progress" id="progress" style="flex:1;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;cursor:pointer;position:relative;">
+            <div class="hls-progress-bar" id="progressBar" style="height:100%;background:#ff4444;border-radius:2px;width:0%;"></div>
+        </div>
+        
+        <span class="hls-time" id="time" style="color:#fff;font-size:12px;font-family:sans-serif;min-width:80px;text-align:center;">0:00 / 0:00</span>
+        
+        <span class="hls-live-badge" id="liveBadge" style="background:#ff4444;color:#fff;font-size:10px;font-family:sans-serif;font-weight:bold;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:1px;display:none;">Live</span>
+        
+        <!-- Speed Control -->
+        <div class="hls-speed" style="position:relative;">
+            <button id="speedBtn" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">1x</button>
+            <div id="speedMenu" style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.95);border-radius:6px;padding:5px 0;margin-bottom:8px;display:none;min-width:60px;">
+                <div class="speed-opt" data-speed="0.5" style="padding:6px 12px;color:#fff;font-size:12px;cursor:pointer;">0.5x</div>
+                <div class="speed-opt" data-speed="0.75" style="padding:6px 12px;color:#fff;font-size:12px;cursor:pointer;">0.75x</div>
+                <div class="speed-opt active" data-speed="1" style="padding:6px 12px;color:#fff;font-size:12px;cursor:pointer;background:rgba(255,68,68,0.3);">1x</div>
+                <div class="speed-opt" data-speed="1.25" style="padding:6px 12px;color:#fff;font-size:12px;cursor:pointer;">1.25x</div>
+                <div class="speed-opt" data-speed="1.5" style="padding:6px 12px;color:#fff;font-size:12px;cursor:pointer;">1.5x</div>
+                <div class="speed-opt" data-speed="2" style="padding:6px 12px;color:#fff;font-size:12px;cursor:pointer;">2x</div>
+            </div>
+        </div>
+        
+        <button class="hls-btn" id="muteBtn" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" id="volumeIcon" style="width:18px;height:18px;fill:currentColor;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <svg viewBox="0 0 24 24" id="muteIcon" style="width:18px;height:18px;fill:currentColor;display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+        </button>
+        
+        <button class="hls-btn" id="fullscreenBtn" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+    </div>
+</div>
+
+<style>
+.hls-player-container { aspect-ratio: 16 / 9; }
+.hls-player-container:hover .hls-controls { opacity: 1 !important; }
+.hls-thumbnail:hover > div > div:first-child { transform: scale(1.1); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hls-btn:hover { background: rgba(255,255,255,0.3) !important; transform: scale(1.1); }
+.speed-opt:hover { background: rgba(255,255,255,0.1); }
+@media (max-width: 640px) {
+    .hls-controls { opacity: 1 !important; padding: 10px 8px 8px !important; gap: 6px !important; }
+    .hls-time { display: none; }
+    #speedBtn { padding: 4px 6px !important; font-size: 11px !important; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+(function() {
+    var video = document.getElementById('video');
+    var container = document.getElementById('hlsPlayer');
+    var thumbnail = document.getElementById('thumbnail');
+    var playBtn = document.getElementById('playBtn');
+    var playIcon = document.getElementById('playIcon');
+    var pauseIcon = document.getElementById('pauseIcon');
+    var progress = document.getElementById('progress');
+    var progressBar = document.getElementById('progressBar');
+    var time = document.getElementById('time');
+    var liveBadge = document.getElementById('liveBadge');
+    var speedBtn = document.getElementById('speedBtn');
+    var speedMenu = document.getElementById('speedMenu');
+    var muteBtn = document.getElementById('muteBtn');
+    var volumeIcon = document.getElementById('volumeIcon');
+    var muteIcon = document.getElementById('muteIcon');
+    var fullscreenBtn = document.getElementById('fullscreenBtn');
+    var loading = document.getElementById('loading');
+    var error = document.getElementById('error');
+    
+    // Stream URL - visible for faster loading
+    var streamUrl = 'https://tv.intchoson.com/kctv/index.m3u8';
+    var hls = null;
+    var streamLoaded = false;
+    
+    function formatTime(s) { if(isNaN(s))return'0:00';var m=Math.floor(s/60);var sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec; }
+    
+    function loadStream() {
+        loading.style.display = 'flex';
+        thumbnail.style.display = 'none';
+        streamLoaded = true;
+        
+        if(Hls.isSupported()) {
+            hls = new Hls({enableWorker:true,lowLatencyMode:true});
+            hls.loadSource(streamUrl); 
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED,function(){
+                loading.style.display='none';
+                liveBadge.style.display='inline-block';
+                video.play().catch(function(){});
+            });
+            hls.on(Hls.Events.ERROR,function(e,d){
+                if(d.fatal){
+                    loading.style.display='none';
+                    error.style.display='block';
+                }
+            });
+        } else if(video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = streamUrl;
+            video.addEventListener('loadedmetadata',function(){
+                loading.style.display='none';
+                liveBadge.style.display='inline-block';
+                video.play().catch(function(){});
+            });
+            video.addEventListener('error',function(){
+                loading.style.display='none';
+                error.style.display='block';
+            });
+        } else { 
+            loading.style.display='none'; 
+            error.style.display='block'; 
+        }
+    }
+    
+    function togglePlay() { 
+        if(!streamLoaded) {
+            loadStream();
+            return;
+        }
+        video.paused ? video.play() : video.pause(); 
+    }
+    
+    // Thumbnail click to start
+    thumbnail.addEventListener('click', loadStream);
+    
+    playBtn.addEventListener('click', togglePlay);
+    
+    video.addEventListener('play', function(){
+        playIcon.style.display='none';
+        pauseIcon.style.display='block';
+    });
+    
+    video.addEventListener('pause', function(){
+        playIcon.style.display='block';
+        pauseIcon.style.display='none';
+    });
+    
+    video.addEventListener('timeupdate', function(){
+        var p=(video.currentTime/video.duration)*100||0;
+        progressBar.style.width=p+'%';
+        time.textContent=formatTime(video.currentTime)+' / '+formatTime(video.duration);
+    });
+    
+    progress.addEventListener('click', function(e){
+        var r=progress.getBoundingClientRect();
+        video.currentTime=((e.clientX-r.left)/r.width)*video.duration;
+    });
+    
+    // Speed control
+    speedBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        speedMenu.style.display = speedMenu.style.display === 'block' ? 'none' : 'block';
+    });
+    
+    document.querySelectorAll('.speed-opt').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+            var speed = parseFloat(this.dataset.speed);
+            video.playbackRate = speed;
+            speedBtn.textContent = speed + 'x';
+            document.querySelectorAll('.speed-opt').forEach(function(o) { o.style.background = ''; });
+            this.style.background = 'rgba(255,68,68,0.3)';
+            speedMenu.style.display = 'none';
+        });
+    });
+    
+    document.addEventListener('click', function() {
+        speedMenu.style.display = 'none';
+    });
+    
+    muteBtn.addEventListener('click', function(){
+        video.muted=!video.muted;
+        volumeIcon.style.display=video.muted?'none':'block';
+        muteIcon.style.display=video.muted?'block':'none';
+    });
+    
+    fullscreenBtn.addEventListener('click', function(){
+        document.fullscreenElement?document.exitFullscreen():container.requestFullscreen();
+    });
+})();
+</script>
+<!-- End HLS Player Embed Code -->
