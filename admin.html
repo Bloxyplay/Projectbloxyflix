@@ -1117,6 +1117,27 @@ select.form-input{cursor:pointer;}
             </div>
 
             <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
+
+            <!-- ── Subtitles / SRT ── -->
+            <div class="form-section">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
+                <div>
+                  <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;">🔤 Subtitles / SRT</div>
+                  <div style="font-size:.72rem;color:var(--dim);margin-top:.25rem;">SRT subtitle URLs — loaded in Plyr as closed captions (MP4 &amp; direct video only).</div>
+                </div>
+                <button type="button" onclick="addSrtRow()"
+                  style="display:flex;align-items:center;gap:.4rem;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:7px;padding:.4rem .85rem;font-size:.78rem;font-weight:700;color:var(--blue);cursor:pointer;white-space:nowrap;transition:all .15s;"
+                  onmouseover="this.style.background='rgba(59,130,246,.16)'" onmouseout="this.style.background='rgba(59,130,246,.08)'">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                  Add Track
+                </button>
+              </div>
+              <div id="srtTrackList" style="display:flex;flex-direction:column;gap:.6rem;">
+                <div id="srtNoTracks" style="padding:.65rem .9rem;background:rgba(255,255,255,.03);border:1px dashed var(--border);border-radius:8px;font-size:.78rem;color:var(--dim);text-align:center;">No subtitle tracks — click "Add Track" to attach an SRT file.</div>
+              </div>
+            </div>
+
+            <div style="height:1px;background:var(--border);margin:1.25rem 0;"></div>
             <input type="hidden" id="generatedCode" />
 
             <!-- Add to Queue button -->
@@ -2282,7 +2303,7 @@ function showPage(id, el){
   document.getElementById('pageTitle').textContent = {
     dashboard:'Dashboard',analytics:'Analytics',videos:'Videos',
     live:'Live Channels',add:'Add Content',github:'GitHub Config',
-    deploy:'Deploy',settings:'Settings',
+    deploy:'Deploy',settings:'Settings',announcements:'Announcements',
     'cat-all':'All Videos','cat-nonfilm':'All Except Films',
     'editor':'Video Editor','texteditor':'Text Editor','abouteditor':'About Page Editor'
   }[id]||id;
@@ -2386,10 +2407,10 @@ function renderDashboard(){
   const top = [...LIVE_VIDS].sort((a,b)=>(parseInt(b.views)||0)-(parseInt(a.views)||0)).slice(0,6);
   document.getElementById('topVideosList').innerHTML = top.map(v=>`
     <div class="vrow">
-      <div class="vrow-thumb">${v.c.slice(0,3).toUpperCase()}</div>
+      <div class="vrow-thumb">${(v.c||'???').slice(0,3).toUpperCase()}</div>
       <div class="vrow-info">
-        <div class="vrow-title">${v.t}</div>
-        <div class="vrow-meta">${v.c} · ${v.y} · ${v.duration}</div>
+        <div class="vrow-title">${v.t||'—'}</div>
+        <div class="vrow-meta">${v.c||'—'} · ${v.y||'—'} · ${v.duration||'—'}</div>
       </div>
       <div class="vrow-stat">
         <div class="vrow-views">${fmtViews(v.views)}</div>
@@ -2407,6 +2428,17 @@ function fmtViews(n){
 
 // ─── Analytics ────────────────────────────
 function renderAnalytics(){
+  if(!LIVE_VIDS.length){
+    const noData = `<div style="text-align:center;padding:2rem 1rem;color:var(--muted);">
+      <div style="font-weight:700;margin-bottom:.4rem;">No data loaded</div>
+      <div style="font-size:.8rem;">Configure GitHub in the sidebar, then click <strong>Refresh</strong>.</div>
+    </div>`;
+    ['analyticsViews','analyticsYears','analyticsTypes','analyticsAllCats'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = noData;
+    });
+    return;
+  }
   // Views distribution
   const views = LIVE_VIDS.map(v=>parseInt(v.views)||0);
   const buckets = [{label:'0–499',min:0,max:499},{label:'500–999',min:500,max:999},{label:'1K–2.9K',min:1000,max:2999},{label:'3K+',min:3000,max:Infinity}];
@@ -3802,6 +3834,82 @@ function embedPreviewRefresh(){
 }
 
 // ─── Build video object from form ─────────
+// ─── SRT Track helpers ────────────────────
+let srtRowCount = 0;
+
+const SRT_LANGS = [
+  {code:'', label:'— Language —'},
+  {code:'my', label:'မြန်မာ (Burmese)'},
+  {code:'ko', label:'한국어 (Korean)'},
+  {code:'zh', label:'中文 (Chinese)'},
+  {code:'en', label:'English'},
+  {code:'ru', label:'Русский (Russian)'},
+  {code:'ja', label:'日本語 (Japanese)'},
+  {code:'fr', label:'Français (French)'},
+  {code:'de', label:'Deutsch (German)'},
+  {code:'es', label:'Español (Spanish)'},
+  {code:'ar', label:'عربي (Arabic)'},
+  {code:'other', label:'Other'},
+];
+
+function addSrtRow(prefill){
+  const noTracks = document.getElementById('srtNoTracks');
+  if(noTracks) noTracks.style.display = 'none';
+
+  const id = ++srtRowCount;
+  const row = document.createElement('div');
+  row.id = 'srtRow-' + id;
+  row.style.cssText = 'display:grid;grid-template-columns:140px 1fr auto;gap:.6rem;align-items:center;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;';
+
+  const langOptions = SRT_LANGS.map(l =>
+    `<option value="${l.code}"${prefill&&prefill.srclang===l.code?' selected':''}>${l.label}</option>`
+  ).join('');
+
+  row.innerHTML = `
+    <select class="form-input" id="srtLang-${id}" style="padding:.4rem .6rem;font-size:.8rem;cursor:pointer;">
+      ${langOptions}
+    </select>
+    <input class="form-input mono" id="srtUrl-${id}" placeholder="https://…/subtitles.srt" style="font-size:.8rem;padding:.4rem .75rem;"
+      value="${prefill&&prefill.url?prefill.url:''}" />
+    <button type="button" onclick="removeSrtRow(${id})" title="Remove track"
+      style="background:none;border:none;cursor:pointer;color:var(--dim);font-size:1rem;padding:.2rem .4rem;border-radius:4px;flex-shrink:0;line-height:1;transition:color .15s;"
+      onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--dim)'">✕</button>
+  `;
+  document.getElementById('srtTrackList').appendChild(row);
+}
+
+function removeSrtRow(id){
+  const row = document.getElementById('srtRow-' + id);
+  if(row) row.remove();
+  // If no rows left, show placeholder
+  const list = document.getElementById('srtTrackList');
+  if(!list.querySelector('[id^="srtRow-"]')){
+    const noTracks = document.getElementById('srtNoTracks');
+    if(noTracks) noTracks.style.display = '';
+  }
+}
+
+function getSrtTracks(){
+  const tracks = [];
+  document.querySelectorAll('[id^="srtRow-"]').forEach(row => {
+    const id = row.id.replace('srtRow-','');
+    const langEl = document.getElementById('srtLang-' + id);
+    const urlEl  = document.getElementById('srtUrl-' + id);
+    const url = urlEl ? urlEl.value.trim() : '';
+    if(!url) return;
+    const srclang = langEl ? langEl.value : '';
+    const label = langEl ? (SRT_LANGS.find(l=>l.code===srclang)||{label:srclang||'Unknown'}).label : 'Unknown';
+    tracks.push({ label, srclang, url });
+  });
+  return tracks;
+}
+
+function clearSrtTracks(){
+  document.querySelectorAll('[id^="srtRow-"]').forEach(r => r.remove());
+  const noTracks = document.getElementById('srtNoTracks');
+  if(noTracks) noTracks.style.display = '';
+}
+
 function buildVideoObj(){
   const t       = document.getElementById('newTitle').value.trim();
   const tk      = document.getElementById('newTitleKr').value.trim();
@@ -3859,6 +3967,14 @@ function buildVideoObj(){
   if(creator) entry += `,creator:'${esc(creator)}'`;
   if(badge)   entry += `,badge:'${esc(badge)}'`;
   if(thumb)   entry += `,thumb:'${esc(thumb)}'`;
+  // Subtitle tracks
+  const subs = getSrtTracks();
+  if(subs.length){
+    const subsStr = subs.map(s =>
+      `{label:'${esc(s.label)}',srclang:'${esc(s.srclang)}',url:'${esc(s.url)}'}`
+    ).join(',');
+    entry += `,subs:[${subsStr}]`;
+  }
   entry += extra + '}';
   return entry;
 }
@@ -4079,6 +4195,8 @@ function clearForm(){
   });
   // Reset stream tab to MP4
   setStreamTab('mp4', document.querySelector('.tabs .tab'));
+  // Reset subtitle tracks
+  clearSrtTracks();
 }
 
 // Auto-generate on input
