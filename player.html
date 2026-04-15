@@ -1583,12 +1583,20 @@ video-skin{display:block;width:100%;height:100%;}
     <div class="player-wrap" id="playerWrap">
       <div id="playerContainer">
         <video id="bf-player" playsinline></video>
-        <!-- Video.js v10 beta container — shown only when video has SRT subtitles -->
+        <!-- Video.js v10 — Full skin -->
         <div id="vjsPlayerWrap" style="display:none;width:100%;position:relative;">
           <video-player id="vjs-player">
             <video-skin>
               <video id="vjs-video" playsinline></video>
             </video-skin>
+          </video-player>
+        </div>
+        <!-- Video.js v10 — Minimal skin (hidden - always full skin) -->
+        <div id="vjsMinimalWrap" style="display:none;width:100%;position:relative;">
+          <video-player id="vjs-player-min">
+            <video-minimal-skin>
+              <video id="vjs-video-min" playsinline></video>
+            </video-minimal-skin>
           </video-player>
         </div>
       </div>
@@ -1727,6 +1735,7 @@ video-skin{display:block;width:100%;height:100%;}
           <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
           <span id="muteLbl">Mute</span>
         </button>
+        <!-- VJS Skin Toggle (removed - always full skin) -->
         <!-- Sleep timer -->
         <button class="qbtn" id="sleepBtn" onclick="openSleepModal()" title="Sleep timer">
           <svg viewBox="0 0 24 24"><path d="M9.5 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5.5 8.65C5.97 21.5 7.68 22 9.5 22A10 10 0 0019.5 12 10 10 0 009.5 2z"/></svg>
@@ -1977,8 +1986,9 @@ video-skin{display:block;width:100%;height:100%;}
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
 <script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/video.js"></script>
+<!-- Minimal skin script removed - always full skin -->
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 <script>
 // ── STATE ─────────────────────────────────────────────────
@@ -1990,6 +2000,7 @@ let loopOn=false,theaterOn=false;
 let sleepInterval=null,sleepEnd=null;
 let resumeTime=0;
 let uiLang='en';
+// Minimal mode removed - always using full video-skin
 
 // ── i18n ──────────────────────────────────────────────────
 const L={
@@ -2171,6 +2182,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     curIdx=-1;loaded=true;
   }
   applyLang();updateURL();
+  initVJSSkin();
   try{
     bfPlayer=new Plyr('#bf-player',{
       controls:['play-large','play','progress','current-time','duration','mute','volume','settings','pip','airplay','fullscreen'],
@@ -2209,21 +2221,43 @@ function showPlyr(){
   const pw=bfPlayer&&bfPlayer.elements&&bfPlayer.elements.container;
   if(pw) pw.style.display='';
   document.getElementById('vjsPlayerWrap').style.display='none';
-  // Pause VJS if running
-  const vjsVideo=document.getElementById('vjs-video');
-  if(vjsVideo&&!vjsVideo.paused) try{vjsVideo.pause();}catch(e){}
+  document.getElementById('vjsMinimalWrap').style.display='none';
+  // Hide VJS skin toggle — not relevant for Plyr
+  const sb=document.getElementById('vjsSkinBtn');if(sb)sb.style.display='none';
+  // Pause VJS player if running
+  const vjsVid=document.getElementById('vjs-video');
+  if(vjsVid&&!vjsVid.paused) try{vjsVid.pause();}catch(e){}
+  const vjsVidMin=document.getElementById('vjs-video-min');
+  if(vjsVidMin&&!vjsVidMin.paused) try{vjsVidMin.pause();}catch(e){}
 }
 function showVJS(){
   const pw=bfPlayer&&bfPlayer.elements&&bfPlayer.elements.container;
   if(pw) pw.style.display='none';
-  document.getElementById('vjsPlayerWrap').style.display='block';
-  // Pause Plyr if running
+  // Always use full skin (minimal mode removed)
+  const vjsWrap=document.getElementById('vjsPlayerWrap');
+  if(vjsWrap) vjsWrap.style.display='block';
+  const vjsMinWrap=document.getElementById('vjsMinimalWrap');
+  if(vjsMinWrap) vjsMinWrap.style.display='none';
+  // Hide the skin toggle button (minimal mode removed)
+  const sb=document.getElementById('vjsSkinBtn');
+  if(sb) sb.style.display='none';
   if(bfPlayer) try{bfPlayer.pause();}catch(e){}
 }
 
-// ── Video.js v10 beta subtitle player ─────────────────────────────
+// ── VJS Skin toggle (minimal mode removed) ──────────────────────────────────────
+function initVJSSkin(){
+  // Minimal mode removed - always using full video-skin
+  const sb=document.getElementById('vjsSkinBtn');
+  if(sb) sb.style.display='none';
+}
+function toggleVJSSkin(){
+  // Minimal mode removed - this function is disabled
+  toast('🎬 Full player UI only');
+}
+
+// ── Video.js v10 player ──────────────────────────────────
 let _vjsBlobUrls=[];
-async function playWithVJS(v){
+async function playWithVJS(v, seekTime=0){
   showVJS();
 
   // Revoke previous blob URLs
@@ -2241,8 +2275,8 @@ async function playWithVJS(v){
     tracks.push({kind:'subtitles',label:sub.label||sub.srclang||'Track '+(i+1),srclang:sub.srclang||'',src:blobUrl,default:i===0});
   }
 
-  const videoEl=document.getElementById('vjs-video');
-  const playerEl=document.getElementById('vjs-player');
+  // Use the active video element based on current skin mode
+  const videoEl=document.getElementById('vjs-video'); // Always use full skin
 
   // Check if HLS stream
   const isHLS=v.isM3U8||(v.u&&(v.u.toLowerCase().includes('.m3u8')));
@@ -2252,11 +2286,76 @@ async function playWithVJS(v){
 
   // Set video source (with HLS.js support if needed)
   if(isHLS && Hls.isSupported()){
-    const hls=new Hls({enableWorker:true,lowLatencyMode:false});
+    const hls=new Hls({
+      // ── Worker & performance ───────────────────────────
+      enableWorker: true,
+      workerPath: null,                // use inline worker
+
+      // ── ABR / startup speed ───────────────────────────
+      startLevel: -1,                  // auto-select best level from the start
+      abrEwmaDefaultEstimate: 5000000, // assume 5 Mbps initially (faster start with better quality)
+      abrEwmaFastLive: 2,              // faster adaptation for live
+      abrEwmaSlowLive: 6,
+      abrEwmaFastVoD: 3,
+      abrEwmaSlowVoD: 9,
+      abrBandWidthFactor: 0.95,        // use 95% of measured BW (aggressive for fast start)
+      abrBandWidthUpFactor: 0.85,      // more aggressive when upgrading quality
+
+      // ── Buffer tuning ─────────────────────────────────
+      maxBufferLength: 15,             // reduced from 30s for faster start
+      maxMaxBufferLength: 90,          // allow some buffer growth
+      maxBufferSize: 60 * 1000 * 1000, // 60 MB cap
+      maxBufferHole: 1.5,              // skip gaps up to 1.5s without stalling
+      highBufferWatchdogPeriod: 2,     // check buffer periodically
+
+      // ── Segment loading / retries ─────────────────────
+      fragLoadingTimeOut: 15000,       // reduced from 20s - fail faster and retry
+      fragLoadingMaxRetry: 8,          // more retries for unstable connections
+      fragLoadingRetryDelay: 500,      // faster retry (was 1000)
+      fragLoadingMaxRetryTimeout: 32000,
+
+      // ── Manifest / level loading ───────────────────────
+      manifestLoadingTimeOut: 10000,   // faster manifest loading
+      manifestLoadingMaxRetry: 6,
+      manifestLoadingRetryDelay: 500,
+      levelLoadingTimeOut: 10000,
+      levelLoadingMaxRetry: 6,
+      levelLoadingRetryDelay: 500,
+
+      // ── Live stream optimizations ─────────────────────
+      lowLatencyMode: false,           // disabled - some streams incompatible
+      liveSyncDurationCount: 3,        // stay 3 segments behind live edge
+      liveMaxLatencyDurationCount: 10,
+      liveDurationInfinity: true,      // treat live seekable range as infinite
+
+      // ── CORS / credentials ────────────────────────────
+      xhrSetup: function(xhr, url){
+        xhr.withCredentials = false;
+      },
+    });
     videoEl._hls=hls;
     hls.loadSource(v.u);
     hls.attachMedia(videoEl);
-    hls.on(Hls.Events.MANIFEST_PARSED,()=>{ videoEl.play().catch(()=>{ videoEl.muted=true; videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800)); }); });
+    hls.on(Hls.Events.MANIFEST_PARSED, ()=>{
+      videoEl.play().catch(()=>{
+        videoEl.muted=true;
+        videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));
+      });
+    });
+    // Auto-recover from network / media errors
+    hls.on(Hls.Events.ERROR, (event, data)=>{
+      if(!data.fatal) return;
+      if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
+        console.warn('BloxyFlix HLS: network error, trying to recover…', data);
+        hls.startLoad();
+      } else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){
+        console.warn('BloxyFlix HLS: media error, trying to recover…', data);
+        hls.recoverMediaError();
+      } else {
+        console.error('BloxyFlix HLS: fatal error, destroying instance', data);
+        hls.destroy();
+      }
+    });
   }else if(isHLS && videoEl.canPlayType('application/vnd.apple.mpegurl')){
     videoEl.src=v.u;
   }else{
@@ -2279,16 +2378,25 @@ async function playWithVJS(v){
     videoEl.appendChild(track);
   });
 
-  // Resume progress if applicable
-  const prog=getProg(curIdx);
-  if(prog>3&&prog<95&&curIdx>=0){
+  // Resume progress — only for VOD (non-HLS) streams
+  if(!isHLS){
+    const prog=getProg(curIdx);
+    if(prog>3&&prog<95&&curIdx>=0){
+      videoEl.addEventListener('loadedmetadata',()=>{
+        const rt=(prog/100)*videoEl.duration;
+        if(rt>5){
+          resumeTime=rt;
+          document.getElementById('resumeTxt').textContent=s('resume')+fmtTime(Math.floor(rt))+(uiLang==='zh'?' 继续？':'?');
+          document.getElementById('resumeBanner').classList.add('show');
+        }
+      },{once:true});
+    }
+  }
+
+  // Restore seek position from skin-switch if provided
+  if(seekTime>0){
     videoEl.addEventListener('loadedmetadata',()=>{
-      const rt=(prog/100)*videoEl.duration;
-      if(rt>5){
-        resumeTime=rt;
-        document.getElementById('resumeTxt').textContent=s('resume')+fmtTime(Math.floor(rt))+(uiLang==='zh'?' 继续？':'?');
-        document.getElementById('resumeBanner').classList.add('show');
-      }
+      if(seekTime<videoEl.duration) videoEl.currentTime=seekTime;
     },{once:true});
   }
 
@@ -2461,10 +2569,12 @@ function show404(){
 
 // ── Player Helpers (Plyr + Video.js) ─────────────────────
 function isVJSActive(){
-  return document.getElementById('vjsPlayerWrap').style.display!=='none';
+  return document.getElementById('vjsPlayerWrap').style.display!=='none'
+      || document.getElementById('vjsMinimalWrap').style.display!=='none';
 }
 function getVJSVideo(){
-  return document.getElementById('vjs-video');
+  // Return whichever VJS video element is currently active
+  return document.getElementById('vjs-video'); // Always use full skin
 }
 function getActivePlayer(){
   if(isVJSActive()) return getVJSVideo();
@@ -2926,7 +3036,7 @@ function drawVisFallback(){
 }
 
 // ── ACTIONS ───────────────────────────────────────────────
-function stopAll(){stopRadio();if(radioSignalFrame){cancelAnimationFrame(radioSignalFrame);radioSignalFrame=null;}if(bfHls){bfHls.destroy();bfHls=null;}if(bfPlayer)try{bfPlayer.pause();}catch(e){}const vjsVideo=document.getElementById('vjs-video');if(vjsVideo&&vjsVideo._hls){vjsVideo._hls.destroy();vjsVideo._hls=null;}const yf=document.getElementById('youtubeFrame');if(yf)yf.src='';clearOv();}
+function stopAll(){stopRadio();if(radioSignalFrame){cancelAnimationFrame(radioSignalFrame);radioSignalFrame=null;}if(bfHls){bfHls.destroy();bfHls=null;}if(bfPlayer)try{bfPlayer.pause();}catch(e){}['vjs-video','vjs-video-min'].forEach(id=>{const v=document.getElementById(id);if(v&&v._hls){v._hls.destroy();v._hls=null;}});const yf=document.getElementById('youtubeFrame');if(yf)yf.src='';clearOv();}
 function toggleAutoplay(){autoplay=!autoplay;const at=document.getElementById('autoplayTog');if(at)at.classList.toggle('on',autoplay);const aqb=document.getElementById('autoplayQolBtn');if(aqb)aqb.classList.toggle('on',autoplay);try{const ss=JSON.parse(localStorage.getItem('bf-settings')||'{}');ss.autoplay=autoplay;localStorage.setItem('bf-settings',JSON.stringify(ss));}catch(e){}}
 function likeVideo(){if(!curVid)return;let lk=JSON.parse(localStorage.getItem('bf-likes')||'[]');const btn=document.getElementById('likeBtn'),lbl=document.getElementById('lblLike');if(isLiked(curIdx)){lk=lk.filter(i=>i!==curIdx);btn.classList.remove('liked');lbl.textContent=s('like');toast(s('toastUnlike'));}else{lk.push(curIdx);btn.classList.add('liked');lbl.textContent=s('liked');toast(s('toastLike'));}localStorage.setItem('bf-likes',JSON.stringify(lk));}
 function isLiked(i){try{return JSON.parse(localStorage.getItem('bf-likes')||'[]').includes(i);}catch(e){return false;}}
