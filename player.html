@@ -2286,36 +2286,47 @@ async function playWithVJS(v, seekTime=0){
 
   // Set video source (with HLS.js support if needed)
   if(isHLS && Hls.isSupported()){
+    // Detect live stream: isPinned flag, LIVE duration tag, or explicit live param
+    const isLiveStream = !!(v.isPinned || v.duration === 'LIVE');
+
     const hls=new Hls({
       // ── Worker & performance ───────────────────────────
       enableWorker: true,
       workerPath: null,                // use inline worker
 
       // ── ABR / startup speed ───────────────────────────
-      startLevel: -1,                  // auto-select best level from the start
-      abrEwmaDefaultEstimate: 5000000, // assume 5 Mbps initially (faster start with better quality)
-      abrEwmaFastLive: 2,              // faster adaptation for live
+      // BUG FIX: Live streams should start at lowest quality for fastest initial load,
+      // not the highest. startLevel:-1 (auto) combined with a 5 Mbps initial estimate
+      // caused HLS.js to attempt the highest rendition first, often stalling on live.
+      startLevel: isLiveStream ? 0 : -1,
+      abrEwmaDefaultEstimate: isLiveStream ? 1000000 : 5000000, // conservative for live
+      abrEwmaFastLive: 2,
       abrEwmaSlowLive: 6,
       abrEwmaFastVoD: 3,
       abrEwmaSlowVoD: 9,
-      abrBandWidthFactor: 0.95,        // use 95% of measured BW (aggressive for fast start)
-      abrBandWidthUpFactor: 0.85,      // more aggressive when upgrading quality
+      abrBandWidthFactor: 0.95,
+      abrBandWidthUpFactor: 0.85,
 
       // ── Buffer tuning ─────────────────────────────────
-      maxBufferLength: 15,             // reduced from 30s for faster start
-      maxMaxBufferLength: 90,          // allow some buffer growth
+      // BUG FIX: maxBufferLength:15 conflicted with liveSyncDurationCount:3.
+      // If target segment duration is ~6s, liveSyncDuration = 3×6 = 18s > 15s buffer,
+      // creating constant back-pressure and rebuffering on live streams.
+      maxBufferLength: isLiveStream ? 30 : 15,
+      maxMaxBufferLength: 90,
       maxBufferSize: 60 * 1000 * 1000, // 60 MB cap
       maxBufferHole: 1.5,              // skip gaps up to 1.5s without stalling
-      highBufferWatchdogPeriod: 2,     // check buffer periodically
+      highBufferWatchdogPeriod: 2,
+      // Keep only recent live segments; don't accumulate old live buffer
+      liveBackBufferLength: isLiveStream ? 30 : 0,
 
       // ── Segment loading / retries ─────────────────────
-      fragLoadingTimeOut: 15000,       // reduced from 20s - fail faster and retry
-      fragLoadingMaxRetry: 8,          // more retries for unstable connections
-      fragLoadingRetryDelay: 500,      // faster retry (was 1000)
+      fragLoadingTimeOut: 15000,
+      fragLoadingMaxRetry: 8,
+      fragLoadingRetryDelay: 500,
       fragLoadingMaxRetryTimeout: 32000,
 
       // ── Manifest / level loading ───────────────────────
-      manifestLoadingTimeOut: 10000,   // faster manifest loading
+      manifestLoadingTimeOut: 10000,
       manifestLoadingMaxRetry: 6,
       manifestLoadingRetryDelay: 500,
       levelLoadingTimeOut: 10000,
@@ -2326,7 +2337,9 @@ async function playWithVJS(v, seekTime=0){
       lowLatencyMode: false,           // disabled - some streams incompatible
       liveSyncDurationCount: 3,        // stay 3 segments behind live edge
       liveMaxLatencyDurationCount: 10,
-      liveDurationInfinity: true,      // treat live seekable range as infinite
+      // BUG FIX: liveDurationInfinity:true caused videoEl.duration === Infinity,
+      // making (currentTime / duration) = 0 in saveProg and confusing the seekbar.
+      liveDurationInfinity: false,
 
       // ── CORS / credentials ────────────────────────────
       xhrSetup: function(xhr, url){
@@ -2337,23 +2350,49 @@ async function playWithVJS(v, seekTime=0){
     hls.loadSource(v.u);
     hls.attachMedia(videoEl);
     hls.on(Hls.Events.MANIFEST_PARSED, ()=>{
+      // For live streams, explicitly seek to the live edge before playing
+      if(isLiveStream && hls.liveSyncPosition != null){
+        videoEl.currentTime = hls.liveSyncPosition;
+      }
       videoEl.play().catch(()=>{
         videoEl.muted=true;
         videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));
       });
     });
-    // Auto-recover from network / media errors
+    // BUG FIX: Improved fatal error recovery with staged approach and live rebuild.
+    // Previous code only called hls.startLoad() for network errors (missing stopLoad first)
+    // and had no retry for truly fatal errors, leaving a permanent black screen on live.
+    let _hlsMediaRecovered = false;
+    let _hlsNetworkRetryTimer = null;
     hls.on(Hls.Events.ERROR, (event, data)=>{
       if(!data.fatal) return;
       if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
-        console.warn('BloxyFlix HLS: network error, trying to recover…', data);
-        hls.startLoad();
+        console.warn('BloxyFlix HLS: network error, recovering…', data);
+        clearTimeout(_hlsNetworkRetryTimer);
+        _hlsNetworkRetryTimer = setTimeout(()=>{
+          // stopLoad before startLoad prevents overlapping requests
+          hls.stopLoad();
+          hls.startLoad(isLiveStream ? -1 : undefined); // -1 = live edge
+        }, 1000);
       } else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){
-        console.warn('BloxyFlix HLS: media error, trying to recover…', data);
-        hls.recoverMediaError();
+        if(!_hlsMediaRecovered){
+          console.warn('BloxyFlix HLS: media error, first recovery attempt…', data);
+          _hlsMediaRecovered = true;
+          hls.recoverMediaError();
+        } else {
+          // Second attempt: swap codec then recover (handles AAC vs MP3 mismatch)
+          console.warn('BloxyFlix HLS: media error, codec-swap recovery…', data);
+          hls.swapAudioCodec();
+          hls.recoverMediaError();
+        }
       } else {
         console.error('BloxyFlix HLS: fatal error, destroying instance', data);
         hls.destroy();
+        videoEl._hls = null;
+        if(isLiveStream){
+          // For live streams, surface an error so the user knows what happened
+          toast('⚠️ Live stream error — please refresh or try again.');
+        }
       }
     });
   }else if(isHLS && videoEl.canPlayType('application/vnd.apple.mpegurl')){
@@ -2418,7 +2457,11 @@ async function playWithVJS(v, seekTime=0){
 
   // Track progress
   videoEl.ontimeupdate=()=>{
-    if(videoEl.duration)saveProg(curIdx,(videoEl.currentTime/videoEl.duration)*100);
+    // BUG FIX: Skip saveProg for HLS live streams — duration is either Infinity or
+    // constantly shifting, producing meaningless (or 0%) progress values.
+    if(videoEl.duration && isFinite(videoEl.duration) && !isHLS){
+      saveProg(curIdx,(videoEl.currentTime/videoEl.duration)*100);
+    }
   };
 }
 
