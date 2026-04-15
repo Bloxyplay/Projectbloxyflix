@@ -472,9 +472,12 @@ body.liquid-glass .dprk-star-bg{opacity:0.035;animation-duration:25s;}
   0%{width:0;opacity:0;}
   100%{width:100%;opacity:1;}
 }
+/* glowPulse is now on .player-glow-shell::before using opacity only —
+   opacity IS GPU-composited (no repaint), box-shadow is NOT (triggers full repaint).
+   Animating box-shadow directly on the video container caused the video to lag. */
 @keyframes glowPulse{
-  0%,100%{box-shadow:0 0 8px rgba(204,0,0,0.15);}
-  50%{box-shadow:0 0 22px rgba(204,0,0,0.40),0 0 40px rgba(204,0,0,0.10);}
+  0%,100%{opacity:0.45;}
+  50%{opacity:1;}
 }
 
 /* Apply entry animations to key elements */
@@ -507,10 +510,23 @@ body:not(.liquid-glass) .pnav{
   border-bottom-color:rgba(204,0,0,0.18)!important;
   box-shadow:0 1px 0 rgba(204,0,0,0.12),0 1px 0 rgba(37,99,235,0.10),0 2px 12px rgba(0,0,0,0.50)!important;
 }
-/* Normal mode: subtle DPRK-red glow on player wrap */
+/* Normal mode: subtle DPRK-red glow on player wrap — rendered via shell pseudo-element
+   so it never triggers a repaint on the video container */
 body:not(.liquid-glass) .player-wrap{
   box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 0 0 1px rgba(204,0,0,0.06),0 24px 64px rgba(0,0,0,0.85),0 8px 24px rgba(0,0,0,0.50)!important;
-  animation:fadeInScale 0.6s 0.1s var(--spring) both, glowPulse 5s 1s ease-in-out infinite;
+  animation:fadeInScale 0.6s 0.1s var(--spring) both;
+}
+/* Shell: provides the pulsing glow via opacity-only animation (GPU composited, zero repaint) */
+.player-glow-shell{position:relative;}
+.player-glow-shell::before{
+  content:'';pointer-events:none;
+  position:absolute;inset:-4px;border-radius:calc(var(--rl) + 4px);z-index:-1;
+  box-shadow:0 0 22px rgba(204,0,0,0.40),0 0 40px rgba(204,0,0,0.10);
+  opacity:0;
+  will-change:opacity;
+}
+body:not(.liquid-glass) .player-glow-shell::before{
+  animation:glowPulse 5s 1s ease-in-out infinite;
 }
 /* Liquid-glass mode: blue-purple glow on player wrap */
 body.liquid-glass .player-wrap{
@@ -1580,6 +1596,9 @@ video-skin{display:block;width:100%;height:100%;}
   <div class="player-content">
 
     <!-- Player -->
+    <!-- player-glow-shell: separates the glow pulse animation from the video
+         container so box-shadow changes never trigger a video repaint -->
+    <div class="player-glow-shell" id="playerGlowShell">
     <div class="player-wrap" id="playerWrap">
       <div id="playerContainer">
         <video id="bf-player" playsinline></video>
@@ -1664,6 +1683,7 @@ video-skin{display:block;width:100%;height:100%;}
         <button class="resume-x" onclick="hideResume()">✕</button>
       </div>
     </div>
+    </div><!-- /player-glow-shell -->
 
     <!-- Info -->
     <div class="player-info" id="playerInfo" style="display:none;">
@@ -1993,7 +2013,7 @@ video-skin{display:block;width:100%;height:100%;}
 <script>
 // ── STATE ─────────────────────────────────────────────────
 let curVid=null,curIdx=-1,slimVids=[];
-let bfPlayer=null,bfHls=null,vjsPlayer=null;
+let bfPlayer=null,bfHls=null;
 let radioAudio=null,radioCtx=null,radioAnalyser=null,radioAnimFrame=null,radioSignalFrame=null,radioPlaying=false;
 let autoplay=true,isEmbedded=false;
 let loopOn=false,theaterOn=false;
@@ -2241,7 +2261,15 @@ function showVJS(){
   // Hide the skin toggle button (minimal mode removed)
   const sb=document.getElementById('vjsSkinBtn');
   if(sb) sb.style.display='none';
-  if(bfPlayer) try{bfPlayer.pause();}catch(e){}
+  // BUG FIX: bfPlayer.pause() alone left the underlying <video> element decoding
+  // frames in the background (especially if Plyr had a YouTube source), competing
+  // with the VJS player for CPU/GPU. Use stop() to unload the source entirely,
+  // then also clear the raw element's src so the browser releases the resource.
+  if(bfPlayer){
+    try{ bfPlayer.stop(); }catch(e){}
+    const rawVid=document.getElementById('bf-player');
+    if(rawVid){ rawVid.removeAttribute('src'); rawVid.load(); }
+  }
 }
 
 // ── VJS Skin toggle (minimal mode removed) ──────────────────────────────────────
@@ -2745,7 +2773,6 @@ function doResume(){
   }
   document.getElementById('resumeBanner').classList.remove('show');
 }
-function hideResume(){document.getElementById('resumeBanner').classList.remove('show');}
 function hideResume(){document.getElementById('resumeBanner').classList.remove('show');}
 
 // ── KEYBOARD SHORTCUTS (expanded) ─────────────────────────
