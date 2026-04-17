@@ -83,11 +83,11 @@ html,body{background:var(--bg);color:var(--t1);font-family:var(--f);min-height:1
 .fp.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue);}
 .fp svg{width:11px;height:11px;fill:currentColor;}
 
-/* ── CARDS ── Styled like the dialog image: blue header bar + clean body + big blue button ── */
+/* ── CARDS ── Glassmorphism style with blur and transparency ── */
 .list{max-width:860px;margin:0 auto;padding:0 1.5rem 5rem;display:flex;flex-direction:column;gap:1.5rem;}
-.card{background:var(--card);border:1px solid var(--border2);border-radius:var(--rx);overflow:hidden;box-shadow:var(--sh);transition:transform .28s var(--spring),box-shadow .28s var(--ease);position:relative;animation:cardIn .45s var(--ease) both;}
+.card{background:rgba(13,17,40,0.55);border:1px solid rgba(255,255,255,0.12);border-radius:var(--rx);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.05);transition:transform .28s var(--spring),box-shadow .28s var(--ease),background .25s var(--ease);position:relative;animation:cardIn .45s var(--ease) both;backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(68,136,255,0.15),inset 0 1px 0 rgba(255,255,255,0.08);background:rgba(13,17,40,0.7);}
 @keyframes cardIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-.card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
 
 /* Blue header bar — like the "Login" bar in the reference image */
 .card-header{background:var(--blue-header);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;position:relative;overflow:hidden;}
@@ -207,22 +207,20 @@ html,body{background:var(--bg);color:var(--t1);font-family:var(--f);min-height:1
 .foot-logo{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.6rem;font-weight:800;font-size:.95rem;color:var(--t2);}
 .foot-logo span{color:var(--blue);}
 
-/* ── MODE DROPDOWN ── */
-.mode-dropdown{position:relative;flex-shrink:0;}
-.mode-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.42rem .85rem;background:var(--blue-dim);border:1px solid var(--blue-mid);border-radius:var(--rp);font-size:.75rem;font-weight:600;color:var(--blue);cursor:pointer;transition:all .2s var(--ease);font-family:var(--f);white-space:nowrap;}
-.mode-btn:hover{background:var(--blue-mid);color:#fff;border-color:var(--blue);}
-.mode-btn svg{width:12px;height:12px;fill:currentColor;}
-.mode-btn .chevron{width:10px;height:10px;fill:currentColor;transition:transform .2s;}
-.mode-dropdown.open .chevron{transform:rotate(180deg);}
-.mode-menu{position:absolute;top:calc(100% + 6px);right:0;min-width:160px;background:var(--card);border:1px solid var(--border2);border-radius:var(--r);box-shadow:var(--shl);z-index:9999;overflow:hidden;display:none;animation:menuIn .15s ease;}
-.mode-dropdown.open .mode-menu{display:block;}
-@keyframes menuIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
-.mode-item{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;font-size:.8rem;font-weight:600;color:var(--t2);cursor:pointer;transition:background .15s;font-family:var(--f);}
-.mode-item:hover{background:var(--surface2);color:var(--t1);}
-.mode-item.selected{color:var(--blue);}
-.mode-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.mode-dot-normal{background:var(--blue);}
-.mode-dot-simple{background:#e8562a;}
+/* ── FLOATING THEME BUTTON (FAB) ── */
+.fab-theme{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9998;width:52px;height:52px;border-radius:50%;background:rgba(68,136,255,0.15);border:1px solid rgba(68,136,255,0.35);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s var(--ease);box-shadow:0 4px 20px rgba(0,0,0,0.3),0 0 0 1px rgba(68,136,255,0.1);}
+.fab-theme:hover{background:rgba(68,136,255,0.25);transform:scale(1.08);box-shadow:0 6px 28px rgba(68,136,255,0.25),0 0 0 1px rgba(68,136,255,0.2);}
+.fab-theme:active{transform:scale(0.95);}
+.fab-theme svg{width:24px;height:24px;fill:var(--blue);}
+.fab-theme-menu{position:fixed;bottom:calc(1.5rem + 60px);right:1.5rem;z-index:9997;min-width:140px;background:rgba(13,17,40,0.75);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden;display:none;animation:fabMenuIn .2s var(--ease);}
+.fab-theme-menu.open{display:block;}
+@keyframes fabMenuIn{from{opacity:0;transform:translateY(10px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+.fab-theme-item{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;font-size:.8rem;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s;font-family:var(--f);}
+.fab-theme-item:hover{background:rgba(255,255,255,0.08);color:var(--t1);}
+.fab-theme-item.selected{color:var(--blue);}
+.fab-theme-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.fab-dot-normal{background:var(--blue);}
+.fab-dot-simple{background:#e8562a;}
 
 /* ── SIMPLE MODE ── */
 body.simple-mode{background:#f5f5f5 !important;color:#1a1a1a !important;}
@@ -236,12 +234,13 @@ body.simple-mode .nav-page-label{color:#666 !important;}
 body.simple-mode .nav-page-label::before{background:#e8562a !important;box-shadow:none !important;}
 body.simple-mode .nav-back{background:#fff3f0 !important;border-color:#f5c5b8 !important;color:#e8562a !important;}
 body.simple-mode .nav-back:hover{background:#fde8e2 !important;}
-body.simple-mode .mode-btn{background:#fff3f0 !important;border-color:#f5c5b8 !important;color:#e8562a !important;}
-body.simple-mode .mode-btn:hover{background:#fde8e2 !important;color:#c4401d !important;}
-body.simple-mode .mode-menu{background:#fff !important;border-color:#e0e0e0 !important;}
-body.simple-mode .mode-item{color:#555 !important;}
-body.simple-mode .mode-item:hover{background:#f9f9f9 !important;color:#1a1a1a !important;}
-body.simple-mode .mode-item.selected{color:#e8562a !important;}
+body.simple-mode .fab-theme{background:rgba(232,86,42,0.15) !important;border-color:rgba(232,86,42,0.35) !important;}
+body.simple-mode .fab-theme:hover{background:rgba(232,86,42,0.25) !important;box-shadow:0 6px 28px rgba(232,86,42,0.25) !important;}
+body.simple-mode .fab-theme svg{fill:#e8562a !important;}
+body.simple-mode .fab-theme-menu{background:rgba(255,255,255,0.9) !important;border-color:#e0e0e0 !important;backdrop-filter:blur(24px) saturate(180%);}
+body.simple-mode .fab-theme-item{color:#555 !important;}
+body.simple-mode .fab-theme-item:hover{background:#f5f5f5 !important;color:#1a1a1a !important;}
+body.simple-mode .fab-theme-item.selected{color:#e8562a !important;}
 body.simple-mode .hero{background:#fff;border-bottom:1px solid #e0e0e0;}
 body.simple-mode .hero-ring,body.simple-mode .hero-glow{display:none;}
 body.simple-mode .hero-kicker{background:#fff3f0 !important;border-color:#f5c5b8 !important;color:#e8562a !important;}
@@ -257,8 +256,8 @@ body.simple-mode .filter-label{color:#999 !important;}
 body.simple-mode .fp{background:#fff !important;border-color:#e0e0e0 !important;color:#555 !important;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
 body.simple-mode .fp:hover{background:#f9f9f9 !important;color:#1a1a1a !important;border-color:#ccc !important;}
 body.simple-mode .fp.active{background:#fff3f0 !important;border-color:#e8562a !important;color:#e8562a !important;}
-body.simple-mode .card{background:#fff !important;border-color:#e0e0e0 !important;box-shadow:0 2px 10px rgba(0,0,0,0.08) !important;border-radius:12px !important;}
-body.simple-mode .card:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,0.13) !important;}
+body.simple-mode .card{background:rgba(255,255,255,0.85) !important;border-color:rgba(0,0,0,0.08) !important;box-shadow:0 4px 20px rgba(0,0,0,0.08) !important;border-radius:12px !important;backdrop-filter:blur(16px) saturate(150%);}
+body.simple-mode .card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,0.12) !important;background:rgba(255,255,255,0.95) !important;}
 body.simple-mode .card-header{background:#e8562a !important;}
 body.simple-mode .card-header::after{display:none;}
 body.simple-mode .card-header-title{color:#fff !important;}
@@ -334,22 +333,7 @@ body.simple-mode .empty-sub{color:#aaa !important;}
   <div class="nav-sep"></div>
   <span class="nav-page-label">Announcements</span>
   <div class="nav-spacer"></div>
-  <!-- Mode Dropdown -->
-  <div class="mode-dropdown" id="modeDropdown">
-    <div class="mode-btn" onclick="toggleModeMenu()">
-      <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm0-11c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
-      <span id="modeLabel">Normal</span>
-      <svg class="chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-    </div>
-    <div class="mode-menu">
-      <div class="mode-item selected" id="modeNormal" onclick="setMode('normal')">
-        <div class="mode-dot mode-dot-normal"></div>Normal Mode
-      </div>
-      <div class="mode-item" id="modeSimple" onclick="setMode('simple')">
-        <div class="mode-dot mode-dot-simple"></div>Simple Mode
-      </div>
-    </div>
-  </div>
+  <a class="nav-back" href="index.html">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     Back to Home
   </a>
@@ -413,6 +397,19 @@ body.simple-mode .empty-sub{color:#aaa !important;}
   <div>© 2026 BloxyFlix Myanmar · All rights reserved &nbsp;·&nbsp; <a href="index.html">Home</a></div>
 </footer>
 <div id="toast"></div>
+
+<!-- Floating Theme Toggle Button -->
+<button class="fab-theme" id="fabTheme" onclick="toggleThemeMenu()" aria-label="Change theme">
+  <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zm0-11c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
+</button>
+<div class="fab-theme-menu" id="fabThemeMenu">
+  <div class="fab-theme-item selected" id="fabModeNormal" onclick="setMode('normal')">
+    <div class="fab-theme-dot fab-dot-normal"></div>Normal
+  </div>
+  <div class="fab-theme-item" id="fabModeSimple" onclick="setMode('simple')">
+    <div class="fab-theme-dot fab-dot-simple"></div>Simple
+  </div>
+</div>
 
 <script>
 /* ── BAKED-IN DATA (replaced by admin on download) ── */
@@ -661,15 +658,14 @@ let _tt;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2600);}
 
 /* ── MODE SWITCHER ── */
-function toggleModeMenu(){document.getElementById('modeDropdown').classList.toggle('open');}
-document.addEventListener('click',e=>{if(!document.getElementById('modeDropdown').contains(e.target))document.getElementById('modeDropdown').classList.remove('open');});
+function toggleThemeMenu(){document.getElementById('fabThemeMenu').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!document.getElementById('fabTheme').contains(e.target)&&!document.getElementById('fabThemeMenu').contains(e.target))document.getElementById('fabThemeMenu').classList.remove('open');});
 function setMode(m){
   const isSimple=m==='simple';
   document.body.classList.toggle('simple-mode',isSimple);
-  document.getElementById('modeLabel').textContent=isSimple?'Simple':'Normal';
-  document.getElementById('modeNormal').classList.toggle('selected',!isSimple);
-  document.getElementById('modeSimple').classList.toggle('selected',isSimple);
-  document.getElementById('modeDropdown').classList.remove('open');
+  document.getElementById('fabModeNormal').classList.toggle('selected',!isSimple);
+  document.getElementById('fabModeSimple').classList.toggle('selected',isSimple);
+  document.getElementById('fabThemeMenu').classList.remove('open');
   try{localStorage.setItem('bf-view-mode',m);}catch(e){}
 }
 // Restore saved mode

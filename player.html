@@ -2195,9 +2195,9 @@ window.addEventListener('DOMContentLoaded',()=>{
     // No video from sessionStorage or URL — fall back to Pyongyang FM demo stream
     curVid={
       u:'https://listen7.myradio24.com/69366',
-      t:'Pyongyang FM (Demo version)',tk:'평양 FM',
+      t:'Pyongyang FM (Test page)',tk:'평양 FM',
       ty:'Radio',views:0,isPinned:true,duration:'LIVE',
-      d:'Demo stream — Pyongyang FM live broadcast. To load your own content, pass a ?url= or ?yt= query parameter, or navigate here from the BloxyFlix index.'
+      d:'Demo stream — Note this is not a real version of Pyongyang FM this is just for testing only the radio is just playing a list of playlist that play everyday!'
     };
     curIdx=-1;loaded=true;
   }
@@ -2493,6 +2493,124 @@ async function playWithVJS(v, seekTime=0){
   };
 }
 
+// ── Plyr + HLS.js — for M3U8 streams ────────────────────
+async function playWithPlyrHLS(v, seekTime=0){
+  showPlyr();
+
+  // Build subtitle blob URLs
+  const tracks=[];
+  for(let i=0;i<(v.subs||[]).length;i++){
+    const sub=v.subs[i];if(!sub.url)continue;
+    const blobUrl=await srtToBlobUrl(sub.url);if(!blobUrl)continue;
+    tracks.push({kind:'subtitles',label:sub.label||sub.srclang||'Track '+(i+1),srclang:sub.srclang||'',src:blobUrl,default:i===0});
+  }
+
+  // bf-player is the raw <video> that Plyr wraps
+  const videoEl=document.getElementById('bf-player');
+  const isLiveStream=!!(v.isPinned||v.duration==='LIVE');
+
+  // Teardown any lingering HLS instance on this element
+  if(videoEl._hls){videoEl._hls.destroy();videoEl._hls=null;}
+
+  if(typeof Hls!=='undefined'&&Hls.isSupported()){
+    const hls=new Hls({
+      enableWorker:true,
+      startLevel:isLiveStream?0:-1,
+      abrEwmaDefaultEstimate:isLiveStream?1000000:5000000,
+      abrEwmaFastLive:2,abrEwmaSlowLive:6,
+      abrEwmaFastVoD:3,abrEwmaSlowVoD:9,
+      abrBandWidthFactor:0.95,abrBandWidthUpFactor:0.85,
+      maxBufferLength:isLiveStream?30:15,
+      maxMaxBufferLength:90,
+      maxBufferSize:60*1000*1000,
+      maxBufferHole:1.5,
+      highBufferWatchdogPeriod:2,
+      liveBackBufferLength:isLiveStream?30:0,
+      fragLoadingTimeOut:15000,fragLoadingMaxRetry:8,fragLoadingRetryDelay:500,fragLoadingMaxRetryTimeout:32000,
+      manifestLoadingTimeOut:10000,manifestLoadingMaxRetry:6,manifestLoadingRetryDelay:500,
+      levelLoadingTimeOut:10000,levelLoadingMaxRetry:6,levelLoadingRetryDelay:500,
+      lowLatencyMode:false,
+      liveSyncDurationCount:3,liveMaxLatencyDurationCount:10,
+      liveDurationInfinity:false,
+      xhrSetup:function(xhr){xhr.withCredentials=false;}
+    });
+    videoEl._hls=hls;
+    hls.loadSource(v.u);
+    hls.attachMedia(videoEl);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+      if(isLiveStream&&hls.liveSyncPosition!=null) videoEl.currentTime=hls.liveSyncPosition;
+      if(seekTime>0) videoEl.currentTime=seekTime;
+      // Trigger play through Plyr so its UI updates correctly
+      try{bfPlayer.play();}catch(e){
+        videoEl.play().catch(()=>{videoEl.muted=true;videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));});
+      }
+    });
+    let _hlsMediaRecovered=false,_hlsNetworkRetryTimer=null;
+    hls.on(Hls.Events.ERROR,(event,data)=>{
+      if(!data.fatal)return;
+      if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
+        clearTimeout(_hlsNetworkRetryTimer);
+        _hlsNetworkRetryTimer=setTimeout(()=>{hls.stopLoad();hls.startLoad(isLiveStream?-1:undefined);},1000);
+      }else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
+        if(!_hlsMediaRecovered){_hlsMediaRecovered=true;hls.recoverMediaError();}
+        else{hls.swapAudioCodec();hls.recoverMediaError();}
+      }else{
+        hls.destroy();videoEl._hls=null;
+        if(isLiveStream)toast('⚠️ Live stream error — please refresh or try again.');
+      }
+    });
+  }else if(videoEl.canPlayType('application/vnd.apple.mpegurl')){
+    // Native HLS (Safari / iOS)
+    bfPlayer.source={type:'video',sources:[{src:v.u,type:'application/x-mpegURL'}]};
+    try{bfPlayer.play();}catch(e){}
+  }else{
+    toast('⚠️ HLS not supported in this browser.');
+    return;
+  }
+
+  // Attach subtitle tracks to the raw video element
+  while(videoEl.querySelector('track'))videoEl.removeChild(videoEl.querySelector('track'));
+  tracks.forEach(t=>{
+    const track=document.createElement('track');
+    track.kind=t.kind;track.label=t.label;track.srclang=t.srclang;track.src=t.src;
+    if(t.default)track.default=true;
+    videoEl.appendChild(track);
+  });
+
+  // Resume progress (VOD only)
+  if(!isLiveStream){
+    const prog=getProg(curIdx);
+    if(prog>3&&prog<95&&curIdx>=0){
+      videoEl.addEventListener('loadedmetadata',()=>{
+        const rt=(prog/100)*videoEl.duration;
+        if(rt>5){
+          resumeTime=rt;
+          document.getElementById('resumeTxt').textContent=s('resume')+fmtTime(Math.floor(rt))+(uiLang==='zh'?' 继续？':'?');
+          document.getElementById('resumeBanner').classList.add('show');
+        }
+      },{once:true});
+    }
+  }
+
+  // Seek restore from skin-switch
+  if(seekTime>0){
+    videoEl.addEventListener('loadedmetadata',()=>{
+      if(seekTime<videoEl.duration)videoEl.currentTime=seekTime;
+    },{once:true});
+  }
+
+  // Progress save & loop/autoplay via Plyr events
+  bfPlayer.off('timeupdate');
+  bfPlayer.on('timeupdate',()=>{
+    if(bfPlayer.duration&&isFinite(bfPlayer.duration)&&!isLiveStream)
+      saveProg(curIdx,(bfPlayer.currentTime/bfPlayer.duration)*100);
+  });
+  bfPlayer.off('ended');
+  bfPlayer.on('ended',()=>{
+    if(loopOn){bfPlayer.restart();}else if(autoplay){playNext();}
+  });
+}
+
 // ── PLAYBACK ──────────────────────────────────────────────
 function playVid(){
   const v=curVid;
@@ -2530,7 +2648,9 @@ function playVid(){
   else{
     pc.style.display='block';rc.style.display='none';yc.style.display='none';yf.src='';
     if(bfHls){bfHls.destroy();bfHls=null;}
-    // ── Route: All non-YouTube videos use Video.js ──
+    // ── Route: HLS M3U8 → Plyr + HLS.js | everything else → Video.js ──
+    const _isHLSRoute=v.isM3U8||(v.u&&v.u.toLowerCase().includes('.m3u8'));
+    if(_isHLSRoute){playWithPlyrHLS(v);return;}
     playWithVJS(v);
     return; // VJS handles playback from here
   }
