@@ -220,22 +220,6 @@ body:not(.liquid-glass) .pnav-dot{
   background:linear-gradient(135deg,#cc2200 0%,#2563eb 60%,#4f46e5 100%)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.25),0 3px 12px rgba(204,0,0,0.50)!important;
 }
-/* DPRK-themed now-playing badge */
-body:not(.liquid-glass) .np-badge{
-  background:rgba(204,0,0,0.12)!important;
-  border-color:rgba(204,0,0,0.30)!important;
-  color:#e03030!important;
-  animation:npBadgePulse 2.5s ease-in-out infinite!important;
-}
-body:not(.liquid-glass) .np-badge .np-dot{background:#cc0000!important;}
-@keyframes npBadgePulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(204,0,0,0);}
-  50%{box-shadow:0 0 0 3px rgba(204,0,0,0.10);}
-}
-/* Liquid glass mode np-badge: keep blue but add pulse */
-body.liquid-glass .np-badge{
-  animation:npBadgePulse 2.5s ease-in-out infinite!important;
-}
 /* Blue-tinted separator */
 body:not(.liquid-glass) .qsep{background:rgba(37,99,235,0.12)!important;}
 /* Up-next items in normal mode */
@@ -259,14 +243,6 @@ body.liquid-glass .up-item:hover{
   background:rgba(255,255,255,0.09)!important;
   border-color:rgba(255,255,255,0.16)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 4px 16px rgba(0,0,0,0.22)!important;
-}
-/* Now-playing badge gets iridescent tint in LG mode */
-body.liquid-glass .np-badge{
-  background:rgba(79,158,255,0.14)!important;
-  border-color:rgba(79,158,255,0.28)!important;
-  backdrop-filter:blur(20px) saturate(180%)!important;
-  -webkit-backdrop-filter:blur(20px) saturate(180%)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 0 12px rgba(79,158,255,0.20)!important;
 }
 /* QoL bar in LG mode — glass shimmer */
 body.liquid-glass .qol{
@@ -740,14 +716,6 @@ body.theater .player-wrap{border-radius:0!important;}
 .pnav-title{font-size:.77rem;color:var(--t3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;letter-spacing:.01em;}
 .pnav-acts{display:flex;gap:.38rem;flex-shrink:0;}
 /* Now playing pulse indicator */
-.np-badge{
-  display:inline-flex;align-items:center;gap:.28rem;
-  background:rgba(48,209,88,0.12);border:1px solid rgba(48,209,88,0.25);
-  color:#30d158;font-size:.65rem;font-weight:700;
-  padding:.18rem .52rem;border-radius:var(--rp);
-  letter-spacing:.8px;text-transform:uppercase;flex-shrink:0;
-}
-.np-dot{width:5px;height:5px;background:#30d158;border-radius:50%;animation:rdot 1.2s ease-in-out infinite;}
 .pnav-btn{
   display:flex;align-items:center;justify-content:center;
   width:34px;height:34px;border-radius:11px;
@@ -1707,7 +1675,6 @@ video-skin{display:block;width:100%;height:100%;}
       </div>
 
       <div class="actions">
-        <div class="np-badge"><span class="np-dot"></span>Now Playing</div>
         <button class="abtn" id="likeBtn" onclick="likeVideo()">
           <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
           <span id="lblLike">Like</span>
@@ -2332,18 +2299,20 @@ async function playWithVJS(v, seekTime=0){
       abrEwmaSlowLive: 6,
       abrEwmaFastVoD: 3,
       abrEwmaSlowVoD: 9,
-      abrBandWidthFactor: 0.95,
-      abrBandWidthUpFactor: 0.85,
+      abrBandWidthFactor: 0.85,
+      abrBandWidthUpFactor: 0.65,     // conservative upgrades = fewer stalls (was 0.85)
 
       // ── Buffer tuning ─────────────────────────────────
-      // BUG FIX: maxBufferLength:15 conflicted with liveSyncDurationCount:3.
-      // If target segment duration is ~6s, liveSyncDuration = 3×6 = 18s > 15s buffer,
-      // creating constant back-pressure and rebuffering on live streams.
-      maxBufferLength: isLiveStream ? 30 : 15,
-      maxMaxBufferLength: 90,
+      maxBufferLength: 30,              // unified 30s for both live and VOD (was 15 for VOD)
+      maxMaxBufferLength: 120,          // raised from 90 — more headroom on fast connections
       maxBufferSize: 60 * 1000 * 1000, // 60 MB cap
-      maxBufferHole: 1.5,              // skip gaps up to 1.5s without stalling
-      highBufferWatchdogPeriod: 2,
+      maxBufferHole: 0.5,              // smaller = fewer gap-jumps on slow connections
+      highBufferWatchdogPeriod: 3,     // more time before quality drop (was 2)
+      backBufferLength: 30,            // keep 30s back-buffer — fewer stalls after seeks
+      // Stall nudge — moves playhead past tiny holes before declaring fatal stall
+      nudgeOffset: 0.1,
+      nudgeMaxRetry: 5,
+      startFragPrefetch: true,         // prefetch first fragment = faster cold start
       // Keep only recent live segments; don't accumulate old live buffer
       liveBackBufferLength: isLiveStream ? 30 : 0,
 
@@ -2519,12 +2488,16 @@ async function playWithPlyrHLS(v, seekTime=0){
       abrEwmaDefaultEstimate:isLiveStream?1000000:5000000,
       abrEwmaFastLive:2,abrEwmaSlowLive:6,
       abrEwmaFastVoD:3,abrEwmaSlowVoD:9,
-      abrBandWidthFactor:0.95,abrBandWidthUpFactor:0.85,
-      maxBufferLength:isLiveStream?30:15,
-      maxMaxBufferLength:90,
+      abrBandWidthFactor:0.85,abrBandWidthUpFactor:0.65,
+      maxBufferLength:isLiveStream?30:30,
+      maxMaxBufferLength:120,
       maxBufferSize:60*1000*1000,
-      maxBufferHole:1.5,
-      highBufferWatchdogPeriod:2,
+      maxBufferHole:0.5,
+      highBufferWatchdogPeriod:3,
+      backBufferLength:30,
+      nudgeOffset:0.1,
+      nudgeMaxRetry:5,
+      startFragPrefetch:true,
       liveBackBufferLength:isLiveStream?30:0,
       fragLoadingTimeOut:15000,fragLoadingMaxRetry:8,fragLoadingRetryDelay:500,fragLoadingMaxRetryTimeout:32000,
       manifestLoadingTimeOut:10000,manifestLoadingMaxRetry:6,manifestLoadingRetryDelay:500,
