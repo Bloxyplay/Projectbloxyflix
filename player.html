@@ -2103,20 +2103,20 @@ function updateURL(){
 function getShareURL(){
   if(!curVid)return location.href;
   try{
-    let qs;
-    if(curIdx>=0){
-      qs=`v=${curIdx}&title=${encodeURIComponent(slug(curVid.t))}`;
-    }else{
-      const p=new URLSearchParams();
-      p.set('title',slug(curVid.t));
-      if(curVid.t)p.set('t',curVid.t.substring(0,80));
-      if(curVid.isYouTube)p.set('yt',curVid.u);
-      else if(curVid.isGoogleDrive)p.set('gd',curVid.gdriveFileId||curVid.u);
-      else if(curVid.u)p.set('url',curVid.u.substring(0,300));
-      if(curVid.ty)p.set('ty',curVid.ty);
-      qs=p.toString();
-    }
-    return `${location.origin}${location.pathname}?${qs}`;
+    // Always encode the full video object into a base64 ?share= param so that
+    // shared links work for ANY recipient — even without sessionStorage.
+    // Using ?v=index alone breaks for new visitors because the slim list lives
+    // only in the sharer's sessionStorage, not the recipient's.
+    const shareData={
+      u:curVid.u,t:curVid.t,tk:curVid.tk||'',ty:curVid.ty||'',
+      views:curVid.views||0,y:curVid.y||'',d:curVid.d||'',
+      isYouTube:!!curVid.isYouTube,isGoogleDrive:!!curVid.isGoogleDrive,
+      isEmbed:!!curVid.isEmbed,isExternal:!!curVid.isExternal,
+      isM3U8:!!curVid.isM3U8,isPinned:!!curVid.isPinned,
+      duration:curVid.duration||'',gdriveFileId:curVid.gdriveFileId||''
+    };
+    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
+    return `${location.origin}${location.pathname}?share=${b64}&title=${encodeURIComponent(slug(curVid.t))}`;
   }catch(e){return location.href;}
 }
 
