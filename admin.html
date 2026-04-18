@@ -493,16 +493,39 @@ select.form-input{cursor:pointer;}
 .login-btn:active{transform:scale(.98);}
 .login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
 .login-error{
-  margin-top:.85rem;padding:.65rem .9rem;
-  background:rgba(232,38,58,.08);border:1px solid rgba(232,38,58,.2);
-  border-radius:8px;font-size:.82rem;color:var(--red);
+  margin-top:1rem;
+  padding:.75rem 1rem;
+  background:rgba(232,38,58,.07);
+  border:1px solid rgba(232,38,58,.25);
+  border-left:3px solid var(--red);
+  border-radius:8px;
   display:none;
+  align-items:flex-start;gap:.65rem;
 }
-.login-error:not(:empty){display:block;}
+.login-error.show{display:flex;}
+.login-error-icon{flex-shrink:0;margin-top:.05rem;}
+.login-error-icon svg{width:15px;height:15px;fill:var(--red);}
+.login-error-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--red);margin-bottom:.25rem;}
+.login-error-text{font-size:.78rem;color:var(--muted);line-height:1.5;}
 .login-footer{
   padding:.9rem 2rem 1.5rem;
   text-align:center;font-size:.75rem;color:var(--dim);
 }
+.login-notice{
+  margin:0 2rem 1.25rem;
+  padding:.75rem 1rem;
+  background:rgba(201,168,76,.07);
+  border:1px solid rgba(201,168,76,.25);
+  border-left:3px solid var(--gold);
+  border-radius:8px;
+  display:none;
+}
+.login-notice.show{display:flex;align-items:flex-start;gap:.65rem;}
+.login-notice-icon{flex-shrink:0;margin-top:.05rem;}
+.login-notice-icon svg{width:15px;height:15px;fill:var(--gold);}
+.login-notice-body{}
+.login-notice-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--gold);margin-bottom:.25rem;}
+.login-notice-text{font-size:.78rem;color:var(--muted);line-height:1.5;}
 </style>
 
 <div id="loginScreen">
@@ -513,6 +536,15 @@ select.form-input{cursor:pointer;}
       <div class="login-sub">Admin Console — Sign in to continue</div>
     </div>
     <div class="login-body">
+      <div class="login-notice" id="autoLoginNotice">
+        <div class="login-notice-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        <div class="login-notice-body">
+          <div class="login-notice-title">Automatic Sign-In Unavailable</div>
+          <div class="login-notice-text">No active session was found in local storage. Automatic authentication could not be completed. Please sign in manually using your administrator credentials to continue.</div>
+        </div>
+      </div>
       <form id="loginForm" autocomplete="on">
         <div class="login-field">
           <label class="login-label" for="loginEmail">Email</label>
@@ -525,7 +557,15 @@ select.form-input{cursor:pointer;}
             placeholder="••••••••••••" autocomplete="current-password" required />
         </div>
         <button class="login-btn" id="loginBtn" type="submit">Sign In</button>
-        <div class="login-error" id="loginError"></div>
+        <div class="login-error" id="loginError">
+          <div class="login-error-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          </div>
+          <div>
+            <div class="login-error-title" id="loginErrorTitle">Sign-In Failed</div>
+            <div class="login-error-text" id="loginErrorText"></div>
+          </div>
+        </div>
       </form>
     </div>
     <div class="login-footer">Secured with Firebase Authentication</div>
@@ -4613,6 +4653,7 @@ document.getElementById('loginForm').addEventListener('submit', async e=>{
   const btn      = document.getElementById('loginBtn');
 
   errEl.textContent = '';
+  errEl.classList.remove('show');
   btn.disabled = true;
   btn.textContent  = 'Signing in…';
 
@@ -4622,14 +4663,23 @@ document.getElementById('loginForm').addEventListener('submit', async e=>{
   } catch(err) {
     btn.disabled = false;
     btn.textContent = 'Sign In';
-    const msgs = {
-      'auth/invalid-credential':   'Wrong email or password.',
-      'auth/user-not-found':       'No account found with that email.',
-      'auth/wrong-password':       'Incorrect password.',
-      'auth/invalid-email':        'Enter a valid email address.',
-      'auth/too-many-requests':    'Too many attempts. Try again later.',
+    const titles = {
+      'auth/invalid-credential':   'Incorrect Credentials',
+      'auth/user-not-found':       'Account Not Found',
+      'auth/wrong-password':       'Incorrect Password',
+      'auth/invalid-email':        'Invalid Email Address',
+      'auth/too-many-requests':    'Account Temporarily Locked',
     };
-    errEl.textContent = msgs[err.code] || 'Login failed: ' + err.message;
+    const msgs = {
+      'auth/invalid-credential':   'The credentials provided are incorrect. Please verify your email address and password, then try again.',
+      'auth/user-not-found':       'No administrator account was found associated with the provided email address.',
+      'auth/wrong-password':       'The password entered is incorrect. Please verify your credentials and try again.',
+      'auth/invalid-email':        'The email address entered is not valid. Please enter a properly formatted email address.',
+      'auth/too-many-requests':    'Access to this account has been temporarily suspended due to multiple failed sign-in attempts. Please try again later.',
+    };
+    document.getElementById('loginErrorTitle').textContent = titles[err.code] || 'Sign-In Failed';
+    document.getElementById('loginErrorText').textContent  = msgs[err.code]  || 'Sign-in could not be completed. Please verify your credentials or contact your system administrator. (' + err.message + ')';
+    errEl.classList.add('show');
   }
 });
 
@@ -4654,6 +4704,13 @@ onAuthStateChanged(auth, user => {
     loginScreen.style.display = 'flex';
     layout.style.display      = 'none';
     toastEl.style.display     = 'none';
+    // Show auto-login notice only if a previous session key existed
+    // (Firebase persists auth under indexedDB/localStorage keys)
+    const hadSession = Object.keys(localStorage).some(k =>
+      k.startsWith('firebase:authUser:') || k.startsWith('bf_gh_')
+    );
+    const noticeEl = document.getElementById('autoLoginNotice');
+    if(hadSession && noticeEl){ noticeEl.classList.add('show'); }
   }
 });
 </script>
