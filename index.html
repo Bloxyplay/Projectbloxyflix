@@ -510,33 +510,151 @@ body{
 
 
 /* Loading */
+/* ═══════════════════════════════════════
+   BLOXYFLIX — CINEMATIC LOADING SCREEN
+═══════════════════════════════════════ */
 .loading{
-  position:fixed;
-  inset:0;
-  background:var(--bg-primary);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse at 50% 40%, #0a1628 0%, #050810 55%, #000 100%);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
   z-index:9999;
-  transition:opacity .3s,visibility .3s;
+  transition:opacity .6s ease,visibility .6s ease;
+  overflow:hidden;
 }
 .loading.hide{opacity:0;visibility:hidden;pointer-events:none;}
 .loading.gone{display:none;}
-.loading-logo{font-size:2.5rem;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:1rem;}
-.loading-logo span{color:var(--accent);}
-.loading-text{color:var(--text-secondary);font-size:.9rem;margin-bottom:1.5rem;}
-.loading-spinner{
-  width:48px;height:48px;
-  border-radius:50%;
-  background:conic-gradient(var(--accent) 0%, transparent 60%);
-  animation:lspin .9s linear infinite;
+
+/* — Dark vignette overlay — */
+.loading-vignette{
+  position:absolute;inset:0;z-index:1;
+  background:
+    radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.72) 100%),
+    linear-gradient(to top, rgba(0,0,0,.9) 0%, transparent 45%),
+    linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 30%);
+  pointer-events:none;
+}
+
+/* — Animated light-streak particles — */
+.loading-particles{
+  position:absolute;inset:0;z-index:1;
+  pointer-events:none;overflow:hidden;
+}
+.ld-streak{
+  position:absolute;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(26,127,255,.6),transparent);
+  border-radius:99px;
+  animation:ldStreak linear infinite;
+  opacity:0;
+}
+@keyframes ldStreak{
+  0%  {transform:translateX(-120%) scaleX(.4);opacity:0;}
+  15% {opacity:1;}
+  85% {opacity:.7;}
+  100%{transform:translateX(220%) scaleX(1.2);opacity:0;}
+}
+
+/* — Center glow pulse — */
+.loading-corner-glow{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:520px;height:520px;z-index:1;
+  background:radial-gradient(ellipse at center, rgba(26,127,255,.18) 0%, rgba(10,50,140,.08) 45%, transparent 70%);
+  animation:ldGlowPulse 2.5s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes ldGlowPulse{
+  0%  {opacity:.5;transform:translateX(-50%) scaleX(.85);}
+  100%{opacity:1; transform:translateX(-50%) scaleX(1.15);}
+}
+
+/* — Bottom content wrapper — */
+.loading-content{
+  position:relative;z-index:3;
+  display:flex;flex-direction:column;align-items:center;
+  padding:0;gap:1.1rem;
+  animation:ldContentIn .9s cubic-bezier(.22,1,.36,1) .6s both;
+}
+@keyframes ldContentIn{
+  0%  {opacity:0;transform:translateY(28px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+
+/* — Logo — */
+.loading-brand{
+  font-size:2rem;font-weight:900;letter-spacing:-.5px;
+  color:#fff;line-height:1;
+  text-shadow:0 0 40px rgba(26,127,255,.6),0 2px 12px rgba(0,0,0,.8);
+  animation:ldLogoPop .7s cubic-bezier(.34,1.56,.64,1) .55s both;
+}
+.loading-brand span{
+  color:#1a7fff;
+  text-shadow:0 0 30px rgba(26,127,255,.9),0 0 60px rgba(26,127,255,.4);
+}
+@keyframes ldLogoPop{
+  0%  {opacity:0;transform:scale(.7);}
+  100%{opacity:1;transform:scale(1);}
+}
+
+/* — Tagline — */
+.loading-tagline{
+  font-size:.7rem;letter-spacing:3.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.45);font-weight:500;
+  animation:ldFadeIn .6s ease .95s both;
+}
+@keyframes ldFadeIn{0%{opacity:0;}100%{opacity:1;}}
+
+/* — Progress bar — */
+.loading-bar-wrap{
+  position:relative;
+  width:200px;height:2px;
+  background:rgba(255,255,255,.12);
+  border-radius:99px;overflow:visible;
+}
+/* glow track */
+.loading-bar-wrap::before{
+  content:'';position:absolute;inset:-2px;
+  border-radius:99px;
+  background:rgba(26,127,255,.08);
+  filter:blur(4px);
+}
+.loading-bar-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#0044cc,#1a7fff,#66ccff);
+  border-radius:99px;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
   position:relative;
 }
-.loading-spinner::after{
-  content:'';position:absolute;inset:4px;
-  border-radius:50%;background:var(--bg-primary);
+/* moving shine on the bar */
+.loading-bar-fill::after{
+  content:'';
+  position:absolute;right:-2px;top:50%;transform:translateY(-50%);
+  width:6px;height:6px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 8px 3px rgba(100,200,255,.9);
+  opacity:0;
+  transition:opacity .3s .1s;
 }
+.loading-bar-fill.active::after{opacity:1;}
+
+/* — Dot status row — */
+.loading-dots-row{
+  display:flex;gap:6px;align-items:center;
+  animation:ldFadeIn .6s ease 1.1s both;
+}
+.loading-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  animation:ldDotBounce 1.2s ease-in-out infinite;
+}
+.loading-dot:nth-child(2){animation-delay:.15s;}
+.loading-dot:nth-child(3){animation-delay:.3s;}
+@keyframes ldDotBounce{
+  0%,80%,100%{background:rgba(255,255,255,.2);transform:scale(1);}
+  40%{background:#1a7fff;transform:scale(1.4);
+      box-shadow:0 0 6px rgba(26,127,255,.8);}
+}
+
 @keyframes lspin{to{transform:rotate(360deg);}}
 
 @keyframes subscribePulse{0%,100%{box-shadow:0 0 0 0 rgba(26,127,255,0.5);}50%{box-shadow:0 0 0 6px rgba(26,127,255,0);}}
@@ -2625,35 +2743,7 @@ html,body{background:#0a0a0a!important;margin:0;padding:0;}
   cursor:pointer;
 }
 #bf-offline button:hover{background:#333;}
-#bf-splash{
-  position:fixed;inset:0;
-  background:#0a0a0a;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  z-index:99999;
-  font-family:'Arial Black',Arial,sans-serif;
-}
-#bf-splash-logo{
-  font-size:2.8rem;font-weight:900;letter-spacing:-1px;
-  color:#fff;margin-bottom:.75rem;
-}
-#bf-splash-logo span{color:#1a7fff;}
-#bf-splash-text{
-  font-size:.9rem;color:#888;
-  font-family:Arial,sans-serif;font-weight:400;
-  letter-spacing:.5px;
-}
-#bf-splash-dots span{
-  display:inline-block;
-  animation:bfDot 1.2s ease-in-out infinite;
-  color:#1a7fff;
-}
-#bf-splash-dots span:nth-child(2){animation-delay:.2s;}
-#bf-splash-dots span:nth-child(3){animation-delay:.4s;}
-#bf-splash-dots span:nth-child(4){animation-delay:.6s;}
-#bf-splash-dots span:nth-child(5){animation-delay:.8s;}
-#bf-splash-dots span:nth-child(6){animation-delay:1s;}
-@keyframes bfDot{0%,60%,100%{opacity:.15;}30%{opacity:1;}}
+
 </style>
 
 <style>
@@ -3492,16 +3582,6 @@ body::before {
   .filter-tabs { padding: 0.75rem 0.85rem !important; }
 }
 
-/* ── SPLASH SCREEN ── */
-#bf-splash {
-  background: #0d1117 !important;
-}
-#bf-splash-logo {
-  font-family: 'Space Grotesk', sans-serif !important;
-  color: #e2e8f5 !important;
-}
-#bf-splash-logo span { color: #4d9fff !important; }
-
 /* ══════════════════════════════════════════════════════════
    WHITE/ORANGE THEME OVERRIDES — Fixes blue color issues
 ══════════════════════════════════════════════════════════ */
@@ -3834,29 +3914,7 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
   checkOnline();
 })();
 </script>
-<div id="bf-splash">
-  <div id="bf-splash-logo">BLOXY<span>FLIX</span></div>
-  <div id="bf-splash-text">
-    Loading BloxyFlix
-    <span id="bf-splash-dots">
-      <span>.</span><span>.</span><span>.</span><span>.</span><span>.</span><span>.</span>
-    </span>
-  </div>
-</div>
-<script>
-// Hide the splash as soon as the real loading div takes over
-(function(){
-  function hideSplash(){
-    var s=document.getElementById('bf-splash');
-    if(s){s.style.opacity='0';s.style.transition='opacity .3s';setTimeout(function(){s.remove();},320);}
-  }
-  // Hide when the real #loading element becomes visible OR after 1.2s max
-  document.addEventListener('DOMContentLoaded',function(){
-    setTimeout(hideSplash,300);
-  });
-  setTimeout(hideSplash,1200);
-})();
-</script>
+
 
 <!-- SVG Icons Sprite -->
 <svg style="display:none;">
@@ -4139,19 +4197,60 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
 </div>
 <script>
 (function(){
-  if(localStorage.getItem('bf-tos-agreed')==='1'){
-    var s=document.getElementById('tos-screen');
-    if(s) s.style.display='none';
+  function checkTos(){
+    if(localStorage.getItem('bf-tos-agreed')==='1'){
+      var s=document.getElementById('tos-screen');
+      if(s){ s.style.display='none'; s.classList.add('hide'); }
+    }
   }
+  // Check on load
+  checkTos();
+  // Re-check whenever the tab becomes visible again (e.g. user agreed on player tab then switched back)
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState==='visible') checkTos();
+  });
+  // Also catch when the window regains focus
+  window.addEventListener('focus', checkTos);
 })();
 </script>
 
 <!-- Loading -->
 <div class="loading" id="loading">
-  <div class="loading-logo">BLOXY<span>FLIX</span></div>
-  <div class="loading-text">Loading archive...</div>
-  <div class="loading-spinner"></div>
+  <div class="loading-vignette"></div>
+  <div class="loading-particles" id="ldParticles"></div>
+  <div class="loading-corner-glow"></div>
+  <div class="loading-content">
+    <div class="loading-brand">BLOXY<span>FLIX</span></div>
+    <div class="loading-tagline">Historical &amp; Cultural Archive</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar-fill" id="loadingBarFill"></div>
+    </div>
+    <div class="loading-dots-row">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+  </div>
 </div>
+<script>
+(function(){
+  var c=document.getElementById('ldParticles');
+  if(!c)return;
+  var streaks=[
+    {top:'18%',width:'45%',dur:'3.8s',delay:'0s'},
+    {top:'32%',width:'30%',dur:'5.1s',delay:'1.1s'},
+    {top:'55%',width:'55%',dur:'4.4s',delay:'.4s'},
+    {top:'70%',width:'38%',dur:'6s',  delay:'2s'},
+    {top:'82%',width:'25%',dur:'4.9s',delay:'.8s'},
+  ];
+  streaks.forEach(function(s){
+    var el=document.createElement('div');
+    el.className='ld-streak';
+    el.style.cssText='top:'+s.top+';width:'+s.width+';animation-duration:'+s.dur+';animation-delay:'+s.delay+';';
+    c.appendChild(el);
+  });
+})();
+</script>
 
 <!-- Notice Banner -->
 <div class="notice-banner" id="noticeBanner">
@@ -4329,13 +4428,13 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
     <input type="text" id="searchInput" placeholder="Search videos..." oninput="doSearch()">
   </div>
   <div class="search-filters">
-    <button class="search-filter active" onclick="setSearchFilter('all')">All</button>
-    <button class="search-filter" onclick="setSearchFilter('movies')">Movies</button>
-    <button class="search-filter" onclick="setSearchFilter('performances')">Performances</button>
-    <button class="search-filter" onclick="setSearchFilter('documentaries')">Documentaries</button>
-    <button class="search-filter" onclick="setSearchFilter('youtube')">YouTube</button>
-    <button class="search-filter" onclick="setSearchFilter('news')">News</button>
-    <button class="search-filter" onclick="setSearchFilter('cctv')">CCTV</button>
+    <button class="search-filter active" onclick="setSearchFilter('all',this)">All</button>
+    <button class="search-filter" onclick="setSearchFilter('movies',this)">Movies</button>
+    <button class="search-filter" onclick="setSearchFilter('performances',this)">Performances</button>
+    <button class="search-filter" onclick="setSearchFilter('documentaries',this)">Documentaries</button>
+    <button class="search-filter" onclick="setSearchFilter('youtube',this)">YouTube</button>
+    <button class="search-filter" onclick="setSearchFilter('news',this)">News</button>
+    <button class="search-filter" onclick="setSearchFilter('cctv',this)">CCTV</button>
   </div>
   <div class="search-history" id="searchHistory">
     <div class="search-history-title">Recent Searches</div>
@@ -4428,24 +4527,24 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
 
     <!-- Filter Tabs -->
     <div class="filter-tabs">
-      <button class="filter-tab active" onclick="setFilter('all')">All</button>
-      <button class="filter-tab" onclick="setFilter('trending')">
+      <button class="filter-tab active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-tab" onclick="setFilter('trending',this)">
         <svg width="14" height="14" style="vertical-align:middle;margin-right:4px;"><use href="#icon-fire"/></svg>Trending
       </button>
-      <button class="filter-tab" onclick="setFilter('new')">
+      <button class="filter-tab" onclick="setFilter('new',this)">
         <svg width="14" height="14" style="vertical-align:middle;margin-right:4px;"><use href="#icon-sparkle"/></svg>New
       </button>
-      <button class="filter-tab" onclick="setFilter('movies')">Movies</button>
-      <button class="filter-tab" onclick="setFilter('performances')">Performances</button>
-      <button class="filter-tab" onclick="setFilter('documentaries')">Documentaries</button>
-      <button class="filter-tab" onclick="setFilter('news')">News</button>
-      <button class="filter-tab" onclick="setFilter('cctv')">
+      <button class="filter-tab" onclick="setFilter('movies',this)">Movies</button>
+      <button class="filter-tab" onclick="setFilter('performances',this)">Performances</button>
+      <button class="filter-tab" onclick="setFilter('documentaries',this)">Documentaries</button>
+      <button class="filter-tab" onclick="setFilter('news',this)">News</button>
+      <button class="filter-tab" onclick="setFilter('cctv',this)">
         <svg width="14" height="14" style="vertical-align:middle;margin-right:4px;"><use href="#icon-broadcast"/></svg>CCTV
       </button>
-      <button class="filter-tab" onclick="setFilter('youtube')">
+      <button class="filter-tab" onclick="setFilter('youtube',this)">
         <svg width="14" height="14" style="vertical-align:middle;margin-right:4px;"><use href="#icon-youtube"/></svg>YouTube
       </button>
-      <button class="filter-tab" onclick="setFilter('toprated')">
+      <button class="filter-tab" onclick="setFilter('toprated',this)">
         <svg width="14" height="14" style="vertical-align:middle;margin-right:4px;"><use href="#icon-star"/></svg>Top Rated
       </button>
     </div>
@@ -6100,12 +6199,60 @@ function updateStreamViews(){
 
 setInterval(updateStreamViews,STREAM_VIEW_UPDATE);
 
+// ── Cinematic loading screen logic ──
+(function(){
+  var statuses=['Initializing...','Loading archive...','Fetching content...','Almost ready...'];
+  var si=0;
+  var stEl=document.getElementById('ldStatus');
+  function cycleStatus(){
+    if(!stEl)return;
+    stEl.style.opacity='0';
+    setTimeout(function(){
+      si=(si+1)%statuses.length;
+      stEl.textContent=statuses[si];
+      stEl.style.opacity='1';
+    },250);
+  }
+  var statusInterval=setInterval(cycleStatus,900);
+
+  // Spawn floating particles
+  var pc=document.getElementById('ldParticles');
+  if(pc){
+    for(var i=0;i<18;i++){
+      (function(){
+        var p=document.createElement('div');
+        p.className='ld-particle';
+        var sz=Math.random()*3+1.5;
+        p.style.cssText=[
+          'width:'+sz+'px','height:'+sz+'px',
+          'left:'+(Math.random()*100)+'%',
+          'bottom:'+(-sz)+'px',
+          'animation-duration:'+(Math.random()*10+8)+'s',
+          'animation-delay:'+(Math.random()*6)+'s',
+          'opacity:0'
+        ].join(';');
+        pc.appendChild(p);
+      })();
+    }
+  }
+
+  window._stopLoadingAnim=function(){
+    clearInterval(statusInterval);
+    if(stEl){stEl.style.opacity='0';}
+  };
+})();
+
 // Initialize
 function hideLoading(){
   const l=document.getElementById('loading');
   if(!l||l.classList.contains('gone')) return;
-  l.classList.add('hide');
-  setTimeout(()=>{ l.classList.add('gone'); l.style.display='none'; }, 400);
+  if(window._stopLoadingAnim) window._stopLoadingAnim();
+  const bar=document.getElementById('loadingBarFill');
+  if(bar){bar.classList.add('active');bar.style.width='100%';}
+  setTimeout(()=>{
+    l.classList.add('hide');
+    setTimeout(()=>{ l.classList.add('gone'); l.style.display='none'; }, 650);
+  }, 1050);
 }
 setTimeout(hideLoading, 5000);
 
@@ -6152,6 +6299,18 @@ try{
   renderVideos();
   renderKctvNews();
   loadContinueWatching();
+
+  // Save slim vids to localStorage so player.html can resolve ?v=INDEX for any visitor
+  try{
+    const slim=vids.map((v,i)=>({t:v.t,tk:v.tk||'',c:v.c,ty:v.ty||'',views:v.views,duration:v.duration||'',u:v.u,y:v.y||'',isM3U8:!!v.isM3U8,isYouTube:!!v.isYouTube,isPinned:!!v.isPinned,isGoogleDrive:!!v.isGoogleDrive,isEmbed:!!v.isEmbed,isExternal:!!v.isExternal,thumb:v.thumb||'',gdriveFileId:v.gdriveFileId||'',d:v.d||'',creator:v.creator||''}));
+    localStorage.setItem('bf-slim-vids',JSON.stringify(slim));
+  }catch(e){}
+
+  // Handle ?autoplay=N redirect from player.html (new visitors without localStorage)
+  (function(){
+    const _ap=new URLSearchParams(window.location.search).get('autoplay');
+    if(_ap!==null){const _idx=parseInt(_ap,10);if(!isNaN(_idx)&&vids[_idx])setTimeout(()=>playVideo(_idx),150);}
+  })();
   loadWatchlist();
   loadHistory();
   loadSearchHistory();
@@ -6667,10 +6826,10 @@ function renderKctvNews(){
 }
 
 
-function setFilter(filter){
+function setFilter(filter,btn){
   curFilter=filter;
   document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
-  event.target.classList.add('active');
+  if(btn)btn.classList.add('active');
   renderVideos(filter);
   const titles={all:'All Content',trending:'Trending',new:'New Releases',movies:'Movies',performances:'Performances',documentaries:'Documentaries',news:'News & Reports',youtube:'YouTube Archive',toprated:'Top Rated',cctv:'CCTV News Archive'};
   const count=document.getElementById('videoGrid').querySelectorAll('.video-card').length;
@@ -7180,10 +7339,10 @@ function toggleSearch(){
   }
 }
 
-function setSearchFilter(filter){
+function setSearchFilter(filter,btn){
   searchFilter=filter;
   document.querySelectorAll('.search-filter').forEach(f=>f.classList.remove('active'));
-  event.target.classList.add('active');
+  if(btn)btn.classList.add('active');
   doSearch();
 }
 
@@ -7199,9 +7358,8 @@ function doSearch(){
   }
   
   historyDiv.style.display='none';
-  addSearchHistory(q);
   
-  let r=vids.filter(v=>v.t.toLowerCase().includes(q)||v.tk.includes(q)||v.ty.toLowerCase().includes(q)||(v.creator&&v.creator.toLowerCase().includes(q)));
+  let r=vids.filter(v=>v.t.toLowerCase().includes(q)||(v.tk||'').toLowerCase().includes(q)||(v.ty||'').toLowerCase().includes(q)||(v.creator||'').toLowerCase().includes(q)||(v.d||'').toLowerCase().includes(q));
   if(searchFilter!=='all')r=r.filter(v=>v.c===searchFilter);
   
   res.innerHTML=r.length?r.map(v=>{

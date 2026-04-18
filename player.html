@@ -517,8 +517,6 @@ body:not(.liquid-glass) .sb-title::before{
   box-shadow:0 0 8px rgba(204,0,0,0.35)!important;
 }
 
-
-
 /* ═══════════════════════════════════════════════════
    iOS 26 LIQUID GLASS — BASE COMPONENT SYSTEM
    The real technique: border-image or outline for the
@@ -770,6 +768,15 @@ video-skin{display:block;width:100%;height:100%;}
 /* The v10 beta custom elements include their own control UI */
 /* Custom styling can be added here if needed */
 .video-js .vjs-spacer,.video-js .vjs-custom-control-spacer{flex:1!important;}
+
+/* ── Native Browser Player ── */
+#nativePlayerWrap video::-webkit-media-controls-panel {
+  background: linear-gradient(transparent,rgba(0,0,0,0.85));
+}
+#nativePlayerWrap video::--webkit-media-controls-play-button {
+  background: rgba(79,158,255,0.85);
+  border-radius: 50%;
+}
 
 /* ── Error ── */
 .video-js .vjs-error-display .vjs-modal-dialog-content{font-size:.85rem!important;color:rgba(255,255,255,0.75)!important;font-family:var(--f)!important;}
@@ -1330,49 +1337,70 @@ video-skin{display:block;width:100%;height:100%;}
 }
 .m-x:hover{color:var(--t1);background:rgba(255,255,255,0.15);transform:scale(1.10);}
 .m-x:active{transform:scale(0.92);}
-.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.1rem;}
+.share-url-bar{
+  display:flex;align-items:center;gap:.5rem;
+  background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.10);
+  border-radius:var(--rp);padding:.48rem .5rem .48rem .85rem;margin-bottom:.85rem;
+}
+.share-url-bar input{
+  flex:1;background:none;border:none;color:var(--t1);
+  font-size:.75rem;outline:none;font-family:'JetBrains Mono',monospace;min-width:0;
+}
+.share-url-bar .su-copy{
+  flex-shrink:0;display:flex;align-items:center;gap:.3rem;
+  padding:.38rem .85rem;
+  background:linear-gradient(135deg,rgba(79,158,255,0.82),rgba(120,50,220,0.72));
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.22),0 3px 12px rgba(79,158,255,0.30);
+  border-radius:var(--rp);color:#fff;font-size:.76rem;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .18s var(--spring);white-space:nowrap;
+}
+.share-url-bar .su-copy:hover{transform:scale(1.04);box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 5px 18px rgba(79,158,255,0.45);}
+.share-url-bar .su-copy:active{transform:scale(0.95);}
+.su-native{
+  width:100%;display:none;align-items:center;justify-content:center;gap:.45rem;
+  padding:.5rem;margin-bottom:.85rem;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);
+  border-radius:var(--rp);color:var(--t2);font-size:.8rem;font-weight:500;
+  cursor:pointer;font-family:inherit;transition:all .18s;
+}
+.su-native:hover{background:rgba(255,255,255,0.09);color:var(--t1);}
+.share-section-lbl{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:.42rem;}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:.7rem;}
 .share-opt{
-  display:flex;flex-direction:column;align-items:center;gap:.35rem;
-  padding:.75rem .35rem;border-radius:var(--rl);cursor:pointer;
-  transition:transform 0.18s var(--spring),background 0.14s,border-color 0.14s;
-  border:1px solid transparent;
+  display:flex;flex-direction:column;align-items:center;gap:.3rem;
+  padding:.58rem .25rem;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--r);cursor:pointer;
+  transition:all .18s var(--spring);text-align:center;
 }
-.share-opt:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.13);transform:scale(1.06) translateY(-2px);}
+.share-opt:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.14);transform:translateY(-2px);}
 .share-opt:active{transform:scale(0.94);}
-.share-ico{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 14px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.20);}
-.share-lbl{font-size:.67rem;color:var(--t2);font-weight:500;}
-.share-link{
-  background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.10);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 2px 6px rgba(0,0,0,0.12);
-  border-radius:var(--r);padding:.55rem .75rem;display:flex;gap:.45rem;margin-bottom:.9rem;
-  backdrop-filter:var(--blur-sm);
+.share-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.35);}
+.share-lbl{font-size:.61rem;color:var(--t2);font-weight:500;line-height:1.2;}
+.share-divider{height:1px;background:rgba(255,255,255,0.07);margin:.65rem 0;}
+.share-embed-toggle{
+  display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  padding:.28rem 0;font-size:.76rem;font-weight:600;color:var(--t3);transition:color .15s;
+  user-select:none;
 }
-.share-link input{flex:1;background:none;border:none;color:var(--t1);font-size:.78rem;outline:none;font-family:inherit;}
-.share-link button{
-  padding:.35rem .82rem;
-  background:linear-gradient(135deg,rgba(79,158,255,0.72),rgba(110,50,220,0.62));
-  border:1px solid rgba(255,255,255,0.20);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.22),0 3px 12px rgba(79,158,255,0.28);
-  border-radius:var(--r);color:#fff;font-size:.75rem;font-weight:600;
-  cursor:pointer;transition:transform 0.18s var(--spring),box-shadow 0.14s;font-family:inherit;
-}
-.share-link button:hover{transform:scale(1.05);box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 5px 18px rgba(79,158,255,0.45);}
-.embed-sec{padding-top:.9rem;border-top:1px solid rgba(255,255,255,0.07);}
-.embed-ttl{font-size:.78rem;font-weight:600;color:var(--t1);margin-bottom:.55rem;}
+.share-embed-toggle:hover{color:var(--t2);}
+.share-embed-toggle svg{transition:transform .22s;flex-shrink:0;}
+.share-embed-toggle.open svg{transform:rotate(180deg);}
+.share-embed-body{display:none;padding-top:.55rem;}
+.share-embed-body.open{display:block;}
 .embed-pre{
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
-  box-shadow:inset 0 2px 6px rgba(0,0,0,0.14);
-  border-radius:var(--r);padding:.65rem;font-family:monospace;font-size:.7rem;color:var(--t2);
-  overflow-x:auto;white-space:pre-wrap;word-break:break-all;margin-bottom:.6rem;max-height:82px;overflow-y:auto;
+  background:rgba(0,0,0,0.30);border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--r);padding:.5rem .7rem;
+  font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--t2);
+  word-break:break-all;line-height:1.5;margin-bottom:.48rem;
 }
 .embed-cp{
-  width:100%;padding:.52rem;
-  background:rgba(255,255,255,0.065);border:1px solid rgba(255,255,255,0.11);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
-  border-radius:var(--r);color:var(--t1);font-size:.78rem;font-weight:500;
-  cursor:pointer;transition:all .18s;font-family:inherit;backdrop-filter:var(--blur-sm);
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
+  border-radius:var(--rp);padding:.34rem .8rem;
+  color:var(--t2);font-size:.72rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;
 }
-.embed-cp:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.20);}
+.embed-cp:hover{background:rgba(255,255,255,0.11);color:var(--t1);}
 
 /* ── SLEEP MODAL ──────────────────────────────────── */
 .sleep-bg{
@@ -1498,7 +1526,6 @@ video-skin{display:block;width:100%;height:100%;}
 <div class="dprk-corner tr" aria-hidden="true"></div>
 <div class="dprk-star-bg" aria-hidden="true">★</div>
 
-
 <!-- NAV -->
 <nav class="pnav">
   <button class="pnav-back" onclick="goBack()" id="navBackBtn">
@@ -1569,12 +1596,12 @@ video-skin{display:block;width:100%;height:100%;}
     <div class="player-glow-shell" id="playerGlowShell">
     <div class="player-wrap" id="playerWrap">
       <div id="playerContainer">
-        <video id="bf-player" playsinline></video>
+        <video id="bf-player" playsinline preload="auto"></video>
         <!-- Video.js v10 — Full skin -->
         <div id="vjsPlayerWrap" style="display:none;width:100%;position:relative;">
           <video-player id="vjs-player">
             <video-skin>
-              <video id="vjs-video" playsinline></video>
+              <video id="vjs-video" playsinline preload="auto"></video>
             </video-skin>
           </video-player>
         </div>
@@ -1585,6 +1612,10 @@ video-skin{display:block;width:100%;height:100%;}
               <video id="vjs-video-min" playsinline></video>
             </video-minimal-skin>
           </video-player>
+        </div>
+        <!-- Native Browser Player for HLS M3U8 — zero dependencies -->
+        <div id="nativePlayerWrap" style="display:none;width:100%;position:relative;background:#000;border-radius:16px;overflow:hidden;">
+          <video id="native-player" playsinline preload="auto" controls style="width:100%;height:100%;aspect-ratio:16/9;display:block;"></video>
         </div>
       </div>
       <div id="radioContainer" class="radio-wrap" style="display:none;">
@@ -1775,164 +1806,118 @@ video-skin{display:block;width:100%;height:100%;}
 
 <!-- Share Modal -->
 <div class="modal-bg" id="shareModal" onclick="closeShareModal(event)">
-  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:480px;">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:460px;">
+
+    <!-- Header -->
     <div class="m-hdr">
-      <span class="m-ttl" id="lblShareModal">Share</span>
+      <div style="display:flex;align-items:center;gap:.55rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" style="color:var(--acc)"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span class="m-ttl" id="lblShareModal">Share</span>
+      </div>
       <button class="m-x" onclick="closeShareModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
     </div>
 
-    <!-- Promo banner -->
-    <div style="background:linear-gradient(135deg,rgba(45,125,255,0.15),rgba(45,125,255,0.05));border:1px solid rgba(45,125,255,0.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.78rem;color:var(--t2);line-height:1.6;">
-      🌏 <strong style="color:var(--t1);">Explore North Korea through cinema.</strong> BloxyFlix is a free digital archive of Korean cultural films, documentaries &amp; historical broadcasts — preserved for research &amp; cross-cultural understanding.
+    <!-- URL bar -->
+    <div class="share-url-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.8" width="14" height="14" style="flex-shrink:0"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      <input type="text" id="shareInput" readonly>
+      <button class="su-copy" onclick="copyShareLink()" id="lblCopyBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copy
+      </button>
     </div>
 
-    <!-- Global -->
-    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--t3);font-weight:700;margin-bottom:.5rem;">Share via</div>
-    <div class="share-grid" style="grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.75rem;">
+    <!-- Native share (mobile) -->
+    <button class="su-native" id="nativeShareBtn" onclick="nativeShare()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      Share via…
+    </button>
 
-      <div class="share-opt" onclick="shareTo('copy')">
-        <div class="share-ico" style="background:#1e2130;">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#a0aec0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-        </div>
-        <span class="share-lbl" id="lblCopyLink">Copy Link</span>
-      </div>
-
-      <div class="share-opt" onclick="shareTo('twitter')">
-        <div class="share-ico" style="background:#000;">
-          <svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L2.25 2.25h6.894l4.265 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
-        </div>
-        <span class="share-lbl">X / Twitter</span>
-      </div>
+    <!-- Global platforms -->
+    <div class="share-section-lbl">Share via</div>
+    <div class="share-grid" style="grid-template-columns:repeat(4,1fr);">
 
       <div class="share-opt" onclick="shareTo('whatsapp')">
-        <div class="share-ico" style="background:#25d366;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12.05 2C6.495 2 2 6.495 2 12.05c0 1.87.487 3.634 1.338 5.165L2 22l4.926-1.292A10.008 10.008 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.495 17.505 2 12.05 2z"/></svg>
-        </div>
+        <div class="share-ico" style="background:#25d366;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12.05 2C6.495 2 2 6.495 2 12.05c0 1.87.487 3.634 1.338 5.165L2 22l4.926-1.292A10.008 10.008 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.495 17.505 2 12.05 2z"/></svg></div>
         <span class="share-lbl">WhatsApp</span>
       </div>
 
       <div class="share-opt" onclick="shareTo('telegram')">
-        <div class="share-ico" style="background:#229ed9;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        </div>
+        <div class="share-ico" style="background:#229ed9;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>
         <span class="share-lbl">Telegram</span>
       </div>
 
+      <div class="share-opt" onclick="shareTo('twitter')">
+        <div class="share-ico" style="background:#000;"><svg viewBox="0 0 24 24" width="17" height="17" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L2.25 2.25h6.894l4.265 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg></div>
+        <span class="share-lbl">X / Twitter</span>
+      </div>
+
       <div class="share-opt" onclick="shareTo('facebook')">
-        <div class="share-ico" style="background:#1877f2;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.791-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-        </div>
+        <div class="share-ico" style="background:#1877f2;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.791-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg></div>
         <span class="share-lbl">Facebook</span>
       </div>
 
-      <div class="share-opt" onclick="shareTo('tiktok')">
-        <div class="share-ico" style="background:#010101;">
-          <svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
-        </div>
-        <span class="share-lbl">TikTok</span>
-      </div>
-
       <div class="share-opt" onclick="shareTo('reddit')">
-        <div class="share-ico" style="background:#ff4500;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M12 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 01-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 01.042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 014.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 01.14-.197.35.35 0 01.238-.042l2.906.617a1.214 1.214 0 011.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 00-.231.094.33.33 0 000 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 00.029-.463.33.33 0 00-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 00-.232-.094z"/></svg>
-        </div>
+        <div class="share-ico" style="background:#ff4500;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M12 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 01-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 01.042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 014.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 01.14-.197.35.35 0 01.238-.042l2.906.617a1.214 1.214 0 011.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 00-.231.094.33.33 0 000 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 00.029-.463.33.33 0 00-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 00-.232-.094z"/></svg></div>
         <span class="share-lbl">Reddit</span>
       </div>
 
-      <div class="share-opt" onclick="shareTo('email')">
-        <div class="share-ico" style="background:#34a853;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        </div>
-        <span class="share-lbl">Email</span>
-      </div>
-
       <div class="share-opt" onclick="shareTo('linkedin')">
-        <div class="share-ico" style="background:#0a66c2;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-        </div>
+        <div class="share-ico" style="background:#0a66c2;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div>
         <span class="share-lbl">LinkedIn</span>
       </div>
 
-      <div class="share-opt" onclick="shareTo('instagram')">
-        <div class="share-ico" style="background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-        </div>
-        <span class="share-lbl">Instagram</span>
+      <div class="share-opt" onclick="shareTo('email')">
+        <div class="share-ico" style="background:#34a853;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+        <span class="share-lbl">Email</span>
       </div>
 
+      <div class="share-opt" onclick="shareTo('tiktok')">
+        <div class="share-ico" style="background:#010101;"><svg viewBox="0 0 24 24" width="17" height="17" fill="#fff"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg></div>
+        <span class="share-lbl">TikTok</span>
+      </div>
     </div>
 
-    <!-- Chinese & Asian -->
-    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--t3);font-weight:700;margin-bottom:.5rem;">中文平台 · Chinese</div>
-    <div class="share-grid" style="grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1rem;">
+    <!-- Chinese platforms -->
+    <div class="share-divider"></div>
+    <div class="share-section-lbl">中文平台</div>
+    <div class="share-grid" style="grid-template-columns:repeat(4,1fr);">
 
       <div class="share-opt" onclick="shareTo('wechat')">
-        <div class="share-ico" style="background:#07c160;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.295.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.775-1.474 4.213-2.084 6.336-1.56C16.38 4.719 14.484 2.188 8.69 2.188zm12.69 4.452c-4.146 0-7.512 2.818-7.512 6.3 0 3.48 3.366 6.3 7.512 6.3.98 0 1.918-.149 2.784-.416a.776.776 0 01.64.087l1.617.947a.293.293 0 00.15.048c.147 0 .266-.12.266-.267 0-.065-.026-.127-.042-.19l-.35-1.33a.531.531 0 01.19-.598C23.016 16.48 24 15.02 24 13.35c0-3.482-3.366-6.3-7.512-6.3h-.107zm-9.964 3.264a.924.924 0 110 1.848.924.924 0 010-1.848zm4.964 0a.924.924 0 110 1.848.924.924 0 010-1.848z"/></svg>
-        </div>
+        <div class="share-ico" style="background:#07c160;"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178A1.17 1.17 0 014.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178 1.17 1.17 0 01-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 01.598.082l1.584.926a.272.272 0 00.14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 01-.023-.156.49.49 0 01.201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-7.062-6.122zm-3.318 2.913c.554 0 1.002.452 1.002 1.01 0 .557-.449 1.01-1.002 1.01a1.006 1.006 0 01-1.003-1.01c0-.558.449-1.01 1.003-1.01zm6.runbooks 0c.554 0 1.002.452 1.002 1.01 0 .557-.449 1.01-1.002 1.01a1.006 1.006 0 01-1.003-1.01c0-.558.449-1.01 1.003-1.01z"/></svg></div>
         <span class="share-lbl">微信 WeChat</span>
       </div>
 
-      <div class="share-opt" onclick="shareTo('qq')">
-        <div class="share-ico" style="background:#1aaddf;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M21.395 15.035a39.548 39.548 0 00-.803-2.264 20.66 20.66 0 00-.464-1.04C20.336 6.4 16.7 3 12.08 3c-4.621 0-8.256 3.4-8.048 8.731a20.66 20.66 0 00-.464 1.04 39.548 39.548 0 00-.803 2.264C1.674 17.31 1.75 19 2.542 19c.53 0 1.32-.68 2.144-2.218 0 0 .394 1.748 1.71 3.03.441.43.155 1.077-.332 1.27-1.12.443-1.862.979-1.862 1.589h14.25c0-.61-.742-1.146-1.862-1.589-.487-.193-.773-.84-.332-1.27 1.317-1.282 1.71-3.03 1.71-3.03.824 1.539 1.614 2.219 2.145 2.219.792 0 .876-1.879.283-3.966z"/></svg>
-        </div>
-        <span class="share-lbl">QQ空间</span>
-      </div>
-
       <div class="share-opt" onclick="shareTo('weibo')">
-        <div class="share-ico" style="background:#e6162d;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.74 5.443zm5.908-11.47a5.15 5.15 0 00-1.567-.49 2.345 2.345 0 00.252-1.084c0-1.285-1.05-2.325-2.346-2.325-.773 0-1.455.373-1.881.945-.347-.089-.707-.139-1.078-.139C7.27 5.76 5.46 7.563 5.46 9.784c0 .19.016.375.04.558C3.429 11.015 2 12.6 2 14.49c0 2.65 2.9 4.8 6.48 4.8s6.48-2.15 6.48-4.8c0-.604-.156-1.177-.433-1.696a5.18 5.18 0 001.48-3.574 5.16 5.16 0 00-.501-2.367zm2.344-2.5a6.53 6.53 0 00-3.91-1.68.77.77 0 000 1.539 4.99 4.99 0 014.998 4.998.77.77 0 001.539 0 6.545 6.545 0 00-2.627-4.857zm1.336 4.363a.77.77 0 000-1.539 3.46 3.46 0 00-3.46 3.46.77.77 0 001.54 0 1.92 1.92 0 011.92-1.921z"/></svg>
-        </div>
+        <div class="share-ico" style="background:#e6162d;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.74 5.443zm5.908-11.47a5.15 5.15 0 00-1.567-.49 2.345 2.345 0 00.252-1.084c0-1.285-1.05-2.325-2.346-2.325-.773 0-1.455.373-1.881.945-.347-.089-.707-.139-1.078-.139C7.27 5.76 5.46 7.563 5.46 9.784c0 .19.016.375.04.558C3.429 11.015 2 12.6 2 14.49c0 2.65 2.9 4.8 6.48 4.8s6.48-2.15 6.48-4.8c0-.604-.156-1.177-.433-1.696a5.18 5.18 0 001.48-3.574 5.16 5.16 0 00-.501-2.367z"/></svg></div>
         <span class="share-lbl">微博 Weibo</span>
       </div>
 
-      <div class="share-opt" onclick="shareTo('douyin')">
-        <div class="share-ico" style="background:#010101; overflow:hidden;">
-          <svg viewBox="0 0 24 24" width="19" height="19"><path fill="#69C9D0" d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.77 0 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 106.33 6.33V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.8-.06z"/><path fill="#EE1D52" d="M20.6 6.75v3.46a8.18 8.18 0 01-4.78-1.52v6.64a6.34 6.34 0 11-6.33-6.34c.27 0 .53.03.79.07v3.5c-.25-.06-.51-.1-.79-.1a2.89 2.89 0 102.89 2.89V2h3.45v.44a4.83 4.83 0 003.77 4.25l.99.06z" opacity=".9"/></svg>
-        </div>
-        <span class="share-lbl">抖音 Douyin</span>
-      </div>
-
-      <div class="share-opt" onclick="shareTo('redbook')">
-        <div class="share-ico" style="background:#ff2442;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M20 3H4a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1zM9 7h6a.5.5 0 010 1H9a.5.5 0 010-1zm0 3h6a.5.5 0 010 1H9a.5.5 0 010-1zm7.5 5.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm-2-1.5h-1v1h-1v1h1v1h1v-1h1v-1h-1v-1z"/></svg>
-        </div>
-        <span class="share-lbl">小红书 RedBook</span>
+      <div class="share-opt" onclick="shareTo('qq')">
+        <div class="share-ico" style="background:#12b7f5;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M12.003 2c-4.265 0-7.5 3.374-7.5 7.5 0 2.25.843 4.305 2.24 5.87L6 17.5l2.5-1c.88.44 1.87.7 2.9.724L12 17.5l.6.724c1.03-.024 2.02-.284 2.9-.724l2.5 1-.743-2.13A7.46 7.46 0 0019.503 9.5c0-4.126-3.235-7.5-7.5-7.5zM8.5 11a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm7 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></div>
+        <span class="share-lbl">QQ空间</span>
       </div>
 
       <div class="share-opt" onclick="shareTo('bilibili')">
-        <div class="share-ico" style="background:#00a1d6;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 01-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 01.16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"/></svg>
-        </div>
-        <span class="share-lbl">哔哩哔哩 Bili</span>
+        <div class="share-ico" style="background:#00a1d6;"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 01-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 01.16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906z"/></svg></div>
+        <span class="share-lbl">哔哩 Bilibili</span>
       </div>
-
-      <div class="share-opt" onclick="shareTo('zhihu')">
-        <div class="share-ico" style="background:#0084ff;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M5.721 0C2.251 0 0 2.25 0 5.719V18.28C0 21.751 2.252 24 5.721 24H18.28C21.751 24 24 21.75 24 18.281V5.72C24 2.249 21.75 0 18.281 0zm1.964 4.078c-.271.73-.5 1.5-.705 2.223H10.6c-.012-.314-.037-.64-.074-.965H8.003V4.08h-.318zm4.592 0h2.466c.213.71.43 1.476.63 2.223h-2.35c-.008-.307-.023-.639-.048-.965H12.3v-.042l-.023-.574v-.642zm3.52 5.129h2.364c-.234.912-.538 1.787-1.004 2.594h-2.028c.37-.82.696-1.695.668-2.594zm-9.285 0h3.44l1.074 2.594H4.59c-.355-.808-.698-1.7-.078-2.594zm4.905 0h2.48l1.06 2.594h-2.37c-.394-.82-.79-1.694-1.17-2.594zm-5.741 3.887h2.69c.38.919.758 1.772 1.12 2.546H4.89c-.437-.76-.748-1.652-.214-2.546zm4.154 0h2.64c.348.832.695 1.654 1.031 2.458-.48.056-.948.087-1.408.087-1.11 0-1.857-.198-2.263-2.545zm4.11 0h2.45l-1.036 2.501c-.438.044-.844.063-1.222.063-.193 0-.38-.005-.562-.016l.37-2.548z"/></svg>
-        </div>
-        <span class="share-lbl">知乎 Zhihu</span>
-      </div>
-
-      <div class="share-opt" onclick="shareTo('tieba')">
-        <div class="share-ico" style="background:#2932e1;">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/><path d="M10.5 7.5h3v1.5h-3zm0 2.5h3v5h-3z" opacity=".6"/></svg>
-        </div>
-        <span class="share-lbl">百度贴吧</span>
-      </div>
-
     </div>
 
-    <div class="share-link">
-      <input type="text" id="shareInput" readonly>
-      <button onclick="copyShareLink()" id="lblCopyBtn">Copy</button>
+    <!-- Embed (collapsible) -->
+    <div class="share-divider"></div>
+    <div class="share-embed-toggle" id="embedToggle" onclick="toggleEmbed()">
+      <span style="display:flex;align-items:center;gap:.4rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Embed
+      </span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <div class="embed-sec">
-      <div class="embed-ttl" id="lblEmbed">Embed Code</div>
+    <div class="share-embed-body" id="embedBody">
       <div class="embed-pre" id="embedCode"></div>
-      <button class="embed-cp" onclick="copyEmbedCode()" id="lblEmbedCopy">Copy Embed Code</button>
+      <button class="embed-cp" onclick="copyEmbedCode()" id="lblEmbedCopy">Copy embed code</button>
     </div>
+
   </div>
 </div>
 
@@ -2103,20 +2088,23 @@ function updateURL(){
 function getShareURL(){
   if(!curVid)return location.href;
   try{
-    // Always encode the full video object into a base64 ?share= param so that
-    // shared links work for ANY recipient — even without sessionStorage.
-    // Using ?v=index alone breaks for new visitors because the slim list lives
-    // only in the sharer's sessionStorage, not the recipient's.
-    const shareData={
-      u:curVid.u,t:curVid.t,tk:curVid.tk||'',ty:curVid.ty||'',
-      views:curVid.views||0,y:curVid.y||'',d:curVid.d||'',
-      isYouTube:!!curVid.isYouTube,isGoogleDrive:!!curVid.isGoogleDrive,
-      isEmbed:!!curVid.isEmbed,isExternal:!!curVid.isExternal,
-      isM3U8:!!curVid.isM3U8,isPinned:!!curVid.isPinned,
-      duration:curVid.duration||'',gdriveFileId:curVid.gdriveFileId||''
-    };
-    const b64=btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
-    return `${location.origin}${location.pathname}?share=${b64}&title=${encodeURIComponent(slug(curVid.t))}`;
+    const p=new URLSearchParams();
+    if(curIdx>=0){
+      // Short index URL — resolved from localStorage bf-slim-vids on the recipient's end.
+      // If they've never visited index.html, player.html will redirect through index.html?autoplay=N.
+      p.set('v',String(curIdx));
+    }else if(curVid.isYouTube){
+      p.set('yt',curVid.u);
+      if(curVid.ty)p.set('ty',curVid.ty);
+    }else if(curVid.isGoogleDrive){
+      p.set('gd',curVid.gdriveFileId||curVid.u);
+    }else if(curVid.u){
+      p.set('url',curVid.u.substring(0,300));
+      if(curVid.isM3U8)p.set('m3u8','1');
+      if(curVid.isPinned)p.set('live','1');
+    }
+    if(curVid.t)p.set('title',slug(curVid.t));
+    return `${location.origin}${location.pathname}?${p.toString()}`;
   }catch(e){return location.href;}
 }
 
@@ -2127,36 +2115,66 @@ window.addEventListener('DOMContentLoaded',()=>{
   detectEmbedded();
 
   let loaded=false;
-  // ALWAYS prefer sessionStorage (bf-player-*) as the source of truth.
-  // loadVid() keeps these updated whenever the user picks a video in Up Next,
-  // so sessionStorage always reflects the last video the user actually chose.
-  // The ?v= URL param comes from replaceState which does NOT persist across
-  // navigation — so we cannot rely on it as the primary source.
-  try{
-    const rawSS=sessionStorage.getItem('bf-player-vid');
-    if(rawSS){
-      const rawSlim=sessionStorage.getItem('bf-player-slim');
-      const rawIdx=sessionStorage.getItem('bf-player-idx');
-      curVid=JSON.parse(rawSS);curIdx=parseInt(rawIdx||'0',10);slimVids=(rawSlim?JSON.parse(rawSlim):[]).map(enrichSlim);if(curIdx>=0&&slimVids[curIdx])curVid=enrichSlim(curVid);loaded=true;
-    }
-  }catch(e){}
+  const _p=new URLSearchParams(window.location.search);
+  const _urlV=_p.get('v');
+
+  // ── PRIORITY 1: explicit non-index URL params (shared links) ────────────
+  // ?yt= ?gd= ?url= ?share= ?embedcode= are always intentional shared links.
+  // Check BEFORE sessionStorage so a returning user whose sessionStorage holds
+  // a previous video doesn't block the shared URL from loading.
+  const _hasExplicit=_p.has('yt')||_p.has('gd')||_p.has('url')||
+    _p.has('share')||_p.has('embedcode')||_p.has('vid');
+  if(_hasExplicit){
+    try{const vf=getVidFromURL();if(vf){curVid=vf;curIdx=-1;loaded=true;}}catch(e){}
+  }
+
+  // ── PRIORITY 2: sessionStorage — fastest path for same-tab navigation ───
   if(!loaded){
-    // No sessionStorage — try URL params (shared links, bookmarks, ?v= deep links)
-    const _urlParams=new URLSearchParams(window.location.search);
-    const _urlV=_urlParams.get('v');
-    if(_urlV!==null){
-      try{
+    try{
+      const rawSS=sessionStorage.getItem('bf-player-vid');
+      if(rawSS){
         const rawSlim=sessionStorage.getItem('bf-player-slim');
-        const sv=rawSlim?JSON.parse(rawSlim):[];
-        const idx=parseInt(_urlV,10);
-        if(sv[idx]){slimVids=sv;curIdx=idx;curVid=sv[idx];loaded=true;}
+        const rawIdx=sessionStorage.getItem('bf-player-idx');
+        curVid=JSON.parse(rawSS);curIdx=parseInt(rawIdx||'0',10);
+        slimVids=(rawSlim?JSON.parse(rawSlim):[]).map(enrichSlim);
+        if(curIdx>=0&&slimVids[curIdx])curVid=enrichSlim(curVid);
+        loaded=true;
+      }
+    }catch(e){}
+  }
+
+  // ── PRIORITY 3: ?v=INDEX — try sessionStorage slim list, then localStorage ──
+  // localStorage is written by index.html on every load, so any visitor who has
+  // ever opened the home page can resolve ?v= without a redirect.
+  if(!loaded&&_urlV!==null){
+    const _idx=parseInt(_urlV,10);
+    if(!isNaN(_idx)){
+      // 3a. sessionStorage slim list (same-tab bookmarks)
+      try{
+        const ss=sessionStorage.getItem('bf-player-slim');
+        const sv=ss?JSON.parse(ss):[];
+        if(sv[_idx]){slimVids=sv.map(enrichSlim);curIdx=_idx;curVid=enrichSlim(sv[_idx]);loaded=true;}
       }catch(e){}
+      // 3b. localStorage slim list (cross-tab / shared links for returning visitors)
+      if(!loaded){
+        try{
+          const ls=localStorage.getItem('bf-slim-vids');
+          const sv=ls?JSON.parse(ls):[];
+          if(sv[_idx]){slimVids=sv.map(enrichSlim);curIdx=_idx;curVid=enrichSlim(sv[_idx]);loaded=true;}
+        }catch(e){}
+      }
+      // 3c. Redirect through index.html — saves the slim list then auto-plays
+      if(!loaded){
+        sessionStorage.setItem('bf-redirect-v',String(_idx));
+        window.location.replace('index.html?autoplay='+_idx);
+        return; // stop — redirect will finish the job
+      }
     }
   }
+
+  // ── PRIORITY 4: any remaining URL params (legacy fallback) ───────────────
   if(!loaded){
-    // Last resort — legacy URL params (shared links, bookmarks)
-    const vf=getVidFromURL();
-    if(vf){curVid=vf;if(curIdx<0)curIdx=-1;loaded=true;}
+    try{const vf=getVidFromURL();if(vf){curVid=vf;curIdx=-1;loaded=true;}}catch(e){}
   }
   if(!loaded||!curVid){
     // No video from sessionStorage or URL — fall back to Pyongyang FM demo stream
@@ -2205,6 +2223,7 @@ async function srtToBlobUrl(url){
 
 // ── Plyr show / hide helpers ─────────────────────────────
 function showPlyr(){
+  hideNative(); // hide native player first
   const pw=bfPlayer&&bfPlayer.elements&&bfPlayer.elements.container;
   if(pw) pw.style.display='';
   document.getElementById('vjsPlayerWrap').style.display='none';
@@ -2218,6 +2237,7 @@ function showPlyr(){
   if(vjsVidMin&&!vjsVidMin.paused) try{vjsVidMin.pause();}catch(e){}
 }
 function showVJS(){
+  hideNative(); // hide native player first
   const pw=bfPlayer&&bfPlayer.elements&&bfPlayer.elements.container;
   if(pw) pw.style.display='none';
   // Always use full skin (minimal mode removed)
@@ -2250,6 +2270,128 @@ function toggleVJSSkin(){
   toast('🎬 Full player UI only');
 }
 
+// ── Native Browser Player helpers ────────────────────────
+function showNative(){
+  // Hide Plyr
+  const pw=bfPlayer&&bfPlayer.elements&&bfPlayer.elements.container;
+  if(pw) pw.style.display='none';
+  // Hide Video.js
+  document.getElementById('vjsPlayerWrap').style.display='none';
+  document.getElementById('vjsMinimalWrap').style.display='none';
+  // Show native player
+  document.getElementById('nativePlayerWrap').style.display='block';
+  // Pause VJS video if running
+  const vjsVid=document.getElementById('vjs-video');
+  if(vjsVid&&!vjsVid.paused) try{vjsVid.pause();}catch(e){}
+  // Stop Plyr & unload its source so it doesn't compete for GPU
+  if(bfPlayer){
+    try{ bfPlayer.stop(); }catch(e){}
+    const rawVid=document.getElementById('bf-player');
+    if(rawVid){ rawVid.removeAttribute('src'); rawVid.load(); }
+  }
+}
+function hideNative(){
+  document.getElementById('nativePlayerWrap').style.display='none';
+  const nv=document.getElementById('native-player');
+  if(nv){ nv.pause(); nv.removeAttribute('src'); nv.load(); }
+  while(nv&&nv.querySelector('track')){ nv.removeChild(nv.querySelector('track')); }
+}
+function isNativeActive(){
+  return document.getElementById('nativePlayerWrap').style.display!=='none';
+}
+function getNativeVideo(){
+  return document.getElementById('native-player');
+}
+
+// ── Native Browser Player ────────────────────────────────
+async function playNative(v, seekTime=0){
+  showNative();
+  const videoEl = document.getElementById('native-player');
+  const isLiveStream = !!(v.isPinned || v.duration === 'LIVE');
+
+  // Clean up
+  videoEl.pause();
+  videoEl.removeAttribute('src');
+  while(videoEl.querySelector('track')){
+    videoEl.removeChild(videoEl.querySelector('track'));
+  }
+
+  // Set source — browser handles HLS natively
+  videoEl.src = v.u;
+  videoEl.load();
+
+  // Subtitle tracks
+  if(v.subs && v.subs.length > 0){
+    for(let i=0;i<v.subs.length;i++){
+      const sub=v.subs[i];
+      if(!sub.url) continue;
+      const blobUrl=await srtToBlobUrl(sub.url);
+      if(!blobUrl) continue;
+      const track=document.createElement('track');
+      track.kind='subtitles';
+      track.label=sub.label||sub.srclang||('Track '+(i+1));
+      track.srclang=sub.srclang||'';
+      track.src=blobUrl;
+      if(i===0) track.default=true;
+      videoEl.appendChild(track);
+    }
+  }
+
+  // Seek to live edge for live streams
+  if(isLiveStream){
+    videoEl.addEventListener('loadedmetadata',()=>{
+      try{
+        const sb=videoEl.seekable;
+        if(sb && sb.length > 0) videoEl.currentTime = Math.max(0, sb.end(sb.length-1) - 4);
+      }catch(e){}
+    },{once:true});
+  }else if(seekTime > 0){
+    videoEl.addEventListener('loadedmetadata',()=>{
+      if(seekTime < videoEl.duration) videoEl.currentTime = seekTime;
+    },{once:true});
+  }
+
+  // Resume progress banner — VOD only
+  if(!isLiveStream){
+    const prog=getProg(curIdx);
+    if(prog>3 && prog<95 && curIdx>=0){
+      videoEl.addEventListener('loadedmetadata',()=>{
+        const rt=(prog/100)*videoEl.duration;
+        if(rt>5){
+          resumeTime=rt;
+          document.getElementById('resumeTxt').textContent=s('resume')+fmtTime(Math.floor(rt))+(uiLang==='zh'?' 继续？':'?');
+          document.getElementById('resumeBanner').classList.add('show');
+        }
+      },{once:true});
+    }
+  }
+
+  // Auto-play
+  videoEl.play().catch(()=>{
+    videoEl.muted=true;
+    videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));
+  });
+
+  // Event handlers
+  videoEl.onended = ()=>{
+    if(loopOn){
+      videoEl.currentTime=0;
+      videoEl.play();
+    }else if(autoplay){
+      playNext();
+    }
+  };
+  videoEl.ontimeupdate = ()=>{
+    if(videoEl.duration && isFinite(videoEl.duration) && !isLiveStream){
+      saveProg(curIdx,(videoEl.currentTime/videoEl.duration)*100);
+    }
+  };
+  videoEl.onerror = ()=>{
+    console.error('Native player error:', videoEl.error);
+    toast('⚠ Playback error — please refresh or try another source.');
+  };
+}
+
 // ── Video.js v10 player ──────────────────────────────────
 let _vjsBlobUrls=[];
 async function playWithVJS(v, seekTime=0){
@@ -2279,123 +2421,140 @@ async function playWithVJS(v, seekTime=0){
   // Cleanup any existing HLS instance on video element
   if(videoEl._hls){ videoEl._hls.destroy(); videoEl._hls=null; }
 
+  // Always set preload before touching src so the browser starts buffering immediately
+  videoEl.preload='auto';
+
   // Set video source (with HLS.js support if needed)
   if(isHLS && Hls.isSupported()){
-    // Detect live stream: isPinned flag, LIVE duration tag, or explicit live param
     const isLiveStream = !!(v.isPinned || v.duration === 'LIVE');
 
     const hls=new Hls({
-      // ── Worker & performance ───────────────────────────
       enableWorker: true,
-      workerPath: null,                // use inline worker
-
-      // ── ABR / startup speed ───────────────────────────
-      // BUG FIX: Live streams should start at lowest quality for fastest initial load,
-      // not the highest. startLevel:-1 (auto) combined with a 5 Mbps initial estimate
-      // caused HLS.js to attempt the highest rendition first, often stalling on live.
-      startLevel: isLiveStream ? 0 : -1,
-      abrEwmaDefaultEstimate: isLiveStream ? 1000000 : 5000000, // conservative for live
-      abrEwmaFastLive: 2,
-      abrEwmaSlowLive: 6,
-      abrEwmaFastVoD: 3,
-      abrEwmaSlowVoD: 9,
-      abrBandWidthFactor: 0.85,
-      abrBandWidthUpFactor: 0.65,     // conservative upgrades = fewer stalls (was 0.85)
-
-      // ── Buffer tuning ─────────────────────────────────
-      maxBufferLength: 30,              // unified 30s for both live and VOD (was 15 for VOD)
-      maxMaxBufferLength: 120,          // raised from 90 — more headroom on fast connections
-      maxBufferSize: 60 * 1000 * 1000, // 60 MB cap
-      maxBufferHole: 0.5,              // smaller = fewer gap-jumps on slow connections
-      highBufferWatchdogPeriod: 3,     // more time before quality drop (was 2)
-      backBufferLength: 30,            // keep 30s back-buffer — fewer stalls after seeks
-      // Stall nudge — moves playhead past tiny holes before declaring fatal stall
-      nudgeOffset: 0.1,
-      nudgeMaxRetry: 5,
-      startFragPrefetch: true,         // prefetch first fragment = faster cold start
-      // Keep only recent live segments; don't accumulate old live buffer
-      liveBackBufferLength: isLiveStream ? 30 : 0,
-
-      // ── Segment loading / retries ─────────────────────
-      fragLoadingTimeOut: 15000,
-      fragLoadingMaxRetry: 8,
-      fragLoadingRetryDelay: 500,
-      fragLoadingMaxRetryTimeout: 32000,
-
-      // ── Manifest / level loading ───────────────────────
-      manifestLoadingTimeOut: 10000,
-      manifestLoadingMaxRetry: 6,
-      manifestLoadingRetryDelay: 500,
-      levelLoadingTimeOut: 10000,
-      levelLoadingMaxRetry: 6,
-      levelLoadingRetryDelay: 500,
-
-      // ── Live stream optimizations ─────────────────────
-      lowLatencyMode: false,           // disabled - some streams incompatible
-      liveSyncDurationCount: 3,        // stay 3 segments behind live edge
-      liveMaxLatencyDurationCount: 10,
-      // BUG FIX: liveDurationInfinity:true caused videoEl.duration === Infinity,
-      // making (currentTime / duration) = 0 in saveProg and confusing the seekbar.
-      liveDurationInfinity: false,
-
-      // ── CORS / credentials ────────────────────────────
+      lowLatencyMode: false,
+      capLevelToPlayerSize: true,
       xhrSetup: function(xhr, url){
         xhr.withCredentials = false;
+        // PATCH: Some HLS servers return HTTP 404 status but with valid m3u8 content.
+        // Hls.js rejects 404 responses. We intercept the status getter and return 200
+        // when the real status is 404 but response data is present.
+        try{
+          var proto = Object.getPrototypeOf(xhr);
+          var statusDesc = Object.getOwnPropertyDescriptor(proto, 'status');
+          if(statusDesc && statusDesc.get){
+            Object.defineProperty(xhr, 'status', {
+              get: function(){
+                var realVal = statusDesc.get.call(xhr);
+                return (realVal === 404 && xhr.response) ? 200 : realVal;
+              },
+              configurable: true
+            });
+          }
+          var statusTextDesc = Object.getOwnPropertyDescriptor(proto, 'statusText');
+          if(statusTextDesc && statusTextDesc.get){
+            Object.defineProperty(xhr, 'statusText', {
+              get: function(){
+                var realStatus = statusDesc.get.call(xhr);
+                return (realStatus === 404 && xhr.response) ? 'OK' : statusTextDesc.get.call(xhr);
+              },
+              configurable: true
+            });
+          }
+        }catch(e){}
       },
     });
     videoEl._hls=hls;
     hls.loadSource(v.u);
     hls.attachMedia(videoEl);
+    // Wait for MEDIA_ATTACHED before starting load — ensures the binding is firm.
+    hls.on(Hls.Events.MEDIA_ATTACHED, ()=>{
+      hls.startLoad(isLiveStream ? -1 : undefined);
+    });
     hls.on(Hls.Events.MANIFEST_PARSED, ()=>{
-      // For live streams, explicitly seek to the live edge before playing
       if(isLiveStream && hls.liveSyncPosition != null){
         videoEl.currentTime = hls.liveSyncPosition;
+      }else if(seekTime > 0){
+        videoEl.currentTime = seekTime;
       }
-      videoEl.play().catch(()=>{
-        videoEl.muted=true;
-        videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));
-      });
     });
-    // BUG FIX: Improved fatal error recovery with staged approach and live rebuild.
-    // Previous code only called hls.startLoad() for network errors (missing stopLoad first)
-    // and had no retry for truly fatal errors, leaving a permanent black screen on live.
-    let _hlsMediaRecovered = false;
-    let _hlsNetworkRetryTimer = null;
-    hls.on(Hls.Events.ERROR, (event, data)=>{
+
+let _hlsMediaRecovered=false, _hlsNetworkRetryTimer=null;
+    hls.on(Hls.Events.ERROR,(event,data)=>{
       if(!data.fatal) return;
-      if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
+      if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
         console.warn('BloxyFlix HLS: network error, recovering…', data);
         clearTimeout(_hlsNetworkRetryTimer);
-        _hlsNetworkRetryTimer = setTimeout(()=>{
-          // stopLoad before startLoad prevents overlapping requests
+        _hlsNetworkRetryTimer=setTimeout(()=>{
           hls.stopLoad();
-          hls.startLoad(isLiveStream ? -1 : undefined); // -1 = live edge
-        }, 1000);
-      } else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){
+          hls.startLoad(isLiveStream ? -1 : undefined);
+        },1000);
+      }else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
         if(!_hlsMediaRecovered){
-          console.warn('BloxyFlix HLS: media error, first recovery attempt…', data);
-          _hlsMediaRecovered = true;
-          hls.recoverMediaError();
-        } else {
-          // Second attempt: swap codec then recover (handles AAC vs MP3 mismatch)
-          console.warn('BloxyFlix HLS: media error, codec-swap recovery…', data);
-          hls.swapAudioCodec();
-          hls.recoverMediaError();
+          _hlsMediaRecovered=true; hls.recoverMediaError();
+        }else{
+          hls.swapAudioCodec(); hls.recoverMediaError();
         }
-      } else {
-        console.error('BloxyFlix HLS: fatal error, destroying instance', data);
-        hls.destroy();
-        videoEl._hls = null;
-        if(isLiveStream){
-          // For live streams, surface an error so the user knows what happened
-          toast('⚠️ Live stream error — please refresh or try again.');
-        }
+      }else{
+        console.error('BloxyFlix HLS: fatal error, destroying', data);
+        hls.destroy(); videoEl._hls=null;
+        if(isLiveStream) toast('⚠️ Live stream error — please refresh or try again.');
       }
     });
   }else if(isHLS && videoEl.canPlayType('application/vnd.apple.mpegurl')){
     videoEl.src=v.u;
+    videoEl.load();
+    if(seekTime > 0){
+      videoEl.addEventListener('loadedmetadata',()=>{
+        if(seekTime < videoEl.duration) videoEl.currentTime = seekTime;
+      },{once:true});
+    }
+    if(isLiveStream){
+      videoEl.addEventListener('loadedmetadata',()=>{
+        try{
+          const sb=videoEl.seekable;
+          if(sb && sb.length > 0) videoEl.currentTime = Math.max(0, sb.end(sb.length-1) - 4);
+        }catch(e){}
+      },{once:true});
+    }
   }else{
+    // Plain MP4 / WebM — set src, force load, add stall recovery
     videoEl.src=v.u;
+    videoEl.load();
+
+    // Stall recovery for MP4: if buffering freezes >6s during playback, try reloading
+    let _mp4StallTimer=null, _mp4StallRecovering=false, _mp4IsSeeking=false;
+    videoEl.addEventListener('seeking',()=>{
+      _mp4IsSeeking=true;
+      clearTimeout(_mp4StallTimer);
+    });
+    videoEl.addEventListener('seeked',()=>{
+      _mp4IsSeeking=false;
+      clearTimeout(_mp4StallTimer);
+    });
+    videoEl.addEventListener('waiting',()=>{
+      clearTimeout(_mp4StallTimer);
+      // Only trigger stall recovery during actual playback — NOT during seeks or when paused
+      if(videoEl.paused||_mp4IsSeeking) return;
+      _mp4StallTimer=setTimeout(()=>{
+        // Double-check we're still not seeking and still actually stalled (not just slow buffering)
+        if(videoEl.paused||_mp4IsSeeking||videoEl.readyState>=3){
+          _mp4StallRecovering=false;
+          return;
+        }
+        if(_mp4StallRecovering) return;
+        _mp4StallRecovering=true;
+        const t=videoEl.currentTime;
+        videoEl.load();
+        videoEl.addEventListener('loadedmetadata',()=>{
+          videoEl.currentTime=t;
+          videoEl.play().catch(()=>{});
+          _mp4StallRecovering=false;
+        },{once:true});
+      },6000);
+    });
+    videoEl.addEventListener('playing',()=>{
+      clearTimeout(_mp4StallTimer);
+      _mp4StallRecovering=false;
+    });
   }
 
   // Clear existing tracks
@@ -2414,8 +2573,9 @@ async function playWithVJS(v, seekTime=0){
     videoEl.appendChild(track);
   });
 
-  // Resume progress — only for VOD (non-HLS) streams
-  if(!isHLS){
+  // Resume progress — VOD only (skip live streams)
+  const isLiveStream = isHLS && !!(v.isPinned || v.duration === 'LIVE');
+  if(!isLiveStream){
     const prog=getProg(curIdx);
     if(prog>3&&prog<95&&curIdx>=0){
       videoEl.addEventListener('loadedmetadata',()=>{
@@ -2454,134 +2614,11 @@ async function playWithVJS(v, seekTime=0){
 
   // Track progress
   videoEl.ontimeupdate=()=>{
-    // BUG FIX: Skip saveProg for HLS live streams — duration is either Infinity or
-    // constantly shifting, producing meaningless (or 0%) progress values.
-    if(videoEl.duration && isFinite(videoEl.duration) && !isHLS){
+    // Skip saveProg for live streams — duration is Infinity or constantly shifting.
+    if(videoEl.duration && isFinite(videoEl.duration) && !isLiveStream){
       saveProg(curIdx,(videoEl.currentTime/videoEl.duration)*100);
     }
   };
-}
-
-// ── Plyr + HLS.js — for M3U8 streams ────────────────────
-async function playWithPlyrHLS(v, seekTime=0){
-  showPlyr();
-
-  // Build subtitle blob URLs
-  const tracks=[];
-  for(let i=0;i<(v.subs||[]).length;i++){
-    const sub=v.subs[i];if(!sub.url)continue;
-    const blobUrl=await srtToBlobUrl(sub.url);if(!blobUrl)continue;
-    tracks.push({kind:'subtitles',label:sub.label||sub.srclang||'Track '+(i+1),srclang:sub.srclang||'',src:blobUrl,default:i===0});
-  }
-
-  // bf-player is the raw <video> that Plyr wraps
-  const videoEl=document.getElementById('bf-player');
-  const isLiveStream=!!(v.isPinned||v.duration==='LIVE');
-
-  // Teardown any lingering HLS instance on this element
-  if(videoEl._hls){videoEl._hls.destroy();videoEl._hls=null;}
-
-  if(typeof Hls!=='undefined'&&Hls.isSupported()){
-    const hls=new Hls({
-      enableWorker:true,
-      startLevel:isLiveStream?0:-1,
-      abrEwmaDefaultEstimate:isLiveStream?1000000:5000000,
-      abrEwmaFastLive:2,abrEwmaSlowLive:6,
-      abrEwmaFastVoD:3,abrEwmaSlowVoD:9,
-      abrBandWidthFactor:0.85,abrBandWidthUpFactor:0.65,
-      maxBufferLength:isLiveStream?30:30,
-      maxMaxBufferLength:120,
-      maxBufferSize:60*1000*1000,
-      maxBufferHole:0.5,
-      highBufferWatchdogPeriod:3,
-      backBufferLength:30,
-      nudgeOffset:0.1,
-      nudgeMaxRetry:5,
-      startFragPrefetch:true,
-      liveBackBufferLength:isLiveStream?30:0,
-      fragLoadingTimeOut:15000,fragLoadingMaxRetry:8,fragLoadingRetryDelay:500,fragLoadingMaxRetryTimeout:32000,
-      manifestLoadingTimeOut:10000,manifestLoadingMaxRetry:6,manifestLoadingRetryDelay:500,
-      levelLoadingTimeOut:10000,levelLoadingMaxRetry:6,levelLoadingRetryDelay:500,
-      lowLatencyMode:false,
-      liveSyncDurationCount:3,liveMaxLatencyDurationCount:10,
-      liveDurationInfinity:false,
-      xhrSetup:function(xhr){xhr.withCredentials=false;}
-    });
-    videoEl._hls=hls;
-    hls.loadSource(v.u);
-    hls.attachMedia(videoEl);
-    hls.on(Hls.Events.MANIFEST_PARSED,()=>{
-      if(isLiveStream&&hls.liveSyncPosition!=null) videoEl.currentTime=hls.liveSyncPosition;
-      if(seekTime>0) videoEl.currentTime=seekTime;
-      // Trigger play through Plyr so its UI updates correctly
-      try{bfPlayer.play();}catch(e){
-        videoEl.play().catch(()=>{videoEl.muted=true;videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));});
-      }
-    });
-    let _hlsMediaRecovered=false,_hlsNetworkRetryTimer=null;
-    hls.on(Hls.Events.ERROR,(event,data)=>{
-      if(!data.fatal)return;
-      if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
-        clearTimeout(_hlsNetworkRetryTimer);
-        _hlsNetworkRetryTimer=setTimeout(()=>{hls.stopLoad();hls.startLoad(isLiveStream?-1:undefined);},1000);
-      }else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
-        if(!_hlsMediaRecovered){_hlsMediaRecovered=true;hls.recoverMediaError();}
-        else{hls.swapAudioCodec();hls.recoverMediaError();}
-      }else{
-        hls.destroy();videoEl._hls=null;
-        if(isLiveStream)toast('⚠️ Live stream error — please refresh or try again.');
-      }
-    });
-  }else if(videoEl.canPlayType('application/vnd.apple.mpegurl')){
-    // Native HLS (Safari / iOS)
-    bfPlayer.source={type:'video',sources:[{src:v.u,type:'application/x-mpegURL'}]};
-    try{bfPlayer.play();}catch(e){}
-  }else{
-    toast('⚠️ HLS not supported in this browser.');
-    return;
-  }
-
-  // Attach subtitle tracks to the raw video element
-  while(videoEl.querySelector('track'))videoEl.removeChild(videoEl.querySelector('track'));
-  tracks.forEach(t=>{
-    const track=document.createElement('track');
-    track.kind=t.kind;track.label=t.label;track.srclang=t.srclang;track.src=t.src;
-    if(t.default)track.default=true;
-    videoEl.appendChild(track);
-  });
-
-  // Resume progress (VOD only)
-  if(!isLiveStream){
-    const prog=getProg(curIdx);
-    if(prog>3&&prog<95&&curIdx>=0){
-      videoEl.addEventListener('loadedmetadata',()=>{
-        const rt=(prog/100)*videoEl.duration;
-        if(rt>5){
-          resumeTime=rt;
-          document.getElementById('resumeTxt').textContent=s('resume')+fmtTime(Math.floor(rt))+(uiLang==='zh'?' 继续？':'?');
-          document.getElementById('resumeBanner').classList.add('show');
-        }
-      },{once:true});
-    }
-  }
-
-  // Seek restore from skin-switch
-  if(seekTime>0){
-    videoEl.addEventListener('loadedmetadata',()=>{
-      if(seekTime<videoEl.duration)videoEl.currentTime=seekTime;
-    },{once:true});
-  }
-
-  // Progress save & loop/autoplay via Plyr events
-  bfPlayer.off('timeupdate');
-  bfPlayer.on('timeupdate',()=>{
-    if(bfPlayer.duration&&isFinite(bfPlayer.duration)&&!isLiveStream)
-      saveProg(curIdx,(bfPlayer.currentTime/bfPlayer.duration)*100);
-  });
-  bfPlayer.off('ended');
-  bfPlayer.on('ended',()=>{
-    if(loopOn){bfPlayer.restart();}else if(autoplay){playNext();}
-  });
 }
 
 // ── PLAYBACK ──────────────────────────────────────────────
@@ -2618,12 +2655,19 @@ function playVid(){
   }
   else if(v.isGoogleDrive){pc.style.display='none';rc.style.display='none';yc.style.display='block';const id=v.gdriveFileId||(v.u.match(/\/d\/([A-Za-z0-9_-]{10,})/)?v.u.match(/\/d\/([A-Za-z0-9_-]{10,})/)[1]:v.u);yf.src=`https://drive.google.com/file/d/${id}/preview`;}
   else if(isRadio){pc.style.display='none';rc.style.display='flex';yc.style.display='none';yf.src='';document.getElementById('radioName').textContent=v.t;document.getElementById('radioLetter').textContent=(v.tk||v.t).charAt(0).toUpperCase();startRadio(v.u);}
-  else{
+  else if(v.isM3U8 || (v.u && v.u.toLowerCase().includes('.m3u8'))){
+    // ── M3U8 / HLS → Native Browser Player (zero dependencies) ──
     pc.style.display='block';rc.style.display='none';yc.style.display='none';yf.src='';
     if(bfHls){bfHls.destroy();bfHls=null;}
-    // ── Route: HLS M3U8 → Plyr + HLS.js | everything else → Video.js ──
-    const _isHLSRoute=v.isM3U8||(v.u&&v.u.toLowerCase().includes('.m3u8'));
-    if(_isHLSRoute){playWithPlyrHLS(v);return;}
+    hideNative(); // clean any previous native session
+    playNative(v);
+    return; // native player handles playback from here
+  }
+  else{
+    // ── All non-YouTube/Radio/Embed/M3U8 video → Video.js v10 ──
+    pc.style.display='block';rc.style.display='none';yc.style.display='none';yf.src='';
+    if(bfHls){bfHls.destroy();bfHls=null;}
+    hideNative(); // ensure native player is hidden
     playWithVJS(v);
     return; // VJS handles playback from here
   }
@@ -2741,13 +2785,14 @@ function getVJSVideo(){
   return document.getElementById('vjs-video'); // Always use full skin
 }
 function getActivePlayer(){
+  if(isNativeActive()) return getNativeVideo();
   if(isVJSActive()) return getVJSVideo();
   return bfPlayer;
 }
 function setPlayerSpeed(v){
   const player = getActivePlayer();
   if(!player) return;
-  if(isVJSActive()){ player.playbackRate = parseFloat(v); }
+  if(isVJSActive() || isNativeActive()){ player.playbackRate = parseFloat(v); }
   else { player.speed = parseFloat(v); }
 }
 function setPlayerLoop(on){
@@ -2765,7 +2810,7 @@ function skipPlayerTime(sec){
 function togglePlayerMute(){
   const player = getActivePlayer();
   if(!player) return null;
-  if(isVJSActive()){
+  if(isVJSActive() || isNativeActive()){
     player.muted = !player.muted;
     return player.muted;
   } else {
@@ -2776,37 +2821,37 @@ function togglePlayerMute(){
 function getPlayerCurrentTime(){
   const player = getActivePlayer();
   if(!player) return 0;
-  if(isVJSActive()) return player.currentTime || 0;
+  if(isVJSActive() || isNativeActive()) return player.currentTime || 0;
   return player.currentTime || 0;
 }
 function getPlayerDuration(){
   const player = getActivePlayer();
   if(!player) return 0;
-  if(isVJSActive()) return player.duration || 0;
+  if(isVJSActive() || isNativeActive()) return player.duration || 0;
   return player.duration || 0;
 }
 function setPlayerCurrentTime(t){
   const player = getActivePlayer();
   if(!player) return;
-  if(isVJSActive()) player.currentTime = t;
+  if(isVJSActive() || isNativeActive()) player.currentTime = t;
   else player.currentTime = t;
 }
 function getPlayerVolume(){
   const player = getActivePlayer();
   if(!player) return 1;
-  if(isVJSActive()) return player.volume || 1;
+  if(isVJSActive() || isNativeActive()) return player.volume || 1;
   return player.volume || 1;
 }
 function setPlayerVolume(v){
   const player = getActivePlayer();
   if(!player) return;
-  if(isVJSActive()) player.volume = v;
+  if(isVJSActive() || isNativeActive()) player.volume = v;
   else player.volume = v;
 }
 function togglePlayerPlay(){
   const player = getActivePlayer();
   if(!player) return;
-  if(isVJSActive()){
+  if(isVJSActive() || isNativeActive()){
     player.paused ? player.play() : player.pause();
   } else {
     player.paused ? player.play() : player.pause();
@@ -2815,14 +2860,18 @@ function togglePlayerPlay(){
 function isPlayerPaused(){
   const player = getActivePlayer();
   if(!player) return true;
-  if(isVJSActive()) return player.paused;
+  if(isVJSActive() || isNativeActive()) return player.paused;
   return player.paused;
 }
 function reqPlayerFullscreen(){
   const vjsWrap = document.getElementById('vjsPlayerWrap');
+  const nativeWrap = document.getElementById('nativePlayerWrap');
   if(isVJSActive() && vjsWrap){
     if(document.fullscreenElement){ document.exitFullscreen(); }
     else { vjsWrap.requestFullscreen(); }
+  } else if(isNativeActive() && nativeWrap){
+    if(document.fullscreenElement){ document.exitFullscreen(); }
+    else { nativeWrap.requestFullscreen(); }
   } else if(bfPlayer){
     try{ bfPlayer.fullscreen.active ? bfPlayer.fullscreen.exit() : bfPlayer.fullscreen.enter(); }catch(e){}
   }
@@ -2830,7 +2879,7 @@ function reqPlayerFullscreen(){
 function pausePlayer(){
   const player = getActivePlayer();
   if(!player) return;
-  if(isVJSActive()) player.pause();
+  if(isVJSActive() || isNativeActive()) player.pause();
   else player.pause();
 }
 
@@ -3226,7 +3275,27 @@ function ago(ts){const sec=(Date.now()-ts)/1000;if(sec<60)return'just now';const
 function renderCmts(id){const list=document.getElementById('commentsList');const cnt=document.getElementById('commentCount');const uname=localStorage.getItem('bf-username')||'Guest';const cs=getCmts(id);cnt.textContent=cs.length;if(!cs.length){list.innerHTML=`<div class="no-c">${s('noCmts')}</div>`;return;}function col(str){let h=0;for(const c of str)h=str.charCodeAt(0)+((h<<5)-h);return['#2d7dff','#a371f7','#22c55e','#f59e0b','#ef4444','#06b6d4'][Math.abs(h)%6];}list.innerHTML=cs.map(c=>`<div class="cmt-item"><div class="cmt-av" style="background:${col(c.name)};flex-shrink:0;">${c.name.charAt(0).toUpperCase()}</div><div class="cmt-body"><div class="cmt-head"><span class="cmt-author">${esc(c.name)}</span><span class="cmt-time">${ago(c.time)}</span></div><div class="cmt-text">${esc(c.text)}</div><div class="cmt-btns"><span onclick="likeCmt(${c.id})" style="${c.liked?'color:var(--acc)':''}">♥ ${c.likes||s('like')}</span><span onclick="document.getElementById('commentInput').value='@${esc(c.name)} ';document.getElementById('commentInput').focus()">↩</span>${c.name===uname?`<span onclick="delCmt(${c.id})" style="color:var(--t3)">✕</span>`:''}</div></div></div>`).join('');}
 
 // ── SHARE ─────────────────────────────────────────────────
-function openShareModal(){const u=getShareURL();document.getElementById('shareInput').value=u;document.getElementById('embedCode').textContent=`<iframe src="${u}&embed=1" width="640" height="360" frameborder="0" allowfullscreen></iframe>`;document.getElementById('shareModal').classList.add('open');}
+function openShareModal(){
+  const u=getShareURL();
+  document.getElementById('shareInput').value=u;
+  document.getElementById('embedCode').textContent=`<iframe src="${u}&embed=1" width="640" height="360" frameborder="0" allowfullscreen></iframe>`;
+  document.getElementById('shareModal').classList.add('open');
+  // Show native share button only if Web Share API is supported (mostly mobile)
+  const nsBtn=document.getElementById('nativeShareBtn');
+  if(nsBtn) nsBtn.style.display=navigator.share?'flex':'none';
+  // Reset embed panel to collapsed
+  const et=document.getElementById('embedToggle');const eb=document.getElementById('embedBody');
+  if(et)et.classList.remove('open');if(eb)eb.classList.remove('open');
+}
+function nativeShare(){
+  const u=getShareURL();
+  if(navigator.share)navigator.share({title:curVid?.t||'BloxyFlix',text:'Watch on BloxyFlix',url:u}).catch(()=>{});
+}
+function toggleEmbed(){
+  const et=document.getElementById('embedToggle');
+  const eb=document.getElementById('embedBody');
+  if(et&&eb){et.classList.toggle('open');eb.classList.toggle('open');}
+}
 function closeShareModal(e){if(!e||e.target===document.getElementById('shareModal'))document.getElementById('shareModal').classList.remove('open');}
 function shareTo(t){
   const u=encodeURIComponent(getShareURL());
@@ -3276,8 +3345,6 @@ function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return m+':'+String(sec).p
 function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
 function fallbackCopy(t){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();return true;}
 
-
-
 // ── LIQUID GLASS TOGGLE ───────────────────────────────────
 let liquidGlassOn = false;
 
@@ -3317,8 +3384,6 @@ function enableLiquidGlass(){
   applyLiquidGlass(true);
   toast('✨ Liquid Glass enabled!');
 }
-
-
 
 // Hook liquid glass init into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', initLiquidGlass);
