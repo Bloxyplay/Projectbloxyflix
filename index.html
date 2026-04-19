@@ -4794,7 +4794,473 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
       .bptv-header{flex-direction:column;align-items:flex-start;}
       .bptv-body{padding:1.5rem 1.15rem 1.4rem;}
     }
-    </style>
+    
+
+/* ===== VIDEO PREVIEW MODAL - Eraflix Style ===== */
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.preview-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.preview-modal {
+  background: #1a1a2e;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  transform: scale(0.92) translateY(30px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 25px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+}
+.preview-overlay.active .preview-modal {
+  transform: scale(1) translateY(0);
+}
+.preview-backdrop {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+}
+.preview-backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+}
+.preview-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, #1a1a2e 100%);
+}
+.preview-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+.preview-close:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.1);
+}
+.preview-content {
+  padding: 0 2rem 2rem;
+  margin-top: -60px;
+  position: relative;
+  z-index: 2;
+}
+.preview-poster-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.preview-poster {
+  width: 140px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.preview-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.preview-info {
+  flex: 1;
+  min-width: 0;
+}
+.preview-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+.preview-title-kr {
+  font-size: 0.95rem;
+  color: #888;
+  margin-bottom: 0.75rem;
+}
+.preview-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.preview-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: #aaa;
+  background: rgba(255,255,255,0.05);
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.preview-meta-item svg {
+  width: 14px;
+  height: 14px;
+  fill: #666;
+}
+.preview-rating {
+  background: rgba(255,183,0,0.12) !important;
+  color: #ffb700 !important;
+  border-color: rgba(255,183,0,0.2) !important;
+}
+.preview-rating svg {
+  fill: #ffb700 !important;
+}
+.preview-genre-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.preview-genre-tag {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #1a7fff;
+  background: rgba(26,127,255,0.1);
+  border: 1px solid rgba(26,127,255,0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.preview-synopsis {
+  font-size: 0.88rem;
+  color: #bbb;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.preview-synopsis::-webkit-scrollbar { width: 4px; }
+.preview-synopsis::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.preview-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+.preview-btn-watch {
+  flex: 1;
+  padding: 0.85rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #e50914, #c00000);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(229,9,20,0.3);
+}
+.preview-btn-watch:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(229,9,20,0.4);
+}
+.preview-btn-watch svg {
+  width: 20px;
+  height: 20px;
+  fill: #fff;
+}
+.preview-btn-bookmark {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.preview-btn-bookmark:hover {
+  background: rgba(255,255,255,0.1);
+}
+.preview-btn-bookmark.active {
+  background: rgba(255,50,80,0.15);
+  border-color: rgba(255,50,80,0.3);
+  color: #ff3250;
+}
+.preview-btn-bookmark svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* ===== VOD PROFESSIONAL UI IMPROVEMENTS ===== */
+.video-card {
+  cursor: pointer;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.video-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.1);
+}
+.card-thumb {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px 14px 0 0;
+}
+.card-thumb img {
+  transition: transform 0.4s ease;
+}
+.video-card:hover .card-thumb img {
+  transform: scale(1.08);
+}
+.card-duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  letter-spacing: 0.3px;
+}
+.card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+}
+.card-badge.new {
+  background: linear-gradient(135deg, #e50914, #c00000);
+  color: #fff;
+}
+.card-badge.live {
+  background: linear-gradient(135deg, #c00, #900);
+  color: #fff;
+  animation: pulse-badge 2s infinite;
+}
+.card-badge.youtube {
+  background: rgba(255,0,0,0.85);
+  color: #fff;
+}
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.video-card:hover .card-actions {
+  opacity: 1;
+}
+.card-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  backdrop-filter: blur(6px);
+}
+.card-action-btn:hover {
+  background: rgba(255,50,80,0.8);
+  border-color: rgba(255,50,80,0.5);
+  transform: scale(1.15);
+}
+.card-action-btn.active {
+  background: rgba(255,50,80,0.9);
+  color: #fff;
+}
+.card-action-btn svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+.card-info {
+  padding: 0.75rem 1rem 1rem;
+}
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.35;
+  margin-bottom: 0.2rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-meta {
+  font-size: 0.76rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.card-rating {
+  color: #ffb700;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.card-rating svg {
+  width: 12px;
+  height: 12px;
+  fill: #ffb700;
+}
+
+/* ===== RESPONSIVE PREVIEW MODAL ===== */
+@media (max-width: 640px) {
+  .preview-modal {
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+  .preview-backdrop {
+    height: 200px;
+  }
+  .preview-content {
+    padding: 0 1.25rem 1.25rem;
+    margin-top: -30px;
+  }
+  .preview-poster-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .preview-poster {
+    width: 100px;
+    height: 145px;
+    margin: 0 auto;
+  }
+  .preview-title {
+    font-size: 1.25rem;
+  }
+  .preview-actions {
+    flex-direction: column;
+  }
+  .preview-btn-bookmark {
+    width: 100%;
+    height: 44px;
+  }
+}
+
+/* ===== ENHANCED HERO SECTION ===== */
+.hero-section {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,10,20,0.95) 0%, rgba(10,10,20,0.4) 50%, rgba(10,10,20,0.1) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== SMOOTH PAGE TRANSITIONS ===== */
+.page {
+  animation: fadeInPage 0.4s ease;
+}
+@keyframes fadeInPage {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== ENHANCED SEARCH BAR ===== */
+.search-bar {
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.25s ease;
+}
+.search-bar:focus-within {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(26,127,255,0.3);
+  box-shadow: 0 0 0 3px rgba(26,127,255,0.1);
+}
+
+/* ===== ENHANCED FILTER TABS ===== */
+.filter-tab {
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+.filter-tab:hover {
+  background: rgba(255,255,255,0.06);
+}
+.filter-tab.active {
+  background: linear-gradient(135deg, #1a7fff, #0055cc);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(26,127,255,0.3);
+}
+
+</style>
 
     <div class="bptv-section">
       <div class="bptv-section-label">
@@ -6145,6 +6611,15 @@ const vids=[
   {t:'Our Leader Whom All People Look Up To and Praise / 만민이 우러러 칭송하는 우리 수령님 (HD)',u:'https://vod.koryo.tv/media/original/user/admin/39b2c830f45846f0a8834b1f70e73097.Ourleaderwhomallpeoplelookuptoandpraise.mp4',y:'2026',c:'other',ty:'other',views:'0',duration:'1:10:08',badge:'new'},
   {t:'Poet Jo Jo Ki Chon / 시인 조기천',u:'https://vod.koryo.tv/media/original/user/admin/72fe055152524de381cc32338522b771.PoetJoKicheon_zL655A6.mp4',y:'2026',c:'other',ty:'other',views:'0',duration:'1:38:58',badge:'new'},
   {t:'The Sun of the Nation (Part 3) - Spring of Liberation (Part 1) / 민족의 태양(제3부) - 광복의 봄(전편)',u:'https://vod.koryo.tv/media/original/user/admin/2f45872f279f4024b3de717201ecf421.TheSunoftheNationPart3SpringofLiberationPart1.mp4',y:'2026',c:'other',ty:'other',views:'0',duration:'1:06:21',badge:'new'}
+,
+  {t:'The Sun of the Nation (Part 5) - Under the Red Flag / 민족의 태양(제5부) - 붉은기아래',u:'https://vod.koryo.tv/media/original/user/admin/32a594d02f34454383dc9aaa42203e9b.TheSunoftheNationPart5UndertheRedFlag.mp4',y:'2026',c:'movies',ty:'movies',views:'0',duration:'1:37:07',badge:'new'},
+  {t:'My Powerful Motherland / 강대한 어머니 내 조국 (Music Video)',u:'https://vod.koryo.tv/media/original/user/admin/c7878e1b6d3647cbb703f41709edb102.MyPowerfulMotherland.mp4',y:'2026',c:'other',ty:'other',views:'0',duration:'3:59',badge:'new'},
+  {t:'Korean Central Television 8 PM Report - April 17, 2026',u:'https://vod.koryo.tv/media/original/user/admin/be2606ace04f42fb9d3c4cad4d3e48f7.8pmNews17April.mp4',y:'2026',c:'movies',ty:'movies',views:'0',duration:'32:31',badge:'new'},
+  {t:'Youth Blooming In Their Hometown / 고향을 꽃피우는 청춘들',u:'https://vod.koryo.tv/media/original/user/admin/07b06f3ed9654025963f55a7b34233bd.Youthbloomingintheirhometown.mp4',y:'2026',c:'movies',ty:'movies',views:'0',duration:'1:13:53',badge:'new'},
+  {t:'Korean Central Television 8 PM Report - April 18, 2026',u:'https://vod.koryo.tv/media/original/user/admin/c614110c54254946a97cd1e4e3042b36.8pmNews18April.mp4',y:'2026',c:'movies',ty:'movies',views:'0',duration:'26:26',badge:'new'},
+  {t:'Young Warriors of Goguryeo - Part 7 / 고구려의 젊은 무사들(제7부)',u:'https://vod.koryo.tv/media/original/user/admin/d5c3d62a40eb482a8e7fab0887738d00.YoungWarriorsofGoguryeoPart7.mp4',y:'2026',c:'other',ty:'other',views:'0',duration:'21:39',badge:'new'},
+  {t:'"Along with the years of transmission"',tk:'전승의 년대와 더불어 (HD)',d:'This video is a musical presentation of the North Korean patriotic song "Along with the years of transmission" (전승의 년대와 더불어).   The content centers on themes of national memory, honoring the veterans of war (0:45), and preserving a revolutionary spirit (1:24). The lyrics reflect on:  Remembering the',u:'1SXJuCuz56Q',y:'2026',c:'other',ty:'Music Video',views:'97',duration:'3:28',creator:'Bloxy Play TV',badge:'new',isYouTube:true},
+  {t:'Results of the 15th Delegates Election Report.',u:'gJYKACfK1xM',y:'2026',c:'news',ty:'news',views:'64',duration:'56:29',creator:'Bloxy Play TV',badge:'new',isYouTube:true}
 ];
 
 let bfPlayer,radioAudio=null,radioCtx=null,radioAnalyser=null,radioAnimFrame=null,radioPlaying=false,curVid=null,deferredPrompt=null,curFilter='all',searchFilter='all',isTheaterMode=false,curSortOrder='newest';
@@ -6745,7 +7220,7 @@ function renderVideos(filter='all'){
     const youtubeBadge=v.isYouTube?`<span class="card-badge youtube">YOUTUBE</span>`:'';
     const newBadge=v.badge==='new'?`<span class="card-badge new">NEW</span>`:'';
     return`
-    <div class="video-card ${v.isPinned?'pinned':''}" onclick="playVideo(${idx})">
+    <div class="video-card ${v.isPinned?'pinned':''}" onclick="showVideoPreview(${idx})">
       <div class="card-thumb">
         <img src="${thumb}" alt="${v.t}" loading="lazy">
         <span class="card-duration">${v.duration}</span>
@@ -6794,7 +7269,7 @@ function renderKctvNews(){
     const inWatchlist = isInWatchlist(idx);
     const progress = getVideoProgress(idx);
     return`
-    <div class="video-card" onclick="playVideo(${idx})">
+    <div class="video-card" onclick="showVideoPreview(${idx})">
       <div class="card-thumb">
         <img src="${thumb}" alt="${v.t}" loading="lazy">
         <span class="card-duration">${v.duration}</span>
@@ -6845,6 +7320,110 @@ function filterCategory(cat){
 function goHome(){
   showPage('home');
 }
+
+
+// ===== VIDEO PREVIEW MODAL =====
+let currentPreviewIdx = -1;
+
+function showVideoPreview(idx){
+  if(!vids[idx]) return;
+  const v = vids[idx];
+
+  // LIVE streams play directly
+  if(v.isPinned || v.duration === 'LIVE'){
+    playVideo(idx);
+    return;
+  }
+
+  currentPreviewIdx = idx;
+
+  // Backdrop
+  const backdropImg = document.getElementById('previewBackdropImg');
+  const thumb = getThumb(v.t, v.c, v.thumb, v.isYouTube, v.u);
+  backdropImg.src = thumb;
+  backdropImg.alt = v.t;
+
+  // Poster
+  const posterImg = document.getElementById('previewPosterImg');
+  posterImg.src = thumb;
+  posterImg.alt = v.t;
+
+  // Titles
+  document.getElementById('previewTitle').textContent = v.t;
+  document.getElementById('previewTitleKr').textContent = v.tk || '';
+
+  // Meta
+  document.getElementById('previewYear').querySelector('span').textContent = v.y || 'Unknown';
+  document.getElementById('previewDuration').querySelector('span').textContent = v.duration || 'Unknown';
+  document.getElementById('previewViews').querySelector('span').textContent = (v.views || '0') + ' views';
+
+  // Rating
+  const ratingEl = document.getElementById('previewRating');
+  if(v.rating){
+    ratingEl.style.display = 'flex';
+    ratingEl.querySelector('span').textContent = v.rating;
+  } else {
+    ratingEl.style.display = 'none';
+  }
+
+  // Genres
+  const genreRow = document.getElementById('previewGenres');
+  const genres = [];
+  if(v.ty) genres.push(v.ty);
+  if(v.c) genres.push(v.c.charAt(0).toUpperCase() + v.c.slice(1));
+  if(v.isYouTube) genres.push('YouTube');
+  if(v.isM3U8) genres.push('HLS Stream');
+  if(v.badge === 'new') genres.push('New Release');
+  genreRow.innerHTML = genres.map(g => `<span class="preview-genre-tag">${g}</span>`).join('');
+
+  // Synopsis
+  const synopsisEl = document.getElementById('previewSynopsis');
+  let synopsis = v.d || v.t;
+  // Truncate if too long
+  if(synopsis.length > 500) synopsis = synopsis.substring(0, 500) + '...';
+  synopsisEl.textContent = synopsis;
+
+  // Watch button
+  const watchBtn = document.getElementById('previewWatchBtn');
+  watchBtn.onclick = function(){
+    closePreview();
+    setTimeout(() => playVideo(idx), 300);
+  };
+
+  // Bookmark button
+  const bookmarkBtn = document.getElementById('previewBookmarkBtn');
+  const inWl = isInWatchlist(idx);
+  bookmarkBtn.className = 'preview-btn-bookmark' + (inWl ? ' active' : '');
+  bookmarkBtn.title = inWl ? 'Remove from watchlist' : 'Add to watchlist';
+  bookmarkBtn.onclick = function(){
+    toggleWatchlist(idx);
+    const nowInWl = isInWatchlist(idx);
+    bookmarkBtn.className = 'preview-btn-bookmark' + (nowInWl ? ' active' : '');
+    bookmarkBtn.title = nowInWl ? 'Remove from watchlist' : 'Add to watchlist';
+  };
+
+  // Show modal
+  const overlay = document.getElementById('previewOverlay');
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePreview(e){
+  if(e && e.target !== document.getElementById('previewOverlay')) return;
+  document.getElementById('previewOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  currentPreviewIdx = -1;
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    const overlay = document.getElementById('previewOverlay');
+    if(overlay && overlay.classList.contains('active')){
+      closePreview();
+    }
+  }
+});
 
 function playVideo(idx){
   if(!vids[idx]) return;
@@ -7459,7 +8038,7 @@ function loadWatchlist(){
     const v=vids[idx];
     if(!v)return'';
     return`
-    <div class="watchlist-card" onclick="playVideo(${idx})">
+    <div class="watchlist-card" onclick="showVideoPreview(${idx})">
       <div class="watchlist-thumb">
         <img src="${getThumb(v.t,v.c)}" alt="${v.t}">
       </div>
@@ -7513,7 +8092,7 @@ function loadHistory(){
     if(!v)return'';
     const progress=getVideoProgress(idx);
     return`
-    <div class="video-card" onclick="playVideo(${idx})">
+    <div class="video-card" onclick="showVideoPreview(${idx})">
       <div class="card-thumb">
         <img src="${getThumb(v.t,v.c)}" alt="${v.t}">
         <span class="card-duration">${v.duration}</span>
@@ -8107,6 +8686,68 @@ function escapeHtml(text){
 
   </div>
 </div>
+
+<!-- ===== VIDEO PREVIEW MODAL ===== -->
+<div class="preview-overlay" id="previewOverlay" onclick="closePreview(event)">
+  <div class="preview-modal" id="previewModal" onclick="event.stopPropagation()">
+    <!-- Backdrop Image -->
+    <div class="preview-backdrop" id="previewBackdrop">
+      <img src="" alt="" id="previewBackdropImg">
+      <button class="preview-close" onclick="closePreview()" title="Close">✕</button>
+    </div>
+
+    <!-- Content -->
+    <div class="preview-content">
+      <div class="preview-poster-row">
+        <div class="preview-poster" id="previewPoster">
+          <img src="" alt="" id="previewPosterImg">
+        </div>
+        <div class="preview-info">
+          <div class="preview-title" id="previewTitle"></div>
+          <div class="preview-title-kr" id="previewTitleKr"></div>
+
+          <!-- Meta Row -->
+          <div class="preview-meta-row" id="previewMetaRow">
+            <div class="preview-meta-item" id="previewYear">
+              <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+              <span></span>
+            </div>
+            <div class="preview-meta-item" id="previewDuration">
+              <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+              <span></span>
+            </div>
+            <div class="preview-meta-item" id="previewViews">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              <span></span>
+            </div>
+            <div class="preview-meta-item preview-rating" id="previewRating" style="display:none;">
+              <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              <span></span>
+            </div>
+          </div>
+
+          <!-- Genre Tags -->
+          <div class="preview-genre-row" id="previewGenres"></div>
+
+          <!-- Synopsis -->
+          <div class="preview-synopsis" id="previewSynopsis"></div>
+
+          <!-- Actions -->
+          <div class="preview-actions">
+            <button class="preview-btn-watch" id="previewWatchBtn" onclick="">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              Watch Now
+            </button>
+            <button class="preview-btn-bookmark" id="previewBookmarkBtn" onclick="" title="Add to watchlist">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 function showSourceModal(){
