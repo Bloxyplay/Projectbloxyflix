@@ -4796,101 +4796,143 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
     }
     
 
-/* ===== VIDEO PREVIEW MODAL - Eraflix Style ===== */
+/* ===== VIDEO PREVIEW MODAL - Cinematic Style ===== */
 .preview-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.3s ease;
 }
 .preview-overlay.active {
   opacity: 1;
   pointer-events: all;
 }
 .preview-modal {
-  background: #1a1a2e;
-  border-radius: 20px;
+  background: linear-gradient(160deg, #0f1624 0%, #0b0c14 60%, #0d111e 100%);
+  border-radius: 24px;
   width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
-  overflow: hidden;
+  max-width: 860px;
+  max-height: 92vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
-  transform: scale(0.92) translateY(30px);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 25px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+  transform: scale(0.94) translateY(24px);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 32px 100px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.06), 0 0 80px rgba(26,127,255,0.08);
+  scrollbar-width: none;
 }
+.preview-modal::-webkit-scrollbar { display: none; }
 .preview-overlay.active .preview-modal {
   transform: scale(1) translateY(0);
 }
+
+/* Backdrop hero image */
 .preview-backdrop {
   position: relative;
   width: 100%;
-  height: 320px;
+  height: 300px;
   overflow: hidden;
+  border-radius: 24px 24px 0 0;
+  flex-shrink: 0;
 }
 .preview-backdrop img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.7);
+  filter: brightness(0.55) saturate(1.1);
+  transform: scale(1.04);
+  transition: transform 6s ease;
+}
+.preview-overlay.active .preview-backdrop img { transform: scale(1); }
+.preview-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(26,127,255,0.18) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
 }
 .preview-backdrop::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 30%, #1a1a2e 100%);
+  background: linear-gradient(to bottom,
+    rgba(11,12,20,0) 0%,
+    rgba(11,12,20,0.5) 50%,
+    rgba(11,12,20,1) 100%
+  );
+  z-index: 2;
 }
+
+/* Close button */
 .preview-close {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.12);
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  z-index: 10;
-  backdrop-filter: blur(10px);
+  z-index: 20;
+  backdrop-filter: blur(12px);
+  letter-spacing: 0;
+  line-height: 1;
 }
 .preview-close:hover {
-  background: rgba(255,255,255,0.15);
-  transform: scale(1.1);
+  background: rgba(26,127,255,0.3);
+  border-color: rgba(26,127,255,0.5);
+  transform: scale(1.12) rotate(90deg);
 }
+
+/* Main content area */
 .preview-content {
   padding: 0 2rem 2rem;
-  margin-top: -60px;
+  margin-top: -72px;
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
+
+/* Poster + Info row */
 .preview-poster-row {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.75rem;
   margin-bottom: 1.5rem;
+  align-items: flex-end;
 }
 .preview-poster {
-  width: 140px;
-  height: 200px;
-  border-radius: 12px;
+  width: 130px;
+  height: 186px;
+  border-radius: 14px;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+}
+.preview-poster::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(26,127,255,0.2);
+  pointer-events: none;
 }
 .preview-poster img {
   width: 100%;
@@ -4900,127 +4942,168 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
 .preview-info {
   flex: 1;
   min-width: 0;
+  padding-bottom: 0.25rem;
 }
+
+/* Title block */
 .preview-title {
-  font-size: 1.6rem;
-  font-weight: 800;
+  font-size: 1.7rem;
+  font-weight: 900;
   color: #fff;
-  margin-bottom: 0.25rem;
-  line-height: 1.2;
+  margin-bottom: 0.2rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.6);
 }
 .preview-title-kr {
-  font-size: 0.95rem;
-  color: #888;
-  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.9rem;
+  font-weight: 400;
 }
+
+/* Meta pills */
 .preview-meta-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 0.5rem;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 .preview-meta-item {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.82rem;
-  color: #aaa;
-  background: rgba(255,255,255,0.05);
-  padding: 0.3rem 0.7rem;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
+  gap: 0.35rem;
+  font-size: 0.79rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.06);
+  padding: 0.3rem 0.65rem;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 .preview-meta-item svg {
-  width: 14px;
-  height: 14px;
-  fill: #666;
+  width: 13px;
+  height: 13px;
+  fill: rgba(255,255,255,0.45);
+  flex-shrink: 0;
 }
 .preview-rating {
-  background: rgba(255,183,0,0.12) !important;
+  background: rgba(255,183,0,0.1) !important;
   color: #ffb700 !important;
-  border-color: rgba(255,183,0,0.2) !important;
+  border-color: rgba(255,183,0,0.22) !important;
 }
-.preview-rating svg {
-  fill: #ffb700 !important;
-}
+.preview-rating svg { fill: #ffb700 !important; }
+
+/* Genre tags */
 .preview-genre-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 .preview-genre-tag {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
   color: #1a7fff;
   background: rgba(26,127,255,0.1);
-  border: 1px solid rgba(26,127,255,0.2);
-  padding: 0.25rem 0.65rem;
-  border-radius: 6px;
+  border: 1px solid rgba(26,127,255,0.22);
+  padding: 0.22rem 0.65rem;
+  border-radius: 99px;
   font-weight: 700;
+}
+
+/* Divider */
+.preview-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: 1.5rem 0 1.25rem;
+}
+
+/* Synopsis section */
+.preview-synopsis-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: rgba(26,127,255,0.75);
+  font-weight: 700;
+  margin-bottom: 0.65rem;
 }
 .preview-synopsis {
   font-size: 0.88rem;
-  color: #bbb;
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-  max-height: 120px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.8;
+  margin-bottom: 1.75rem;
+  max-height: 130px;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  padding-right: 0.4rem;
 }
-.preview-synopsis::-webkit-scrollbar { width: 4px; }
-.preview-synopsis::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.preview-synopsis::-webkit-scrollbar { width: 3px; }
+.preview-synopsis::-webkit-scrollbar-thumb { background: rgba(26,127,255,0.3); border-radius: 99px; }
+.preview-synopsis:empty::before {
+  content: 'No description available.';
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+}
+
+/* Action buttons */
 .preview-actions {
   display: flex;
   gap: 0.75rem;
+  align-items: center;
 }
 .preview-btn-watch {
   flex: 1;
-  padding: 0.85rem 1.5rem;
-  border-radius: 12px;
+  padding: 0.9rem 1.5rem;
+  border-radius: 14px;
   border: none;
-  background: linear-gradient(135deg, #e50914, #c00000);
+  background: linear-gradient(135deg, #1a7fff 0%, #0047cc 100%);
   color: #fff;
-  font-size: 1rem;
+  font-size: 0.97rem;
   font-weight: 800;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-  box-shadow: 0 4px 20px rgba(229,9,20,0.3);
+  gap: 0.55rem;
+  transition: all 0.22s;
+  box-shadow: 0 4px 24px rgba(26,127,255,0.4), 0 1px 0 rgba(255,255,255,0.15) inset;
+  letter-spacing: 0.01em;
 }
 .preview-btn-watch:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(229,9,20,0.4);
+  box-shadow: 0 8px 36px rgba(26,127,255,0.55);
+  background: linear-gradient(135deg, #2d8fff 0%, #0055dd 100%);
 }
+.preview-btn-watch:active { transform: translateY(0); }
 .preview-btn-watch svg {
   width: 20px;
   height: 20px;
   fill: #fff;
+  flex-shrink: 0;
 }
 .preview-btn-bookmark {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.12);
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
   background: rgba(255,255,255,0.05);
-  color: #fff;
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 .preview-btn-bookmark:hover {
   background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
 }
 .preview-btn-bookmark.active {
   background: rgba(255,50,80,0.15);
-  border-color: rgba(255,50,80,0.3);
+  border-color: rgba(255,50,80,0.35);
   color: #ff3250;
 }
 .preview-btn-bookmark svg {
@@ -5172,26 +5255,27 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
 @media (max-width: 640px) {
   .preview-modal {
     max-height: 95vh;
-    border-radius: 16px;
+    border-radius: 20px;
   }
   .preview-backdrop {
     height: 200px;
   }
   .preview-content {
-    padding: 0 1.25rem 1.25rem;
-    margin-top: -30px;
+    padding: 0 1.1rem 1.5rem;
+    margin-top: -40px;
   }
   .preview-poster-row {
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
+    align-items: flex-end;
   }
   .preview-poster {
-    width: 100px;
-    height: 145px;
-    margin: 0 auto;
+    width: 90px;
+    height: 128px;
+    flex-shrink: 0;
   }
   .preview-title {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
   .preview-actions {
     flex-direction: column;
@@ -7378,9 +7462,7 @@ function showVideoPreview(idx){
 
   // Synopsis
   const synopsisEl = document.getElementById('previewSynopsis');
-  let synopsis = v.d || v.t;
-  // Truncate if too long
-  if(synopsis.length > 500) synopsis = synopsis.substring(0, 500) + '...';
+  let synopsis = v.d || '';
   synopsisEl.textContent = synopsis;
 
   // Watch button
@@ -8690,7 +8772,8 @@ function escapeHtml(text){
 <!-- ===== VIDEO PREVIEW MODAL ===== -->
 <div class="preview-overlay" id="previewOverlay" onclick="closePreview(event)">
   <div class="preview-modal" id="previewModal" onclick="event.stopPropagation()">
-    <!-- Backdrop Image -->
+
+    <!-- Hero Backdrop -->
     <div class="preview-backdrop" id="previewBackdrop">
       <img src="" alt="" id="previewBackdropImg">
       <button class="preview-close" onclick="closePreview()" title="Close">✕</button>
@@ -8698,6 +8781,7 @@ function escapeHtml(text){
 
     <!-- Content -->
     <div class="preview-content">
+      <!-- Poster + Title Row -->
       <div class="preview-poster-row">
         <div class="preview-poster" id="previewPoster">
           <img src="" alt="" id="previewPosterImg">
@@ -8705,8 +8789,7 @@ function escapeHtml(text){
         <div class="preview-info">
           <div class="preview-title" id="previewTitle"></div>
           <div class="preview-title-kr" id="previewTitleKr"></div>
-
-          <!-- Meta Row -->
+          <!-- Meta pills -->
           <div class="preview-meta-row" id="previewMetaRow">
             <div class="preview-meta-item" id="previewYear">
               <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
@@ -8725,24 +8808,27 @@ function escapeHtml(text){
               <span></span>
             </div>
           </div>
-
-          <!-- Genre Tags -->
+          <!-- Genre tags -->
           <div class="preview-genre-row" id="previewGenres"></div>
-
-          <!-- Synopsis -->
-          <div class="preview-synopsis" id="previewSynopsis"></div>
-
-          <!-- Actions -->
-          <div class="preview-actions">
-            <button class="preview-btn-watch" id="previewWatchBtn" onclick="">
-              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              Watch Now
-            </button>
-            <button class="preview-btn-bookmark" id="previewBookmarkBtn" onclick="" title="Add to watchlist">
-              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            </button>
-          </div>
         </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="preview-divider"></div>
+
+      <!-- Synopsis -->
+      <div class="preview-synopsis-label">Synopsis</div>
+      <div class="preview-synopsis" id="previewSynopsis"></div>
+
+      <!-- Actions -->
+      <div class="preview-actions">
+        <button class="preview-btn-watch" id="previewWatchBtn" onclick="">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          Watch Now
+        </button>
+        <button class="preview-btn-bookmark" id="previewBookmarkBtn" onclick="" title="Add to watchlist">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
       </div>
     </div>
   </div>

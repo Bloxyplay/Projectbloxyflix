@@ -3123,7 +3123,7 @@ function buildEditorEntry(){
   if(!t){ toast('Title cannot be empty','var(--gold)'); return null; }
   let e=`{t:'${esc(t)}'`;
   if(tk)      e+=`,tk:'${esc(tk)}'`;
-  if(desc)    e+=`,d:'${esc(desc.slice(0,300))}'`;
+  if(desc)    e+=`,d:'${esc(desc)}'`;
   e+=`,u:'${esc(url)}',y:'${esc(year||'')}',c:'${esc(cat)}',ty:'${esc(ty||cat)}',views:'${esc(views||'0')}',duration:'${esc(dur||'')}'`;
   if(creator) e+=`,creator:'${esc(creator)}'`;
   if(thumb)   e+=`,thumb:'${esc(thumb)}'`;
@@ -3456,7 +3456,7 @@ async function editorSaveAndDownload(){
     // ── 3. Build the new entry — always include required fields ──
     let newEntry = `{t:'${esc(t)}'`;
     if(tk)      newEntry += `,tk:'${esc(tk)}'`;
-    if(desc)    newEntry += `,d:'${esc(desc.slice(0,300))}'`;
+    if(desc)    newEntry += `,d:'${esc(desc)}'`;
     newEntry += `,u:'${esc(url)}'`;
     newEntry += `,y:'${esc(year||'')}'`;
     newEntry += `,c:'${esc(cat)}'`;
@@ -3997,7 +3997,7 @@ function buildVideoObj(){
 
   let entry = `{t:'${esc(t)}'`;
   if(tk)      entry += `,tk:'${esc(tk)}'`;
-  if(desc)    entry += `,d:'${esc(desc.slice(0,300))}'`;
+  if(desc)    entry += `,d:'${esc(desc)}'`;
   entry += `,u:'${esc(u)}'`;
   entry += `,y:'${esc(y||'')}'`;
   entry += `,c:'${esc(c)}'`;
