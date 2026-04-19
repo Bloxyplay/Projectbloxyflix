@@ -2417,16 +2417,19 @@ async function playWithVJS(v, seekTime=0){
 
   // Check if HLS stream
   const isHLS=v.isM3U8||(v.u&&(v.u.toLowerCase().includes('.m3u8')));
+  // Hoist isLiveStream so every branch (HLS.js, native HLS, MP4) can read it
+  const isLiveStream = !!(v.isPinned || v.duration === 'LIVE');
 
   // Cleanup any existing HLS instance on video element
   if(videoEl._hls){ videoEl._hls.destroy(); videoEl._hls=null; }
+  // Cleanup any lingering MP4 stall-recovery listeners from a previous load
+  if(videoEl._mp4StallCleanup){ videoEl._mp4StallCleanup(); }
 
   // Always set preload before touching src so the browser starts buffering immediately
   videoEl.preload='auto';
 
   // Set video source (with HLS.js support if needed)
   if(isHLS && Hls.isSupported()){
-    const isLiveStream = !!(v.isPinned || v.duration === 'LIVE');
 
     const hls=new Hls({
       enableWorker: true,
@@ -2475,6 +2478,11 @@ async function playWithVJS(v, seekTime=0){
       }else if(seekTime > 0){
         videoEl.currentTime = seekTime;
       }
+      // Play only after manifest is ready — calling play() before this stalls immediately
+      videoEl.play().catch(()=>{
+        videoEl.muted=true;
+        videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));
+      });
     });
 
 let _hlsMediaRecovered=false, _hlsNetworkRetryTimer=null;
@@ -2520,41 +2528,42 @@ let _hlsMediaRecovered=false, _hlsNetworkRetryTimer=null;
     videoEl.src=v.u;
     videoEl.load();
 
-    // Stall recovery for MP4: if buffering freezes >6s during playback, try reloading
+    // Stall recovery for MP4: if buffering freezes >6s during active playback, nudge the position.
+    // Uses named handler refs so they can be fully removed when the next video loads —
+    // addEventListener accumulates on the element across loads, causing listener pile-up.
     let _mp4StallTimer=null, _mp4StallRecovering=false, _mp4IsSeeking=false;
-    videoEl.addEventListener('seeking',()=>{
-      _mp4IsSeeking=true;
+    const _mp4OnSeeking=()=>{ _mp4IsSeeking=true; clearTimeout(_mp4StallTimer); };
+    const _mp4OnSeeked=()=>{ _mp4IsSeeking=false; clearTimeout(_mp4StallTimer); };
+    const _mp4OnWaiting=()=>{
       clearTimeout(_mp4StallTimer);
-    });
-    videoEl.addEventListener('seeked',()=>{
-      _mp4IsSeeking=false;
-      clearTimeout(_mp4StallTimer);
-    });
-    videoEl.addEventListener('waiting',()=>{
-      clearTimeout(_mp4StallTimer);
-      // Only trigger stall recovery during actual playback — NOT during seeks or when paused
-      if(videoEl.paused||_mp4IsSeeking) return;
+      // Skip if paused, seeking, or still at the very start (initial buffer — not a real stall)
+      if(videoEl.paused||_mp4IsSeeking||videoEl.currentTime===0) return;
       _mp4StallTimer=setTimeout(()=>{
-        // Double-check we're still not seeking and still actually stalled (not just slow buffering)
         if(videoEl.paused||_mp4IsSeeking||videoEl.readyState>=3){
-          _mp4StallRecovering=false;
-          return;
+          _mp4StallRecovering=false; return;
         }
         if(_mp4StallRecovering) return;
         _mp4StallRecovering=true;
-        const t=videoEl.currentTime;
-        videoEl.load();
-        videoEl.addEventListener('loadedmetadata',()=>{
-          videoEl.currentTime=t;
-          videoEl.play().catch(()=>{});
-          _mp4StallRecovering=false;
-        },{once:true});
+        // Seek back 0.5s to force the browser to re-request the stalled segment.
+        // A full videoEl.load() would re-download from byte 0 — extremely wasteful.
+        videoEl.currentTime=Math.max(0, videoEl.currentTime-0.5);
+        videoEl.play().catch(()=>{}).finally(()=>{ _mp4StallRecovering=false; });
       },6000);
-    });
-    videoEl.addEventListener('playing',()=>{
+    };
+    const _mp4OnPlaying=()=>{ clearTimeout(_mp4StallTimer); _mp4StallRecovering=false; };
+    videoEl.addEventListener('seeking', _mp4OnSeeking);
+    videoEl.addEventListener('seeked',  _mp4OnSeeked);
+    videoEl.addEventListener('waiting', _mp4OnWaiting);
+    videoEl.addEventListener('playing', _mp4OnPlaying);
+    // Store a cleanup fn on the element — called at the top of playWithVJS on next load
+    videoEl._mp4StallCleanup=()=>{
       clearTimeout(_mp4StallTimer);
-      _mp4StallRecovering=false;
-    });
+      videoEl.removeEventListener('seeking', _mp4OnSeeking);
+      videoEl.removeEventListener('seeked',  _mp4OnSeeked);
+      videoEl.removeEventListener('waiting', _mp4OnWaiting);
+      videoEl.removeEventListener('playing', _mp4OnPlaying);
+      videoEl._mp4StallCleanup=null;
+    };
   }
 
   // Clear existing tracks
@@ -2574,7 +2583,7 @@ let _hlsMediaRecovered=false, _hlsNetworkRetryTimer=null;
   });
 
   // Resume progress — VOD only (skip live streams)
-  const isLiveStream = isHLS && !!(v.isPinned || v.duration === 'LIVE');
+  // isLiveStream is already declared above — no redeclaration needed
   if(!isLiveStream){
     const prog=getProg(curIdx);
     if(prog>3&&prog<95&&curIdx>=0){
@@ -2596,11 +2605,14 @@ let _hlsMediaRecovered=false, _hlsNetworkRetryTimer=null;
     },{once:true});
   }
 
-  // Auto-play
-  videoEl.play().catch(()=>{
-    videoEl.muted=true;
-    videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));
-  });
+  // Auto-play — HLS.js streams are started inside MANIFEST_PARSED above.
+  // For native HLS (Safari) and plain MP4/WebM, kick off play here.
+  if(!(isHLS && Hls.isSupported())){
+    videoEl.play().catch(()=>{
+      videoEl.muted=true;
+      videoEl.play().then(()=>setTimeout(()=>{videoEl.muted=false;},800));
+    });
+  }
 
   // Track ended event
   videoEl.onended=()=>{
@@ -2656,12 +2668,18 @@ function playVid(){
   else if(v.isGoogleDrive){pc.style.display='none';rc.style.display='none';yc.style.display='block';const id=v.gdriveFileId||(v.u.match(/\/d\/([A-Za-z0-9_-]{10,})/)?v.u.match(/\/d\/([A-Za-z0-9_-]{10,})/)[1]:v.u);yf.src=`https://drive.google.com/file/d/${id}/preview`;}
   else if(isRadio){pc.style.display='none';rc.style.display='flex';yc.style.display='none';yf.src='';document.getElementById('radioName').textContent=v.t;document.getElementById('radioLetter').textContent=(v.tk||v.t).charAt(0).toUpperCase();startRadio(v.u);}
   else if(v.isM3U8 || (v.u && v.u.toLowerCase().includes('.m3u8'))){
-    // ── M3U8 / HLS → Native Browser Player (zero dependencies) ──
+    // ── M3U8 / HLS ──
+    // Use HLS.js (via VJS player) on Chrome/Firefox/Android — they can't play M3U8 natively.
+    // Fall back to playNative() only on Safari/iOS where native HLS is available.
     pc.style.display='block';rc.style.display='none';yc.style.display='none';yf.src='';
     if(bfHls){bfHls.destroy();bfHls=null;}
-    hideNative(); // clean any previous native session
-    playNative(v);
-    return; // native player handles playback from here
+    if(Hls.isSupported()){
+      playWithVJS(v);
+    }else{
+      hideNative();
+      playNative(v);
+    }
+    return;
   }
   else{
     // ── All non-YouTube/Radio/Embed/M3U8 video → Video.js v10 ──
