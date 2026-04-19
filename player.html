@@ -2421,7 +2421,10 @@ async function playWithVJS(v, seekTime=0){
   const isLiveStream = !!(v.isPinned || v.duration === 'LIVE');
 
   // Cleanup any existing HLS instance on video element
-  if(videoEl._hls){ videoEl._hls.destroy(); videoEl._hls=null; }
+  if(videoEl._hls){
+    clearTimeout(videoEl._hlsNetworkRetryTimer); videoEl._hlsNetworkRetryTimer=null;
+    videoEl._hls.destroy(); videoEl._hls=null;
+  }
   // Cleanup any lingering MP4 stall-recovery listeners from a previous load
   if(videoEl._mp4StallCleanup){ videoEl._mp4StallCleanup(); }
 
@@ -2433,6 +2436,7 @@ async function playWithVJS(v, seekTime=0){
 
     const hls=new Hls({
       enableWorker: true,
+      autoStartLoad: false,       // We call startLoad() manually in MEDIA_ATTACHED
       lowLatencyMode: false,
       capLevelToPlayerSize: true,
       xhrSetup: function(xhr, url){
@@ -2466,8 +2470,11 @@ async function playWithVJS(v, seekTime=0){
       },
     });
     videoEl._hls=hls;
-    hls.loadSource(v.u);
+    // attachMedia first — then loadSource — so MANIFEST_PARSED never fires before the
+    // element is bound. With autoStartLoad:false, HLS.js won't begin segment fetching
+    // until we explicitly call startLoad() in MEDIA_ATTACHED below.
     hls.attachMedia(videoEl);
+    hls.loadSource(v.u);
     // Wait for MEDIA_ATTACHED before starting load — ensures the binding is firm.
     hls.on(Hls.Events.MEDIA_ATTACHED, ()=>{
       hls.startLoad(isLiveStream ? -1 : undefined);
@@ -2485,13 +2492,17 @@ async function playWithVJS(v, seekTime=0){
       });
     });
 
-let _hlsMediaRecovered=false, _hlsNetworkRetryTimer=null;
+    let _hlsMediaRecovered=false;
+    // Store retry timer on videoEl so the cleanup at the top of playWithVJS can cancel it
+    // if the user switches video while a retry is still pending.
+    videoEl._hlsNetworkRetryTimer=null;
     hls.on(Hls.Events.ERROR,(event,data)=>{
       if(!data.fatal) return;
       if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
         console.warn('BloxyFlix HLS: network error, recovering…', data);
-        clearTimeout(_hlsNetworkRetryTimer);
-        _hlsNetworkRetryTimer=setTimeout(()=>{
+        clearTimeout(videoEl._hlsNetworkRetryTimer);
+        videoEl._hlsNetworkRetryTimer=setTimeout(()=>{
+          videoEl._hlsNetworkRetryTimer=null;
           hls.stopLoad();
           hls.startLoad(isLiveStream ? -1 : undefined);
         },1000);
@@ -2598,8 +2609,8 @@ let _hlsMediaRecovered=false, _hlsNetworkRetryTimer=null;
     }
   }
 
-  // Restore seek position from skin-switch if provided
-  if(seekTime>0){
+  // Restore seek position — only for non-HLS.js paths (HLS.js seeks inside MANIFEST_PARSED above)
+  if(seekTime>0 && !(isHLS && Hls.isSupported())){
     videoEl.addEventListener('loadedmetadata',()=>{
       if(seekTime<videoEl.duration) videoEl.currentTime=seekTime;
     },{once:true});
