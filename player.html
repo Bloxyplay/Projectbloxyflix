@@ -182,11 +182,9 @@ body::before{
 .plyr--youtube .plyr__video-wrapper{background:#000;}
 .plyr video{aspect-ratio:16/9;}
 
-/* ── Video.js v10 ── */
+/* ── Video player wrapper ── */
 #vjsPlayerWrap{border-radius:var(--rl);overflow:hidden;background:#000;}
-video-player{display:block;width:100%!important;height:auto!important;aspect-ratio:16/9;font-family:var(--f)!important;border-radius:var(--rl)!important;overflow:hidden!important;}
-video-player video{width:100%!important;height:100%!important;object-fit:contain;}
-video-skin{display:block;width:100%;height:100%;}
+#vjsPlayerWrap video{width:100%!important;aspect-ratio:16/9;display:block;object-fit:contain;border-radius:var(--rl);}
 
 /* ── Resume banner ── */
 .resume-banner{
@@ -727,12 +725,8 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
         <!-- Plyr native/YouTube video -->
         <video id="bf-player" playsinline preload="auto"></video>
         <!-- Video.js v10 full skin -->
-        <div id="vjsPlayerWrap" style="display:none;width:100%;position:relative;">
-          <video-player id="vjs-player">
-            <video-skin>
-              <video id="vjs-video" playsinline preload="auto"></video>
-            </video-skin>
-          </video-player>
+        <div id="vjsPlayerWrap" style="display:none;width:100%;position:relative;background:#000;border-radius:var(--rl);overflow:hidden;">
+          <video id="vjs-video" playsinline preload="auto" style="width:100%;aspect-ratio:16/9;display:block;background:#000;"></video>
         </div>
         <!-- Native browser player for HLS on Safari -->
         <div id="nativePlayerWrap" style="display:none;width:100%;position:relative;background:#000;border-radius:var(--rl);overflow:hidden;">
@@ -1034,7 +1028,7 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
 
 <!-- ═══════ SCRIPTS ═══════ -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
-<script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/video.js"></script>
+
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 <script>
 // ══════════════════════════════════════════
