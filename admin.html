@@ -615,6 +615,11 @@ select.form-input{cursor:pointer;}
           <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           Add Content
         </div>
+        <div class="nav-item" onclick="showPage('cba-videos',this)" style="border-left-color:transparent;" id="nav-cba-videos">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zm-8-2l5-4-5-4v8z"/></svg>
+          <span>CBA Videos</span>
+          <span class="nav-badge" style="background:linear-gradient(135deg,#e8263a,#c9a84c);" id="cbaBadge">—</span>
+        </div>
         <div class="nav-item" onclick="showPage('editor',this)">
           <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
           Video Editor
@@ -910,6 +915,80 @@ select.form-input{cursor:pointer;}
 
       <!-- ═══════════════════ LIVE PAGE ═══════════════════ -->
       <div id="page-live" class="page">
+
+      <!-- ═══════════════════ CBA VIDEOS PAGE ═══════════════════ -->
+      <div id="page-cba-videos" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.3rem;">
+              <h1>Community Based Archives</h1>
+              <span style="background:linear-gradient(135deg,#e8263a,#c9a84c);color:#fff;font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:99px;letter-spacing:1px;text-transform:uppercase;">CBA</span>
+            </div>
+            <p id="cbaSubtitle">Community-sourced YouTube archive videos</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="topbar-btn primary" onclick="showPage('add',document.querySelector('[onclick*=add]'));setTimeout(()=>{const el=document.querySelector('.cat-pill[onclick*=cba]');if(el)el.click();},200);" style="background:linear-gradient(135deg,#e8263a,#c9a84c);border-color:transparent;">
+              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              Add CBA Video
+            </button>
+          </div>
+        </div>
+
+        <!-- CBA Info Banner -->
+        <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.9rem 1.1rem;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.22);border-radius:10px;margin-bottom:1.5rem;">
+          <svg viewBox="0 0 24 24" fill="#c9a84c" width="16" height="16" style="flex-shrink:0;margin-top:.1rem;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <p style="font-size:.8rem;color:var(--muted);line-height:1.65;margin:0;">CBA videos use the <strong style="color:var(--text);">Bilibili-style community player</strong> (<code style="font-family:var(--mono);font-size:.72rem;">Player-community.html</code>). Make sure all CBA entries use <strong style="color:var(--text);">YouTube</strong> as the stream type. The player includes a Plyr-powered YouTube embed and a redirect notice to comment on the original video.</p>
+        </div>
+
+        <!-- Stats Row -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;" id="cbaStatsRow">
+          <div class="stat-card" style="--accent-line:#e8263a;">
+            <div class="stat-label">Total CBA Videos</div>
+            <div class="stat-value" id="cbaTotalStat">—</div>
+            <div class="stat-sub">in archive</div>
+          </div>
+          <div class="stat-card gold-line">
+            <div class="stat-label">YouTube Sources</div>
+            <div class="stat-value" id="cbaYTStat">—</div>
+            <div class="stat-sub">embedded streams</div>
+          </div>
+          <div class="stat-card blue-line">
+            <div class="stat-label">Community Channels</div>
+            <div class="stat-value" id="cbaChannelsStat">—</div>
+            <div class="stat-sub">unique creators</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-head-title">CBA Video Archive</div>
+              <div class="card-head-sub">All Community Based Archive entries</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <input id="cbaSearch" class="topbar-search" placeholder="🔍 Search CBA…" oninput="renderCBATable()" style="width:200px;cursor:text;font-size:.82rem;" />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:36px;">#</th>
+                  <th>Title</th>
+                  <th>Creator / Channel</th>
+                  <th>Year</th>
+                  <th>Duration</th>
+                  <th>Views</th>
+                  <th>Stream</th>
+                </tr>
+              </thead>
+              <tbody id="cbaTableBody">
+                <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">Loading CBA videos…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
         <div class="page-header">
           <div class="page-header-left">
             <h1>Live Channels</h1>
@@ -1017,6 +1096,7 @@ select.form-input{cursor:pointer;}
                     <button type="button" onclick="pickCat('newCat','news',this)"          class="cat-pill">News</button>
                     <button type="button" onclick="pickCat('newCat','cctv',this)"          class="cat-pill">CCTV</button>
                     <button type="button" onclick="pickCat('newCat','live',this)"          class="cat-pill">Live</button>
+                    <button type="button" onclick="pickCat('newCat','cba',this)"           class="cat-pill" style="background:linear-gradient(135deg,rgba(232,38,58,.15),rgba(201,168,76,.12));border-color:rgba(201,168,76,.4);color:#c9a84c;">🎬 CBA — Community Archives</button>
                     <button type="button" onclick="pickCat('newCat','other',this)"         class="cat-pill">Other</button>
                   </div>
                 </div>
@@ -2345,7 +2425,8 @@ function showPage(id, el){
     live:'Live Channels',add:'Add Content',github:'GitHub Config',
     deploy:'Deploy',settings:'Settings',announcements:'Announcements',
     'cat-all':'All Videos','cat-nonfilm':'All Except Films',
-    'editor':'Video Editor','texteditor':'Text Editor','abouteditor':'About Page Editor'
+    'editor':'Video Editor','texteditor':'Text Editor','abouteditor':'About Page Editor',
+    'cba-videos':'Community Based Archives'
   }[id]||id;
   closeSidebar();
   if(id==='dashboard') renderDashboard();
@@ -2354,6 +2435,7 @@ function showPage(id, el){
   if(id==='live') renderLiveTable();
   if(id==='cat-all') renderCatAll();
   if(id==='cat-nonfilm') renderCatNonFilm();
+  if(id==='cba-videos') renderCBATable();
 }
 
 // ─── Sidebar mobile ───────────────────────
@@ -2582,6 +2664,51 @@ function filterVideoTable(){
         ${v.isPinned?'<span class="badge red" style="margin-left:.25rem;">Live</span>':''}
       </td>
       <td>${v.rating?`<span style="color:var(--gold);font-weight:700;">★ ${v.rating}</span>`:'<span style="color:var(--dim);">—</span>'}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── CBA Table ──────────────────────────────────────────────────────────────
+function renderCBATable(){
+  const search = (document.getElementById('cbaSearch')||{}).value||'';
+  const sl = search.toLowerCase();
+  let cbaVids = (LIVE_VIDS||[]).filter(v => v.c === 'cba');
+  if(sl) cbaVids = cbaVids.filter(v => v.t.toLowerCase().includes(sl)||(v.creator||'').toLowerCase().includes(sl));
+
+  // Stats
+  const totalEl = document.getElementById('cbaTotalStat');
+  const ytEl = document.getElementById('cbaYTStat');
+  const chEl = document.getElementById('cbaChannelsStat');
+  const allCba = (LIVE_VIDS||[]).filter(v => v.c === 'cba');
+  if(totalEl) totalEl.textContent = allCba.length;
+  if(ytEl) ytEl.textContent = allCba.filter(v=>v.isYouTube).length;
+  if(chEl) chEl.textContent = [...new Set(allCba.map(v=>v.creator).filter(Boolean))].length;
+
+  // Badge
+  const badge = document.getElementById('cbaBadge');
+  if(badge) badge.textContent = allCba.length;
+
+  const tbody = document.getElementById('cbaTableBody');
+  if(!tbody) return;
+  if(!cbaVids.length){
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">${sl?'No results for "'+search+'"':'No CBA videos yet — add one using the button above.'}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = cbaVids.map((v,i)=>`
+    <tr>
+      <td class="td-mono">${i+1}</td>
+      <td>
+        <div class="td-title">${v.t}</div>
+        <div class="td-muted">${v.tk||''}</div>
+      </td>
+      <td style="color:var(--gold);font-weight:600;">${v.creator||'—'}</td>
+      <td class="td-mono">${v.y||'—'}</td>
+      <td class="td-mono">${v.duration||'—'}</td>
+      <td style="font-weight:700;">${fmtViews(v.views)}</td>
+      <td>
+        ${v.isYouTube?'<span class="badge red">YouTube</span>':'<span class="badge dim">MP4</span>'}
+        <span style="margin-left:.4rem;font-size:.68rem;color:#c9a84c;font-weight:700;background:rgba(201,168,76,.1);padding:.15rem .4rem;border-radius:4px;border:1px solid rgba(201,168,76,.25);">CBA</span>
+      </td>
     </tr>
   `).join('');
 }
