@@ -803,7 +803,7 @@ function loadComments(videoKey) {
   const q = query(
     collection(db, 'comments'),
     where('videoKey', '==', videoKey),
-    orderBy('createdAt', 'desc')
+    orderBy('createdAt', 'asc')
   );
 
   unsubscribeComments = onSnapshot(q, snap => {
