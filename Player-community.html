@@ -868,8 +868,7 @@ window.submitComment = async function() {
     window.updateCharCount();
     showToast('💬 Comment posted!');
   } catch (e) {
-    console.error('Submit error:', e);
-    showToast('Failed to post. Try again.');
+    showToast('Error: ' + (e.code || e.message || String(e)));
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg> Post';
