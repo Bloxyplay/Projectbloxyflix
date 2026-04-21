@@ -3,944 +3,1164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0d0f17">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>BloxyFlix — Community Archive Player</title>
 
-<!-- Plyr CSS -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 /* ═══════════════════════════════════════════════════════
-   BLOXYFLIX COMMUNITY PLAYER — BILIBILI INSPIRED
+   BLOXYFLIX CBA — BILIBILI STYLE BUT BETTER
 ═══════════════════════════════════════════════════════ */
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-:root{
-  --bg:#0d0f17;
-  --bg2:#131620;
-  --bg3:#1a1e2e;
-  --bg4:#222639;
-  --text:#e4e8f0;
-  --text2:#9aa3b8;
-  --text3:#5a6280;
-  --accent:#1a7fff;
-  --accent2:#00b5d8;
-  --cba-gold:#c9a84c;
-  --cba-red:#e8263a;
-  --border:rgba(255,255,255,0.07);
-  --border2:rgba(255,255,255,0.04);
-  --radius:10px;
-  --radius-lg:16px;
-  --font:'DM Sans',system-ui,sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --shadow:0 4px 24px rgba(0,0,0,0.6);
-  --shadow-lg:0 12px 48px rgba(0,0,0,0.8);
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --pink:       #FB7299;
+  --pink-deep:  #E8607F;
+  --pink-light: #FFF0F3;
+  --pink-mid:   rgba(251,114,153,.12);
+  --blue:       #00A1D6;
+  --gold:       #F0A040;
+  --bg:         #F4F5F7;
+  --card:       #FFFFFF;
+  --text:       #18191C;
+  --text2:      #61666D;
+  --text3:      #9499A0;
+  --border:     #E3E5E7;
+  --border2:    #F0F1F2;
+  --radius:     10px;
+  --radius-lg:  16px;
+  --font:       'Plus Jakarta Sans', system-ui, sans-serif;
+  --mono:       'DM Mono', monospace;
+  --shadow-sm:  0 1px 4px rgba(0,0,0,.06), 0 2px 12px rgba(0,0,0,.04);
+  --shadow:     0 2px 8px rgba(0,0,0,.07), 0 8px 24px rgba(0,0,0,.05);
+  --shadow-lg:  0 4px 16px rgba(0,0,0,.1), 0 16px 48px rgba(0,0,0,.07);
 }
 
-html,body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--font);
-  min-height:100vh;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ── TOPBAR ─────────────────────────────── */
-.topbar{
-  display:flex;align-items:center;gap:.75rem;
-  padding:.75rem 1.25rem;
-  background:rgba(13,15,23,0.96);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(20px);
-  position:sticky;top:0;z-index:100;
-}
-.topbar-logo{
-  font-size:1.1rem;font-weight:900;letter-spacing:-.03em;
-  color:var(--text);cursor:pointer;text-decoration:none;
-  display:flex;align-items:center;gap:.4rem;
-}
-.topbar-logo span{color:var(--accent);}
-.topbar-cba-badge{
-  display:inline-flex;align-items:center;gap:.3rem;
-  padding:.2rem .6rem;border-radius:99px;font-size:.65rem;font-weight:800;
-  background:linear-gradient(135deg,var(--cba-red),var(--cba-gold));
-  color:#fff;letter-spacing:.8px;text-transform:uppercase;
-  box-shadow:0 2px 10px rgba(232,38,58,0.3);
-}
-.topbar-back{
-  display:inline-flex;align-items:center;gap:.45rem;
-  background:none;border:none;color:var(--text2);
-  font-size:.85rem;font-weight:600;cursor:pointer;
-  padding:.4rem .6rem;border-radius:8px;
-  transition:color .2s,background .2s;
-}
-.topbar-back:hover{color:var(--text);background:rgba(255,255,255,0.06);}
-.topbar-back svg{width:18px;height:18px;fill:currentColor;}
-.topbar-spacer{flex:1;}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
-/* ── LAYOUT ─────────────────────────────── */
-.layout{
-  display:grid;
-  grid-template-columns:1fr 360px;
-  gap:0;
-  max-width:1440px;
-  margin:0 auto;
-  padding:1.5rem 1.5rem 3rem;
-  gap:1.5rem;
-  align-items:start;
+/* ── TOPBAR ───────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; gap: .6rem;
+  padding: .65rem 1.25rem;
+  background: rgba(255,255,255,.96);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
 }
-@media(max-width:1100px){
-  .layout{grid-template-columns:1fr;padding:1rem;}
+.topbar-back {
+  display: inline-flex; align-items: center; gap: .35rem;
+  background: none; border: none; color: var(--text2);
+  font-family: var(--font); font-size: .82rem; font-weight: 600;
+  cursor: pointer; padding: .4rem .65rem; border-radius: 8px;
+  transition: color .15s, background .15s;
 }
+.topbar-back:hover { color: var(--text); background: var(--bg); }
+.topbar-back svg { width: 16px; height: 16px; fill: currentColor; }
+.topbar-logo {
+  font-size: 1.1rem; font-weight: 900; letter-spacing: -.02em;
+  color: var(--text); text-decoration: none;
+}
+.topbar-logo em { color: var(--pink); font-style: normal; }
+.topbar-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .2rem .6rem; border-radius: 99px;
+  background: linear-gradient(135deg, #E03131, var(--gold));
+  font-size: .6rem; font-weight: 800; letter-spacing: .8px;
+  text-transform: uppercase; color: #fff; flex-shrink: 0;
+}
+.topbar-badge svg { width: 9px; height: 9px; fill: currentColor; }
+.topbar-spacer { flex: 1; }
+.topbar-yt {
+  display: none; align-items: center; gap: .35rem;
+  padding: .38rem .85rem; border-radius: 99px;
+  background: #ff0000; color: #fff;
+  font-size: .75rem; font-weight: 700;
+  text-decoration: none; transition: background .15s;
+  font-family: var(--font); flex-shrink: 0;
+}
+.topbar-yt:hover { background: #cc0000; }
+.topbar-yt svg { width: 13px; height: 13px; fill: currentColor; }
 
-/* ── PLAYER COLUMN ──────────────────────── */
-.player-col{}
-
-/* Bilibili-style player wrapper */
-.bili-player-wrap{
-  position:relative;
-  width:100%;
-  background:#000;
-  border-radius:var(--radius-lg);
-  overflow:hidden;
-  box-shadow:var(--shadow-lg);
-  border:1px solid var(--border);
+/* ── MAIN LAYOUT ──────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  max-width: 1420px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+  gap: 1.5rem;
+  align-items: start;
 }
-.bili-player-wrap::before{
-  content:'';
-  display:block;
-  padding-top:56.25%;
-}
-#plyr-container{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-}
-#plyr-container iframe,
-#plyr-container .plyr{
-  width:100%!important;
-  height:100%!important;
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; padding: 0 0 3rem; gap: 0; }
 }
 
-/* Bilibili top stripe */
-.bili-stripe{
-  height:3px;
-  background:linear-gradient(90deg,#00b5d8 0%,#1a7fff 40%,var(--cba-gold) 100%);
-  border-radius:3px 3px 0 0;
+/* ── PLAYER ───────────────────────────────── */
+.player-wrap {
+  position: relative; width: 100%;
+  background: #000;
+}
+@media (min-width: 1101px) {
+  .player-wrap { border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; margin-top: 1.25rem; box-shadow: var(--shadow); }
+}
+.player-ratio { position: relative; padding-top: 56.25%; width: 100%; }
+.player-stripe {
+  height: 2.5px;
+  background: linear-gradient(90deg, #E03131, var(--pink), var(--blue));
+}
+#plyr-container { position: absolute; inset: 0; width: 100%; height: 100%; }
+#plyr-container iframe, #plyr-container .plyr { width: 100% !important; height: 100% !important; }
+
+/* Danmaku */
+.danmu-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; display: none; }
+.danmu-layer.active { display: block; }
+.danmu-item {
+  position: absolute; font-size: .82rem; font-weight: 600; color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,.7), 0 0 8px rgba(0,0,0,.5);
+  white-space: nowrap; right: -100%;
+  animation: danmuScroll linear forwards;
+}
+@keyframes danmuScroll {
+  from { right: -100%; }
+  to   { right: 110%; }
 }
 
-/* ── VIDEO META ─────────────────────────── */
-.video-meta-block{
-  margin-top:1.1rem;
-  padding-bottom:1.1rem;
-  border-bottom:1px solid var(--border);
+/* ── TAB BAR ──────────────────────────────── */
+.tab-bar {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  position: sticky; top: 53px; z-index: 100;
 }
-.video-title-line{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  gap:1rem;flex-wrap:wrap;
+@media (min-width: 1101px) {
+  .tab-bar {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    margin-top: .85rem;
+    border: 1px solid var(--border);
+    border-bottom: none;
+  }
 }
-.video-title{
-  font-size:1.25rem;font-weight:800;
-  color:var(--text);line-height:1.35;letter-spacing:-.02em;
-  flex:1;min-width:0;
+.tab-list { display: flex; flex: 1; }
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); font-size: .9rem; font-weight: 600;
+  color: var(--text3); padding: .85rem 1.25rem;
+  position: relative; transition: color .2s;
 }
-.video-title-kr{
-  font-size:.9rem;color:var(--text2);margin-top:.3rem;font-weight:400;
+.tab-btn::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 0; height: 2px; border-radius: 2px;
+  background: var(--pink); transition: width .25s ease;
+}
+.tab-btn.active { color: var(--pink); }
+.tab-btn.active::after { width: 60%; }
+.danmu-bar { display: flex; align-items: center; gap: .5rem; padding: .5rem .75rem; flex-shrink: 0; }
+.danmu-input {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 99px; padding: .4rem 1rem;
+  font-family: var(--font); font-size: .78rem; color: var(--text2);
+  outline: none; width: 130px; transition: border-color .2s, width .25s;
+}
+.danmu-input:focus { border-color: var(--pink); width: 155px; }
+.danmu-send {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--pink-light); border: 1px solid rgba(251,114,153,.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .15s, transform .15s; flex-shrink: 0;
+}
+.danmu-send:hover { background: var(--pink); }
+.danmu-send:hover svg { fill: #fff; }
+.danmu-send svg { width: 15px; height: 15px; fill: var(--pink); transition: fill .15s; }
+
+/* ── TAB PANELS ───────────────────────────── */
+.tab-panels { background: var(--card); }
+@media (min-width: 1101px) {
+  .tab-panels { border-radius: 0 0 var(--radius-lg) var(--radius-lg); border: 1px solid var(--border); border-top: none; }
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── ABOUT CONTENT ────────────────────────── */
+.about-content { padding: 1rem 1.25rem 1.5rem; }
+
+/* Title block */
+.vid-title-block { padding-bottom: .85rem; border-bottom: 1px solid var(--border2); }
+.vid-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+.vid-title { font-size: 1.05rem; font-weight: 800; color: var(--text); line-height: 1.4; letter-spacing: -.02em; flex: 1; }
+.vid-title-kr { font-size: .82rem; color: var(--text3); margin-top: .25rem; font-weight: 400; display: none; }
+.collapse-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; transition: background .15s;
+}
+.collapse-btn:hover { background: var(--border); }
+.collapse-btn svg { width: 14px; height: 14px; fill: var(--text2); transition: transform .25s; }
+.collapse-btn.collapsed svg { transform: rotate(-90deg); }
+
+.vid-stats-row { display: flex; align-items: center; gap: .65rem; margin-top: .6rem; flex-wrap: wrap; }
+.vid-stat { display: flex; align-items: center; gap: .25rem; font-size: .72rem; color: var(--text3); font-family: var(--mono); }
+.vid-stat svg { width: 11px; height: 11px; fill: currentColor; }
+.stat-dot { width: 2px; height: 2px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.watching-pill {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-size: .67rem; font-weight: 700; color: var(--pink);
+  background: var(--pink-light); padding: .15rem .5rem; border-radius: 99px;
+  border: 1px solid rgba(251,114,153,.2);
+}
+.watching-pill svg { width: 7px; height: 7px; fill: currentColor; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.3)} }
+
+/* ── ACTION ROW ───────────────────────────── */
+.action-row {
+  display: flex; align-items: center; justify-content: space-around;
+  padding: .9rem 0;
+  border-bottom: 1px solid var(--border2);
+}
+.action-btn {
+  display: flex; flex-direction: column; align-items: center; gap: .3rem;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); font-size: .7rem; color: var(--text2);
+  transition: color .15s; min-width: 46px; padding: .2rem;
+}
+.action-btn:hover .action-icon { transform: scale(1.07); }
+.action-btn.active { color: var(--pink); }
+.action-btn.active .action-icon { background: var(--pink-light); border-color: rgba(251,114,153,.3); }
+.action-btn.active .action-icon svg { fill: var(--pink); }
+.action-icon {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s, transform .2s;
+}
+.action-icon svg { width: 20px; height: 20px; fill: var(--text2); transition: fill .15s; }
+.action-count { font-weight: 600; }
+.action-btn.active .action-icon svg { animation: pop .3s ease; }
+@keyframes pop { 0%{transform:scale(1)} 45%{transform:scale(1.4)} 75%{transform:scale(.85)} 100%{transform:scale(1)} }
+
+/* ── CHANNEL ROW ──────────────────────────── */
+.channel-row {
+  display: flex; align-items: center; gap: .85rem;
+  padding: .9rem 0; border-bottom: 1px solid var(--border2);
+}
+.channel-avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, #E03131, var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: .75rem; color: #fff;
+  flex-shrink: 0; letter-spacing: .5px;
+  box-shadow: 0 2px 10px rgba(224,49,49,.2);
+}
+.channel-info { flex: 1; min-width: 0; }
+.channel-name { font-size: .9rem; font-weight: 700; color: var(--text); }
+.channel-meta { font-size: .7rem; color: var(--text3); margin-top: .1rem; font-family: var(--mono); }
+.follow-btn {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .45rem 1.1rem; border-radius: 99px;
+  background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+  border: none; color: #fff; font-family: var(--font);
+  font-size: .8rem; font-weight: 700; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 2px 12px rgba(251,114,153,.35); flex-shrink: 0;
+}
+.follow-btn:hover { opacity: .9; transform: translateY(-1px); }
+.follow-btn.following { background: var(--bg); color: var(--text2); border: 1px solid var(--border); box-shadow: none; }
+.follow-btn svg { width: 12px; height: 12px; fill: currentColor; }
+
+/* ── TAGS ─────────────────────────────────── */
+.tags-row { display: flex; flex-wrap: wrap; gap: .4rem; margin: .7rem 0; }
+.tag { font-size: .63rem; font-weight: 700; padding: .2rem .6rem; border-radius: 99px; border: 1px solid; letter-spacing: .3px; text-transform: uppercase; font-family: var(--mono); }
+.tag-cba  { background: rgba(224,49,49,.06); border-color: rgba(224,49,49,.2); color: #B91C1C; }
+.tag-yt   { background: rgba(255,0,0,.05); border-color: rgba(255,0,0,.18); color: #CC2200; }
+.tag-comm { background: rgba(240,160,64,.08); border-color: rgba(240,160,64,.25); color: #A16207; }
+.tag-cat  { background: rgba(0,161,214,.07); border-color: rgba(0,161,214,.22); color: #0369A1; }
+
+/* ── DESCRIPTION ──────────────────────────── */
+.desc-block { padding: .25rem 0 .85rem; border-bottom: 1px solid var(--border2); }
+.desc-text { font-size: .83rem; color: var(--text2); line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.desc-text.expanded { -webkit-line-clamp: unset; }
+.desc-toggle {
+  background: none; border: none; color: var(--pink);
+  font-size: .78rem; font-weight: 600; cursor: pointer;
+  margin-top: .45rem; display: inline-flex; align-items: center; gap: .25rem;
+  font-family: var(--font); padding: 0;
+}
+.desc-toggle:hover { color: var(--pink-deep); }
+.desc-toggle svg { width: 12px; height: 12px; fill: currentColor; transition: transform .25s; }
+.desc-toggle.expanded svg { transform: rotate(180deg); }
+
+/* ── ARCHIVE NOTICE ───────────────────────── */
+.archive-notice {
+  margin: .85rem 0; border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(0,161,214,.05), rgba(251,114,153,.04));
+  border: 1px solid rgba(0,161,214,.18); padding: .9rem 1rem; position: relative; overflow: hidden;
+}
+.archive-notice::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--blue),var(--pink)); }
+.notice-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .45rem; }
+.notice-head svg { width: 15px; height: 15px; fill: var(--blue); flex-shrink: 0; }
+.notice-head span { font-size: .82rem; font-weight: 700; color: var(--text); }
+.notice-text { font-size: .78rem; color: var(--text2); line-height: 1.7; }
+.yt-pill {
+  display: inline-flex; align-items: center; gap: .4rem;
+  margin-top: .7rem; padding: .45rem 1rem;
+  background: rgba(255,0,0,.06); border: 1px solid rgba(255,0,0,.18);
+  border-radius: 99px; color: #cc2200; font-size: .76rem; font-weight: 700;
+  text-decoration: none; transition: all .15s; font-family: var(--font);
+}
+.yt-pill:hover { background: rgba(255,0,0,.12); }
+.yt-pill svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* ── FIREBASE COMMENTS ────────────────────── */
+.comments-content { padding: 1rem 1.25rem 1.5rem; }
+
+.comment-input-box {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: .9rem 1rem;
+  margin-bottom: 1.1rem;
+}
+.comment-input-row { display: flex; gap: .6rem; align-items: flex-start; }
+.comment-input-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 900; color: #fff; letter-spacing: .3px;
+}
+.comment-input-fields { flex: 1; display: flex; flex-direction: column; gap: .5rem; }
+.comment-name-input, .comment-text-input {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: .5rem .8rem;
+  font-family: var(--font); font-size: .82rem; color: var(--text);
+  outline: none; width: 100%; resize: none;
+  transition: border-color .2s;
+}
+.comment-name-input { height: 36px; }
+.comment-text-input { height: 72px; line-height: 1.55; }
+.comment-name-input:focus, .comment-text-input:focus { border-color: var(--pink); }
+.comment-name-input::placeholder, .comment-text-input::placeholder { color: var(--text3); }
+.comment-submit-row { display: flex; justify-content: flex-end; gap: .5rem; align-items: center; }
+.comment-char { font-size: .68rem; color: var(--text3); font-family: var(--mono); }
+.comment-submit-btn {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .45rem 1.1rem; border-radius: 99px;
+  background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+  border: none; color: #fff; font-family: var(--font);
+  font-size: .78rem; font-weight: 700; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 2px 10px rgba(251,114,153,.3);
+}
+.comment-submit-btn:hover { opacity: .9; transform: translateY(-1px); }
+.comment-submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.comment-submit-btn svg { width: 12px; height: 12px; fill: currentColor; }
+
+.comment-list-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .75rem;
+}
+.comment-list-title { font-size: .88rem; font-weight: 800; color: var(--text); }
+.comment-list-count { font-size: .72rem; color: var(--text3); font-family: var(--mono); }
+
+.comment-list { display: flex; flex-direction: column; gap: .1rem; }
+
+.comment-item {
+  display: flex; gap: .75rem; padding: .85rem 0;
+  border-bottom: 1px solid var(--border2); animation: fadeUp .3s ease both;
+}
+.comment-item:last-child { border-bottom: none; }
+.comment-av {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #5b7bff, #a855f7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; font-weight: 900; color: #fff;
+}
+.comment-body { flex: 1; min-width: 0; }
+.comment-meta { display: flex; align-items: center; gap: .45rem; margin-bottom: .25rem; flex-wrap: wrap; }
+.comment-author { font-size: .8rem; font-weight: 700; color: var(--text); }
+.comment-time { font-size: .66rem; color: var(--text3); font-family: var(--mono); }
+.comment-text { font-size: .82rem; color: var(--text2); line-height: 1.65; word-break: break-word; }
+
+.comment-empty {
+  text-align: center; padding: 2.5rem 1rem;
+  color: var(--text3); font-size: .8rem; font-family: var(--mono);
+}
+.comment-empty svg { width: 36px; height: 36px; fill: var(--border); display: block; margin: 0 auto .75rem; }
+
+.comment-loading {
+  text-align: center; padding: 1.5rem;
+  color: var(--text3); font-size: .78rem; font-family: var(--mono);
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.comment-spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--pink); border-radius: 50%; animation: spin .75s linear infinite; }
+
+@media(max-width:600px){
+  .comment-input-avatar { display: none; }
 }
 
-.video-stats-row{
-  display:flex;align-items:center;gap:.85rem;
-  margin-top:.75rem;flex-wrap:wrap;
-}
-.video-stat{
-  display:flex;align-items:center;gap:.3rem;
-  font-size:.78rem;color:var(--text2);font-weight:500;
-}
-.video-stat svg{width:13px;height:13px;fill:currentColor;opacity:.7;}
 
-/* Tags row */
-.tags-row{
-  display:flex;align-items:center;gap:.4rem;
-  margin-top:.75rem;flex-wrap:wrap;
-}
-.tag{
-  font-size:.68rem;font-weight:700;
-  padding:.2rem .6rem;border-radius:99px;
-  border:1px solid;letter-spacing:.4px;
-  text-transform:uppercase;
-}
-.tag-cba{background:rgba(232,38,58,.1);border-color:rgba(232,38,58,.3);color:var(--cba-red);}
-.tag-yt{background:rgba(255,0,0,.08);border-color:rgba(255,0,0,.25);color:#ff4444;}
-.tag-community{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.25);color:var(--cba-gold);}
-.tag-cat{background:rgba(26,127,255,.08);border-color:rgba(26,127,255,.25);color:var(--accent);}
-
-/* ── CHANNEL INFO ───────────────────────── */
-.channel-row{
-  display:flex;align-items:center;gap:.85rem;
-  padding:1rem 0;
-  border-bottom:1px solid var(--border);
-}
-.channel-avatar{
-  width:44px;height:44px;border-radius:50%;
-  background:linear-gradient(135deg,var(--cba-red),var(--cba-gold));
-  display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:.8rem;color:#fff;
-  flex-shrink:0;letter-spacing:.5px;
-  box-shadow:0 2px 10px rgba(232,38,58,.3);
-}
-.channel-info-text{flex:1;min-width:0;}
-.channel-name{font-size:.9rem;font-weight:700;color:var(--text);}
-.channel-sub{font-size:.75rem;color:var(--text2);margin-top:.15rem;}
-
-.channel-actions{display:flex;align-items:center;gap:.5rem;}
-.btn-outline{
-  display:inline-flex;align-items:center;gap:.4rem;
-  padding:.4rem .85rem;border-radius:99px;
-  font-size:.78rem;font-weight:700;cursor:pointer;
-  transition:all .2s;border:1px solid;letter-spacing:.2px;
-}
-.btn-outline-accent{
-  border-color:var(--accent);color:var(--accent);background:transparent;
-}
-.btn-outline-accent:hover{background:rgba(26,127,255,.12);}
-.btn-solid{
-  background:var(--accent);border:1px solid var(--accent);
-  color:#fff;padding:.4rem .95rem;border-radius:99px;
-  font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;
-}
-.btn-solid:hover{background:#0066dd;}
-
-/* ── DESCRIPTION ───────────────────────── */
-.desc-block{
-  margin-top:.1rem;
-  padding:1rem 0;
-  border-bottom:1px solid var(--border);
-}
-.desc-text{
-  font-size:.85rem;color:var(--text2);line-height:1.75;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
-  overflow:hidden;transition:all .3s;
-}
-.desc-text.expanded{-webkit-line-clamp:unset;}
-.desc-toggle{
-  background:none;border:none;color:var(--accent);
-  font-size:.8rem;font-weight:600;cursor:pointer;
-  margin-top:.5rem;display:block;transition:color .2s;
-}
-.desc-toggle:hover{color:#4fa3ff;}
-
-/* ── ORIGINAL VIDEO NOTICE ─────────────── */
-.original-notice{
-  margin-top:1.1rem;
-  background:linear-gradient(135deg,rgba(26,127,255,0.07),rgba(0,181,216,0.05));
-  border:1px solid rgba(26,127,255,0.22);
-  border-radius:var(--radius-lg);
-  padding:1.1rem 1.25rem;
-  position:relative;overflow:hidden;
-}
-.original-notice::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-}
-.original-notice-head{
-  display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;
-}
-.original-notice-head svg{width:18px;height:18px;fill:var(--accent);flex-shrink:0;}
-.original-notice-title{font-size:.88rem;font-weight:700;color:var(--text);}
-.original-notice-body{font-size:.82rem;color:var(--text2);line-height:1.7;}
-.yt-link-btn{
-  display:inline-flex;align-items:center;gap:.45rem;
-  margin-top:.85rem;padding:.55rem 1.1rem;
-  background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.3);
-  border-radius:99px;color:#ff4444;font-size:.8rem;font-weight:700;
-  text-decoration:none;cursor:pointer;transition:all .2s;letter-spacing:.2px;
-}
-.yt-link-btn:hover{background:rgba(255,0,0,.18);border-color:rgba(255,0,0,.5);}
-.yt-link-btn svg{width:16px;height:16px;fill:currentColor;}
-
-/* ── COMMENT NOTICE SECTION ─────────────── */
-.comment-section{
-  margin-top:1.25rem;
-}
-.comment-section-head{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:1rem;gap:.75rem;flex-wrap:wrap;
-}
-.comment-section-title{
-  font-size:1rem;font-weight:800;color:var(--text);
-  display:flex;align-items:center;gap:.5rem;
-}
-.comment-section-title span{font-size:.8rem;font-weight:500;color:var(--text2);}
-
-/* Comment Redirect Card */
-.comment-redirect{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:var(--radius-lg);
-  overflow:hidden;
-}
-.comment-redirect-stripe{
-  height:2px;
-  background:linear-gradient(90deg,#ff0000,#ff4444,rgba(255,68,68,0));
-}
-.comment-redirect-body{
-  padding:1.5rem;
-  display:flex;flex-direction:column;align-items:center;
-  text-align:center;gap:.85rem;
-}
-.comment-redirect-icon{
-  width:52px;height:52px;border-radius:50%;
-  background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.2);
-  display:flex;align-items:center;justify-content:center;
-}
-.comment-redirect-icon svg{width:26px;height:26px;fill:#ff4444;}
-.comment-redirect-heading{
-  font-size:1.02rem;font-weight:800;color:var(--text);letter-spacing:-.02em;
-}
-.comment-redirect-msg{
-  font-size:.85rem;color:var(--text2);line-height:1.75;max-width:420px;
-}
-.comment-redirect-cta{
-  display:inline-flex;align-items:center;gap:.5rem;
-  padding:.7rem 1.5rem;
-  background:#ff0000;border:none;border-radius:99px;
-  color:#fff;font-size:.88rem;font-weight:700;
-  text-decoration:none;cursor:pointer;
-  transition:background .2s,transform .15s;
-  letter-spacing:.2px;
-  box-shadow:0 4px 16px rgba(255,0,0,.35);
-}
-.comment-redirect-cta:hover{background:#cc0000;transform:translateY(-1px);}
-.comment-redirect-cta svg{width:17px;height:17px;fill:currentColor;}
-.comment-redirect-note{
-  font-size:.72rem;color:var(--text3);
+/* ── SIDEBAR ──────────────────────────────── */
+.side-col { padding-top: 1.25rem; }
+@media (min-width: 1101px) {
+  .side-col { position: sticky; top: calc(53px + 1.25rem); max-height: calc(100vh - 90px); overflow-y: auto; }
+  .side-col::-webkit-scrollbar { width: 3px; }
 }
 
-/* ── RIGHT COLUMN ───────────────────────── */
-.side-col{}
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+.section-title { font-size: .9rem; font-weight: 800; color: var(--text); }
+.section-count { font-size: .72rem; color: var(--text3); font-family: var(--mono); }
 
-/* Archive info card */
-.side-card{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:var(--radius-lg);
-  overflow:hidden;
-  margin-bottom:1.25rem;
-}
-.side-card-head{
-  padding:.85rem 1.1rem;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.side-card-title{font-size:.82rem;font-weight:700;color:var(--text);letter-spacing:-.01em;}
-.side-card-sub{font-size:.72rem;color:var(--text2);margin-top:.1rem;}
-.side-card-body{padding:1.1rem;}
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1.1rem; box-shadow: var(--shadow-sm); }
+.info-card-head { padding: .7rem 1rem; background: linear-gradient(135deg,rgba(224,49,49,.05),rgba(240,160,64,.04)); border-bottom: 1px solid var(--border2); display: flex; align-items: center; gap: .5rem; }
+.info-card-head svg { width: 14px; height: 14px; fill: var(--pink); }
+.info-card-head span { font-size: .78rem; font-weight: 700; color: var(--text); }
+.info-card-body { padding: .75rem 1rem; }
+.info-row { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; padding: .45rem 0; border-bottom: 1px solid var(--border2); font-size: .75rem; }
+.info-row:last-child { border-bottom: none; }
+.info-label { color: var(--text3); font-family: var(--mono); font-size: .68rem; }
+.info-val { color: var(--text); font-weight: 600; text-align: right; word-break: break-word; }
+.info-val a { color: var(--blue); text-decoration: none; }
+.info-val a:hover { text-decoration: underline; }
+.info-val-pink { color: var(--pink) !important; font-weight: 800 !important; }
 
-/* Archive info rows */
-.info-row{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  gap:.75rem;padding:.55rem 0;
-  border-bottom:1px solid var(--border2);
-  font-size:.8rem;
+/* Rec cards */
+.rec-list { display: flex; flex-direction: column; gap: .6rem; }
+.rec-card {
+  display: flex; gap: .75rem; align-items: flex-start;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .7rem;
+  cursor: pointer; transition: box-shadow .15s, transform .15s;
+  box-shadow: var(--shadow-sm);
 }
-.info-row:last-child{border-bottom:none;}
-.info-label{color:var(--text2);font-weight:500;flex-shrink:0;}
-.info-val{color:var(--text);font-weight:600;text-align:right;word-break:break-all;}
-.info-val a{color:var(--accent);text-decoration:none;}
-.info-val a:hover{text-decoration:underline;}
+.rec-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.rec-card:hover .rec-play { opacity: 1; }
+.rec-thumb { width: 88px; height: 52px; flex-shrink: 0; border-radius: 6px; overflow: hidden; background: var(--bg); position: relative; }
+.rec-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.rec-play { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .15s; border-radius: 6px; }
+.rec-play svg { width: 22px; height: 22px; fill: #fff; }
+.rec-cba-badge { position: absolute; top: 3px; left: 3px; font-size: .5rem; font-weight: 800; background: linear-gradient(135deg,#E03131,var(--gold)); color: #fff; padding: .1rem .3rem; border-radius: 3px; font-family: var(--mono); }
+.rec-info { flex: 1; min-width: 0; }
+.rec-title { font-size: .78rem; font-weight: 700; color: var(--text); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rec-meta { font-size: .68rem; color: var(--text3); margin-top: .25rem; font-family: var(--mono); }
+.rec-views { display: flex; align-items: center; gap: .2rem; margin-top: .15rem; }
+.rec-views svg { width: 10px; height: 10px; fill: var(--text3); }
+.rec-progress { height: 2px; background: var(--border2); border-radius: 1px; margin-top: .4rem; overflow: hidden; display: none; }
+.rec-progress-fill { height: 100%; background: var(--pink); border-radius: 1px; }
 
-/* Up next list */
-.up-next-item{
-  display:flex;gap:.75rem;align-items:flex-start;
-  padding:.65rem 0;border-bottom:1px solid var(--border2);
-  cursor:pointer;transition:background .15s;border-radius:8px;
-  padding:.55rem .5rem;margin:0 -.5rem;
-}
-.up-next-item:last-child{border-bottom:none;}
-.up-next-item:hover{background:rgba(255,255,255,0.04);}
-.up-next-thumb{
-  width:90px;height:52px;flex-shrink:0;
-  border-radius:7px;overflow:hidden;background:var(--bg3);
-  position:relative;
-}
-.up-next-thumb img{width:100%;height:100%;object-fit:cover;}
-.up-next-cba{
-  position:absolute;top:.2rem;left:.2rem;
-  font-size:.55rem;font-weight:800;
-  background:linear-gradient(135deg,var(--cba-red),var(--cba-gold));
-  color:#fff;padding:.1rem .35rem;border-radius:3px;
-}
-.up-next-info{flex:1;min-width:0;}
-.up-next-title{font-size:.78rem;font-weight:600;color:var(--text);line-height:1.35;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.up-next-meta{font-size:.7rem;color:var(--text2);margin-top:.2rem;}
+/* ── MOBILE BAR ───────────────────────────── */
+.mobile-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,.97); border-top: 1px solid var(--border); padding: .65rem 1rem; z-index: 300; backdrop-filter: blur(16px); gap: .75rem; }
+@media (max-width: 1100px) { .mobile-bar { display: flex; align-items: center; } body { padding-bottom: 62px; } }
+.mobile-bar-title { flex: 1; font-size: .77rem; font-weight: 600; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mobile-bar-yt { display: inline-flex; align-items: center; gap: .35rem; padding: .48rem 1rem; border-radius: 99px; background: #ff0000; color: #fff; font-size: .76rem; font-weight: 700; text-decoration: none; flex-shrink: 0; font-family: var(--font); }
+.mobile-bar-yt svg { width: 13px; height: 13px; fill: currentColor; }
 
-/* CBA Branding Block */
-.cba-brand{
-  background:linear-gradient(135deg,rgba(232,38,58,.08),rgba(201,168,76,.06));
-  border:1px solid rgba(201,168,76,.2);border-radius:var(--radius-lg);
-  padding:1.1rem;margin-bottom:1.25rem;
-  display:flex;align-items:center;gap:.85rem;
-}
-.cba-brand-icon{
-  width:42px;height:42px;border-radius:10px;flex-shrink:0;
-  background:linear-gradient(135deg,var(--cba-red),var(--cba-gold));
-  display:flex;align-items:center;justify-content:center;
-}
-.cba-brand-icon svg{width:22px;height:22px;fill:#fff;}
-.cba-brand-text{}
-.cba-brand-name{font-size:.88rem;font-weight:800;color:var(--text);}
-.cba-brand-desc{font-size:.72rem;color:var(--text2);margin-top:.2rem;line-height:1.5;}
+/* ── LOADING ──────────────────────────────── */
+#loadingState { position:absolute; inset:0; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; }
+.load-ring { width:44px; height:44px; border-radius:50%; border:3px solid rgba(251,114,153,.15); border-top-color:var(--pink); animation:spin .85s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.load-text { font-size:.75rem; color:rgba(255,255,255,.35); font-family:var(--mono); }
 
-/* ── PLYR OVERRIDES ─────────────────────── */
-.plyr--youtube .plyr__controls{
-  background:linear-gradient(0deg,rgba(0,0,0,.8),transparent)!important;
-}
-.plyr--video .plyr__control--overlaid{
-  background:rgba(26,127,255,.9)!important;
-  border-radius:50%!important;
-  width:64px!important;height:64px!important;
-}
-.plyr--video .plyr__control--overlaid:hover{
-  background:rgba(26,127,255,1)!important;
-  transform:scale(1.08)!important;
-}
-.plyr__progress__buffer,.plyr__volume__display{background:rgba(255,255,255,.15)!important;}
-.plyr__progress input[type=range]::-webkit-slider-runnable-track{
-  background:linear-gradient(90deg,#00b5d8,#1a7fff)!important;
-}
-.plyr input[type=range]::-webkit-slider-thumb{background:#1a7fff!important;}
-.plyr__menu__container{
-  background:rgba(15,18,30,.97)!important;
-  border:1px solid var(--border)!important;
-  border-radius:10px!important;
-}
+/* ── ERROR ────────────────────────────────── */
+#errorState { display:none; position:absolute; inset:0; background:#111; flex-direction:column; align-items:center; justify-content:center; gap:.75rem; text-align:center; padding:2rem; }
+.error-ico { width:52px; height:52px; border-radius:50%; background:rgba(224,49,49,.12); border:1px solid rgba(224,49,49,.25); display:flex; align-items:center; justify-content:center; }
+.error-ico svg { width:24px; height:24px; fill:#E03131; }
+#errorState h3 { font-size:.95rem; font-weight:700; color:#fff; }
+#errorState p { font-size:.8rem; color:rgba(255,255,255,.45); line-height:1.6; max-width:300px; }
 
-/* ── SKELETON LOADER ────────────────────── */
-@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
-.skeleton{
-  background:linear-gradient(90deg,var(--bg2) 25%,var(--bg3) 50%,var(--bg2) 75%);
-  background-size:1200px 100%;
-  animation:shimmer 1.8s infinite linear;
-  border-radius:6px;
-}
+/* ── TOAST ────────────────────────────────── */
+.toast { position:fixed; bottom:4.5rem; left:50%; transform:translateX(-50%) translateY(12px); background:var(--text); color:#fff; padding:.55rem 1.25rem; border-radius:99px; font-size:.8rem; font-weight:600; z-index:9999; opacity:0; transition:all .25s; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* ── LOADING STATE ─────────────────────── */
-#loadingState{
-  position:absolute;inset:0;
-  background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:1rem;z-index:10;
-  border-radius:var(--radius-lg);
-}
-.load-spinner{
-  width:48px;height:48px;
-  border:3px solid rgba(26,127,255,.15);
-  border-top-color:var(--accent);
-  border-radius:50%;
-  animation:spin .9s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
+/* ── ANIMATIONS ───────────────────────────── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.player-col > * { animation: fadeUp .35s ease both; }
+.player-wrap { animation-delay: 0s; }
+.tab-bar      { animation-delay: .05s; }
+.tab-panels   { animation-delay: .08s; }
+.side-col     { animation: fadeUp .35s ease both .1s; }
 
-/* ── ERROR STATE ───────────────────────── */
-#errorState{
-  display:none;
-  position:absolute;inset:0;
-  background:var(--bg);
-  flex-direction:column;align-items:center;justify-content:center;
-  gap:.75rem;text-align:center;padding:2rem;
-  border-radius:var(--radius-lg);
-}
-#errorState svg{width:40px;height:40px;fill:var(--cba-red);opacity:.7;}
-#errorState h3{font-size:1rem;font-weight:700;color:var(--text);}
-#errorState p{font-size:.82rem;color:var(--text2);line-height:1.65;}
+/* ── PLYR ─────────────────────────────────── */
+.plyr--youtube .plyr__controls { background:linear-gradient(0deg,rgba(0,0,0,.8) 0%,transparent 100%)!important; }
+.plyr--video .plyr__control--overlaid { background:rgba(251,114,153,.92)!important; border-radius:50%!important; width:62px!important; height:62px!important; box-shadow:0 4px 20px rgba(251,114,153,.4)!important; }
+.plyr--video .plyr__control--overlaid:hover { background:var(--pink)!important; transform:scale(1.07)!important; }
+.plyr__progress input[type=range]::-webkit-slider-runnable-track { background:linear-gradient(90deg,var(--pink),var(--pink-deep))!important; }
+.plyr input[type=range]::-webkit-slider-thumb { background:var(--pink)!important; }
+.plyr__menu__container { background:rgba(255,255,255,.99)!important; border:1px solid var(--border)!important; border-radius:12px!important; box-shadow:var(--shadow-lg)!important; }
+.plyr--full-ui input[type=range] { color:var(--pink)!important; }
+.plyr__control.plyr__tab-focus { box-shadow:0 0 0 3px rgba(251,114,153,.35)!important; }
 
-/* ── TOAST ─────────────────────────────── */
-.toast{
-  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
-  background:var(--bg3);border:1px solid var(--border);
-  color:var(--text);padding:.65rem 1.25rem;border-radius:99px;
-  font-size:.82rem;font-weight:600;z-index:9999;
-  opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
-  box-shadow:var(--shadow);
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* ── RESPONSIVE ─────────────────────────── */
-@media(max-width:768px){
-  .layout{padding:.75rem .75rem 2.5rem;}
-  .video-title{font-size:1.05rem;}
-  .topbar{padding:.6rem 1rem;}
+@media (max-width:600px) {
+  .vid-title { font-size:.97rem; }
+  .action-icon { width:42px; height:42px; }
+  .action-icon svg { width:18px; height:18px; }
+  .danmu-input { width:100px; }
 }
 </style>
 </head>
-
 <body>
-<!-- ══════════════════════════════════════
-     TOPBAR
-══════════════════════════════════════ -->
+
 <header class="topbar">
   <button class="topbar-back" onclick="goBack()">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     Back
   </button>
-  <a href="index.html" class="topbar-logo">BLOXY<span>FLIX</span></a>
-  <span class="topbar-cba-badge">
-    <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zm-8-2l5-4-5-4v8z"/></svg>
-    Community Archive
+  <a href="index.html" class="topbar-logo">BLOXY<em>FLIX</em></a>
+  <span class="topbar-badge">
+    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zm-8-2l5-4-5-4v8z"/></svg>
+    CBA
   </span>
   <span class="topbar-spacer"></span>
-  <a id="topbarYTLink" href="#" target="_blank" rel="noopener"
-     style="display:none;align-items:center;gap:.4rem;padding:.4rem .85rem;border-radius:99px;background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.3);color:#ff4444;font-size:.75rem;font-weight:700;text-decoration:none;transition:all .2s;"
-     onmouseover="this.style.background='rgba(255,0,0,.18)'" onmouseout="this.style.background='rgba(255,0,0,.1)'">
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
-    Watch on YouTube
+  <a id="topbarYTLink" class="topbar-yt" href="#" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
+    YouTube
   </a>
 </header>
 
-<!-- ══════════════════════════════════════
-     MAIN LAYOUT
-══════════════════════════════════════ -->
 <div class="layout">
-
-  <!-- ── PLAYER COLUMN ── -->
   <div class="player-col">
 
-    <!-- Bilibili-style Player -->
-    <div class="bili-player-wrap">
-      <div class="bili-stripe"></div>
-      <div id="plyr-container">
-        <!-- Loading -->
-        <div id="loadingState">
-          <div class="load-spinner"></div>
-          <span style="font-size:.82rem;color:var(--text2);">Loading archive…</span>
+    <!-- Player -->
+    <div class="player-wrap">
+      <div class="player-stripe"></div>
+      <div class="player-ratio">
+        <div id="plyr-container">
+          <div class="danmu-layer" id="danmuLayer"></div>
+          <div id="loadingState"><div class="load-ring"></div><div class="load-text">Loading archive…</div></div>
+          <div id="errorState">
+            <div class="error-ico"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+            <h3>Unable to Load Archive</h3>
+            <p>The original YouTube source may be unavailable or region-restricted.</p>
+            <a id="errorYTLink" href="#" target="_blank" rel="noopener" class="yt-pill" style="margin-top:.5rem;">
+              <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
+              Try on YouTube
+            </a>
+          </div>
+          <div id="playerMount"></div>
         </div>
-        <!-- Error -->
-        <div id="errorState">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-          <h3>Unable to Load Video</h3>
-          <p>This community archive video could not be loaded. The original YouTube source may be unavailable or region-restricted.</p>
-          <a id="errorYTLink" href="#" target="_blank" rel="noopener" class="yt-link-btn" style="margin-top:.75rem;">
-            <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
-            Watch on YouTube
-          </a>
-        </div>
-        <!-- Plyr will be injected here -->
-        <div id="playerMount"></div>
       </div>
     </div>
 
-    <!-- Video Meta -->
-    <div class="video-meta-block">
-      <div class="video-title-line">
-        <div>
-          <div class="video-title" id="videoTitle">Loading…</div>
-          <div class="video-title-kr" id="videoTitleKr"></div>
-        </div>
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-list">
+        <button class="tab-btn active" onclick="switchTab('about',this)">About</button>
+        <button class="tab-btn" onclick="switchTab('comments',this)">Comments</button>
       </div>
-      <div class="video-stats-row">
-        <div class="video-stat">
-          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-          <span id="videoViews">—</span>
-        </div>
-        <div class="video-stat">
-          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-          <span id="videoDuration">—</span>
-        </div>
-        <div class="video-stat">
-          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
-          <span id="videoYear">—</span>
-        </div>
-      </div>
-      <div class="tags-row">
-        <span class="tag tag-cba">CBA</span>
-        <span class="tag tag-yt">YouTube Source</span>
-        <span class="tag tag-community">Community Archive</span>
-        <span class="tag tag-cat" id="videoTypeTag"></span>
+      <div class="danmu-bar">
+        <input class="danmu-input" id="danmuInput" placeholder="Send danmu…" maxlength="60" onkeydown="if(event.key==='Enter')sendDanmu()">
+        <button class="danmu-send" onclick="sendDanmu()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
       </div>
     </div>
 
-    <!-- Channel Row -->
-    <div class="channel-row">
-      <div class="channel-avatar" id="channelAvatar">CBA</div>
-      <div class="channel-info-text">
-        <div class="channel-name" id="channelName">Community Archive</div>
-        <div class="channel-sub">BloxyFlix Community Based Archive</div>
-      </div>
-      <div class="channel-actions">
-        <a id="channelYTBtn" href="#" target="_blank" rel="noopener" class="btn-outline btn-outline-accent" style="text-decoration:none;">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
-          Source
-        </a>
-      </div>
-    </div>
+    <!-- Tab Panels -->
+    <div class="tab-panels">
 
-    <!-- Description -->
-    <div class="desc-block" id="descBlock" style="display:none;">
-      <p class="desc-text" id="descText"></p>
-      <button class="desc-toggle" id="descToggleBtn" onclick="toggleDesc()">Show more ▼</button>
-    </div>
+      <!-- About -->
+      <div class="tab-panel active" id="panel-about">
+        <div class="about-content">
 
-    <!-- Original Video Notice -->
-    <div class="original-notice">
-      <div class="original-notice-head">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-        <span class="original-notice-title">About This Community Archive</span>
-      </div>
-      <p class="original-notice-body">
-        This video is an archived copy sourced from a community YouTube channel and is presented here solely for educational, historical, and research purposes within the BloxyFlix archive. The original recording remains the intellectual property of its respective creators and channel operators. BloxyFlix does not claim ownership of this content.
-      </p>
-      <a id="noticeYTLink" href="#" target="_blank" rel="noopener" class="yt-link-btn">
-        <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
-        View Original on YouTube
-      </a>
-    </div>
-
-    <!-- ═══ COMMENT SECTION ═══ -->
-    <div class="comment-section">
-      <div class="comment-section-head">
-        <div class="comment-section-title">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
-          Comments
-          <span>— Original YouTube Video</span>
-        </div>
-      </div>
-
-      <!-- Redirect Card -->
-      <div class="comment-redirect">
-        <div class="comment-redirect-stripe"></div>
-        <div class="comment-redirect-body">
-          <div class="comment-redirect-icon">
-            <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          <div class="vid-title-block">
+            <div class="vid-title-row">
+              <div style="flex:1;min-width:0;">
+                <h1 class="vid-title" id="videoTitle">Loading…</h1>
+                <p class="vid-title-kr" id="videoTitleKr"></p>
+              </div>
+              <button class="collapse-btn" id="collapseBtn" onclick="toggleCollapse()">
+                <svg viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+              </button>
+            </div>
+            <div class="vid-stats-row" id="statsRow">
+              <div class="vid-stat">
+                <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                <span id="videoViews">—</span>
+              </div>
+              <div class="stat-dot"></div>
+              <div class="vid-stat">
+                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm.01 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                <span id="videoDuration">—</span>
+              </div>
+              <div class="stat-dot"></div>
+              <div class="vid-stat" id="videoDateEl">—</div>
+              <div class="watching-pill">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>
+                <span>1 watching</span>
+              </div>
+            </div>
           </div>
 
-          <div class="comment-redirect-heading">Comments Are Available on YouTube</div>
+          <!-- Actions -->
+          <div class="action-row" id="actionRow">
+            <button class="action-btn" id="likeBtn" onclick="toggleAction('like')">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+              </div>
+              <span class="action-count" id="likeCount">0</span>
+            </button>
+            <button class="action-btn" id="dislikeBtn" onclick="toggleAction('dislike')">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+              </div>
+              <span class="action-count">Dislike</span>
+            </button>
+            <button class="action-btn" id="favBtn" onclick="toggleAction('fav')">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+              <span class="action-count" id="favCount">0</span>
+            </button>
+            <button class="action-btn" onclick="doShare()">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92S19.61 16.08 18 16.08z"/></svg>
+              </div>
+              <span class="action-count" id="shareCount">0</span>
+            </button>
+          </div>
 
-          <p class="comment-redirect-msg">
-            This content is an archived community recording hosted on BloxyFlix for educational and preservation purposes. As this is an archive viewer, comments are not hosted locally on this platform. To read, share, and engage with the discussion surrounding this video, please visit the original upload on YouTube. Your feedback and engagement directly support the community channels that contribute to this archive.
-          </p>
+          <!-- Channel -->
+          <div class="channel-row">
+            <div class="channel-avatar" id="channelAvatar">CBA</div>
+            <div class="channel-info">
+              <div class="channel-name" id="channelName">Community Archive</div>
+              <div class="channel-meta">BloxyFlix · Community Based Archive</div>
+            </div>
+            <button class="follow-btn" id="followBtn" onclick="toggleFollow()">
+              <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              Follow
+            </button>
+          </div>
 
-          <a id="commentYTLink" href="#" target="_blank" rel="noopener" class="comment-redirect-cta">
-            <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
-            Comment on the Original YouTube Video
-          </a>
+          <!-- Tags -->
+          <div class="tags-row">
+            <span class="tag tag-cba">CBA</span>
+            <span class="tag tag-yt">YouTube Source</span>
+            <span class="tag tag-comm">Community Archive</span>
+            <span class="tag tag-cat" id="videoTypeTag" style="display:none;"></span>
+          </div>
 
-          <span class="comment-redirect-note">
-            You will be redirected to YouTube.com — a third-party platform not operated by BloxyFlix.
-          </span>
+          <!-- Description -->
+          <div class="desc-block" id="descBlock" style="display:none;">
+            <p class="desc-text" id="descText"></p>
+            <button class="desc-toggle" id="descToggle" onclick="toggleDesc()">
+              <svg viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+              Show more
+            </button>
+          </div>
+
+          <!-- Archive Notice -->
+          <div class="archive-notice">
+            <div class="notice-head">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+              <span>About This Community Archive</span>
+            </div>
+            <p class="notice-text">This video is an archived copy sourced from a community YouTube channel, presented for educational, historical, and research purposes within the BloxyFlix archive. BloxyFlix does not claim ownership of this content.</p>
+            <a id="noticeYTLink" href="#" target="_blank" rel="noopener" class="yt-pill">
+              <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
+              View Original on YouTube
+            </a>
+          </div>
+
+          <!-- Mobile recs -->
+          <div id="mobileRecs" style="margin-top:1.1rem;display:none;">
+            <div class="section-head"><span class="section-title">More Community Archives</span><span class="section-count" id="mobileRecCount">—</span></div>
+            <div class="rec-list" id="mobileRecList"></div>
+          </div>
+
         </div>
       </div>
-    </div>
 
+      <!-- Comments -->
+      <div class="tab-panel" id="panel-comments">
+        <div class="comments-content">
+
+          <!-- Input box -->
+          <div class="comment-input-box">
+            <div class="comment-input-row">
+              <div class="comment-input-avatar" id="inputAvatar">YOU</div>
+              <div class="comment-input-fields">
+                <input class="comment-name-input" id="commentName" placeholder="Your name (or leave blank for Anonymous)" maxlength="32">
+                <textarea class="comment-text-input" id="commentText" placeholder="Share your thoughts about this archive…" maxlength="300" oninput="updateCharCount()"></textarea>
+                <div class="comment-submit-row">
+                  <span class="comment-char" id="charCount">0 / 300</span>
+                  <button class="comment-submit-btn" id="submitBtn" onclick="submitComment()">
+                    <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+                    Post
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comment list -->
+          <div class="comment-list-head">
+            <span class="comment-list-title">Comments</span>
+            <span class="comment-list-count" id="commentCount">—</span>
+          </div>
+          <div class="comment-list" id="commentList">
+            <div class="comment-loading"><div class="comment-spinner"></div> Loading…</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
   </div><!-- /player-col -->
 
-  <!-- ── RIGHT COLUMN ── -->
+  <!-- Sidebar -->
   <div class="side-col">
-
-    <!-- CBA Branding -->
-    <div class="cba-brand">
-      <div class="cba-brand-icon">
+    <div class="info-card">
+      <div class="info-card-head">
         <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zm-8-2l5-4-5-4v8z"/></svg>
+        <span>Archive Details</span>
       </div>
-      <div class="cba-brand-text">
-        <div class="cba-brand-name">Community Based Archives</div>
-        <div class="cba-brand-desc">Preserved community YouTube content for historical research &amp; cultural documentation.</div>
-      </div>
-    </div>
-
-    <!-- Archive Details -->
-    <div class="side-card">
-      <div class="side-card-head">
-        <div>
-          <div class="side-card-title">Archive Details</div>
-          <div class="side-card-sub">Video metadata</div>
-        </div>
-      </div>
-      <div class="side-card-body">
-        <div class="info-row">
-          <span class="info-label">Category</span>
-          <span class="info-val" id="infoCategory">—</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Year</span>
-          <span class="info-val" id="infoYear">—</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Duration</span>
-          <span class="info-val" id="infoDuration">—</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Source</span>
-          <span class="info-val">YouTube (Community)</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Archive Type</span>
-          <span class="info-val" style="color:var(--cba-gold);font-weight:700;">CBA</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Original Link</span>
-          <span class="info-val"><a id="infoYTLink" href="#" target="_blank" rel="noopener">View on YouTube ↗</a></span>
-        </div>
+      <div class="info-card-body">
+        <div class="info-row"><span class="info-label">Category</span><span class="info-val" id="infoCategory">—</span></div>
+        <div class="info-row"><span class="info-label">Year</span><span class="info-val" id="infoYear">—</span></div>
+        <div class="info-row"><span class="info-label">Duration</span><span class="info-val" id="infoDuration">—</span></div>
+        <div class="info-row"><span class="info-label">Source</span><span class="info-val">YouTube · Community</span></div>
+        <div class="info-row"><span class="info-label">Archive Type</span><span class="info-val info-val-pink">CBA</span></div>
+        <div class="info-row"><span class="info-label">Original</span><span class="info-val"><a id="infoYTLink" href="#" target="_blank" rel="noopener">YouTube ↗</a></span></div>
       </div>
     </div>
-
-    <!-- More from CBA -->
-    <div class="side-card">
-      <div class="side-card-head">
-        <div>
-          <div class="side-card-title">More Community Archives</div>
-          <div class="side-card-sub" id="upNextCount">—</div>
-        </div>
+    <div>
+      <div class="section-head">
+        <span class="section-title">More Community Archives</span>
+        <span class="section-count" id="sideRecCount">—</span>
       </div>
-      <div class="side-card-body" id="upNextList">
-        <div style="text-align:center;padding:1.5rem 0;color:var(--text2);font-size:.82rem;">Loading…</div>
+      <div class="rec-list" id="sideRecList">
+        <div style="text-align:center;padding:1.5rem;color:var(--text3);font-size:.78rem;font-family:var(--mono);">Loading…</div>
       </div>
     </div>
+  </div>
+</div>
 
-  </div><!-- /side-col -->
+<!-- Mobile bar -->
+<div class="mobile-bar">
+  <span class="mobile-bar-title" id="mobileBarTitle">Community Archive Video</span>
+  <a id="mobileBarYT" href="#" target="_blank" rel="noopener" class="mobile-bar-yt">
+    <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
+    YouTube
+  </a>
+</div>
 
-</div><!-- /layout -->
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<!-- Plyr JS -->
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
-<script>
-/* ═════════════════════════════════════════
-   COMMUNITY PLAYER — INIT
-═════════════════════════════════════════ */
-let vid = null;
-let ytId = '';
-let player = null;
-let slimVids = [];
+<!-- ═══ FIREBASE SDK ═══════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, getCountFromServer }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-// ─── Extract YouTube ID ─────────────────
-function extractYTId(url){
-  if(!url) return '';
-  // bare ID (11 chars, alphanumeric + - _)
-  if(/^[A-Za-z0-9_\-]{11}$/.test(url.trim())) return url.trim();
-  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_\-]{11})/);
-  return m ? m[1] : '';
-}
+/* ── 🔧 PASTE YOUR FIREBASE CONFIG HERE ──────────────────────────
+   Go to Firebase Console → your project → Project Settings → "Your apps"
+   → Web app → copy the firebaseConfig object values below           */
+const firebaseConfig = {
+  apiKey:            "AIzaSyAXXMMQH7lbAARD7KZthb9_jTbNmCKVEU8",
+  authDomain:        "bloxyflix.firebaseapp.com",
+  projectId:         "bloxyflix",
+  storageBucket:     "bloxyflix.firebasestorage.app",
+  messagingSenderId: "882442273352",
+  appId:             "1:882442273352:web:2eefad1b40975279c60e7d"
+};
+/* ─────────────────────────────────────────────────────────────── */
 
-// ─── Build YouTube URL ──────────────────
-function buildYTUrl(id){ return 'https://www.youtube.com/watch?v=' + id; }
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-// ─── Set all YouTube links ──────────────
-function setAllYTLinks(url){
-  ['topbarYTLink','channelYTBtn','noticeYTLink','commentYTLink','errorYTLink','infoYTLink'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.href = url;
+let currentVideoKey = null; // e.g. "cba-42"
+let unsubscribeComments = null;
+
+/* Called from initPlayer() once the video key is known */
+window.initComments = function(videoKey) {
+  currentVideoKey = videoKey;
+  loadComments(videoKey);
+};
+
+function loadComments(videoKey) {
+  const list  = document.getElementById('commentList');
+  const count = document.getElementById('commentCount');
+  if (!list) return;
+
+  list.innerHTML = '<div class="comment-loading"><div class="comment-spinner"></div> Loading…</div>';
+
+  if (unsubscribeComments) unsubscribeComments();
+
+  const q = query(
+    collection(db, 'comments'),
+    where('videoKey', '==', videoKey),
+    orderBy('createdAt', 'desc')
+  );
+
+  unsubscribeComments = onSnapshot(q, snap => {
+    const docs = snap.docs;
+    if (count) count.textContent = docs.length + ' comment' + (docs.length !== 1 ? 's' : '');
+    if (!docs.length) {
+      list.innerHTML = `<div class="comment-empty">
+        <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+        No comments yet — be the first!
+      </div>`;
+      return;
+    }
+    list.innerHTML = docs.map(d => buildCommentHTML(d.data())).join('');
+  }, err => {
+    console.error('Comment load error:', err);
+    list.innerHTML = '<div class="comment-empty">Failed to load comments.</div>';
   });
-  const tb = document.getElementById('topbarYTLink');
-  if(tb) tb.style.display = 'inline-flex';
 }
 
-// ─── Toast ──────────────────────────────
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2400);
+function buildCommentHTML(d) {
+  const name   = (d.name || 'Anonymous').slice(0, 32);
+  const initials = name.slice(0, 2).toUpperCase();
+  const color  = avatarColor(name);
+  const text   = escHtml(d.text || '');
+  const time   = d.createdAt ? timeAgo(d.createdAt.toDate()) : 'just now';
+  return `<div class="comment-item">
+    <div class="comment-av" style="background:${color}">${initials}</div>
+    <div class="comment-body">
+      <div class="comment-meta">
+        <span class="comment-author">${escHtml(name)}</span>
+        <span class="comment-time">${time}</span>
+      </div>
+      <div class="comment-text">${text}</div>
+    </div>
+  </div>`;
 }
 
-// ─── Back navigation ────────────────────
-function goBack(){
-  if(document.referrer && document.referrer.includes(location.hostname)){
-    history.back();
-  } else {
-    window.location.href = 'index.html';
+window.submitComment = async function() {
+  const nameEl = document.getElementById('commentName');
+  const textEl = document.getElementById('commentText');
+  const btn    = document.getElementById('submitBtn');
+  if (!textEl || !currentVideoKey) return;
+
+  const text = textEl.value.trim();
+  if (!text) { showToast('Write something first!'); return; }
+  if (text.length > 300) return;
+
+  const name = (nameEl ? nameEl.value.trim() : '') || 'Anonymous';
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="comment-spinner" style="border-top-color:#fff;width:14px;height:14px;border-width:2px;"></div>';
+
+  try {
+    await addDoc(collection(db, 'comments'), {
+      videoKey: currentVideoKey,
+      name: name.slice(0, 32),
+      text: text.slice(0, 300),
+      createdAt: serverTimestamp()
+    });
+    textEl.value = '';
+    if (nameEl) nameEl.value = '';
+    window.updateCharCount();
+    showToast('💬 Comment posted!');
+  } catch (e) {
+    console.error('Submit error:', e);
+    showToast('Failed to post. Try again.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg> Post';
+  }
+};
+
+window.updateCharCount = function() {
+  const el  = document.getElementById('commentText');
+  const cnt = document.getElementById('charCount');
+  if (el && cnt) cnt.textContent = el.value.length + ' / 300';
+};
+
+/* ── helpers ───────────────────────────────────────────────────── */
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function timeAgo(date) {
+  const s = Math.floor((Date.now() - date) / 1000);
+  if (s < 60)   return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400)return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+const AVATAR_COLORS = ['#5b7bff','#a855f7','#0891b2','#059669','#d97706','#e03131','#FB7299'];
+function avatarColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+</script>
+
+<script>
+let vid=null,ytId='',player=null,slimVids=[];
+let isFollowing=false,isLiked=false,isDisliked=false,isFaved=false,metaCollapsed=false,descExpanded=false;
+let likeCount=0,favCount=0,shareCount=0;
+
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+function toggleCollapse(){
+  metaCollapsed=!metaCollapsed;
+  document.getElementById('collapseBtn').classList.toggle('collapsed',metaCollapsed);
+  document.getElementById('statsRow').style.display=metaCollapsed?'none':'';
+  document.getElementById('actionRow').style.display=metaCollapsed?'none':'';
+}
+
+function toggleAction(type){
+  if(type==='like'){
+    isLiked=!isLiked;
+    if(isLiked&&isDisliked){isDisliked=false;document.getElementById('dislikeBtn').classList.remove('active');}
+    likeCount+=isLiked?1:-1;
+    document.getElementById('likeBtn').classList.toggle('active',isLiked);
+    document.getElementById('likeCount').textContent=likeCount;
+    showToast(isLiked?'👍 Liked!':'Like removed');
+  }else if(type==='dislike'){
+    isDisliked=!isDisliked;
+    if(isDisliked&&isLiked){isLiked=false;document.getElementById('likeBtn').classList.remove('active');likeCount--;document.getElementById('likeCount').textContent=likeCount;}
+    document.getElementById('dislikeBtn').classList.toggle('active',isDisliked);
+    showToast(isDisliked?'👎 Disliked':'Dislike removed');
+  }else if(type==='fav'){
+    isFaved=!isFaved;
+    favCount+=isFaved?1:-1;
+    document.getElementById('favBtn').classList.toggle('active',isFaved);
+    document.getElementById('favCount').textContent=favCount;
+    showToast(isFaved?'⭐ Saved!':'Removed from favorites');
   }
 }
 
-// ─── Toggle description ─────────────────
-let descExpanded = false;
+function doShare(){
+  shareCount++;
+  document.getElementById('shareCount').textContent=shareCount;
+  navigator.clipboard.writeText(window.location.href).then(()=>showToast('🔗 Link copied!')).catch(()=>showToast('Share: '+window.location.href));
+}
+
+function toggleFollow(){
+  isFollowing=!isFollowing;
+  const btn=document.getElementById('followBtn');
+  btn.classList.toggle('following',isFollowing);
+  btn.innerHTML=isFollowing
+    ?`<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Following`
+    :`<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Follow`;
+  showToast(isFollowing?'✓ Following this channel!':'Unfollowed');
+}
+
 function toggleDesc(){
-  descExpanded = !descExpanded;
-  const t = document.getElementById('descText');
-  const btn = document.getElementById('descToggleBtn');
-  if(t) t.classList.toggle('expanded', descExpanded);
-  if(btn) btn.textContent = descExpanded ? 'Show less ▲' : 'Show more ▼';
+  descExpanded=!descExpanded;
+  document.getElementById('descText').classList.toggle('expanded',descExpanded);
+  const btn=document.getElementById('descToggle');
+  btn.classList.toggle('expanded',descExpanded);
+  btn.innerHTML=descExpanded
+    ?`<svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg> Show less`
+    :`<svg viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg> Show more`;
 }
 
-// ─── Get thumbnail ──────────────────────
-function getThumb(ytId){
-  if(ytId) return `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
-  return 'https://via.placeholder.com/90x52/131620/5a6280?text=CBA';
+const danmuPool=['Great archive! 📼','Classic film 🎬','This is history 🏛️','Amazing preservation','Thank you BloxyFlix! ❤️','CBA rocks','Rare find!','북한 영화 ✨','Incredible content'];
+function spawnDanmu(text,color){
+  const layer=document.getElementById('danmuLayer');
+  if(!layer)return;
+  layer.classList.add('active');
+  const el=document.createElement('div');
+  el.className='danmu-item';
+  el.textContent=text;
+  const dur=8+Math.random()*6;
+  el.style.cssText=`top:${8+Math.random()*75}%;color:${color||'#fff'};animation-duration:${dur}s;`;
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(),(dur+1)*1000);
+}
+function sendDanmu(){
+  const input=document.getElementById('danmuInput');
+  const text=input?input.value.trim():'';
+  if(!text)return;
+  spawnDanmu(text,'#FB7299');
+  input.value='';
+  showToast('Danmaku sent!');
+}
+function ambientDanmu(){
+  spawnDanmu(danmuPool[Math.floor(Math.random()*danmuPool.length)],null);
+  setTimeout(ambientDanmu,10000+Math.random()*15000);
+}
+setTimeout(ambientDanmu,6000);
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  if(!t)return;
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ─── Render Up Next ─────────────────────
-function renderUpNext(currentIdx){
-  const list = document.getElementById('upNextList');
-  const countEl = document.getElementById('upNextCount');
-  if(!list) return;
+function goBack(){
+  if(document.referrer&&document.referrer.includes(location.hostname))history.back();
+  else window.location.href='index.html';
+}
 
-  const cbaVids = slimVids.filter(v => v.c === 'cba' && v.idx !== currentIdx);
-  if(countEl) countEl.textContent = cbaVids.length + ' video' + (cbaVids.length!==1?'s':'') + ' archived';
+function getThumb(id){return id?`https://img.youtube.com/vi/${id}/mqdefault.jpg`:'https://via.placeholder.com/88x52/F4F5F7/9499A0?text=CBA';}
 
-  if(!cbaVids.length){
-    list.innerHTML = '<div style="text-align:center;padding:1.5rem 0;color:var(--text2);font-size:.82rem;">No other CBA videos.</div>';
-    return;
+function extractYTId(url){
+  if(!url)return'';
+  if(/^[A-Za-z0-9_\-]{11}$/.test(url.trim()))return url.trim();
+  const m=url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_\-]{11})/);
+  return m?m[1]:'';
+}
+function buildYTUrl(id){return'https://www.youtube.com/watch?v='+id;}
+
+function setAllYTLinks(url){
+  ['topbarYTLink','noticeYTLink','errorYTLink','infoYTLink','mobileBarYT'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.href=url;
+  });
+  const tb=document.getElementById('topbarYTLink');
+  if(tb)tb.style.display='inline-flex';
+}
+
+function buildRecCard(v){
+  const vYtId=extractYTId(v.u||'');
+  const thumb=getThumb(vYtId);
+  let pct=0;
+  try{pct=parseInt(localStorage.getItem('bf-progress-'+v.idx)||'0');}catch(e){}
+  const prog=pct>0?`<div class="rec-progress" style="display:block;"><div class="rec-progress-fill" style="width:${pct}%"></div></div>`:'';
+  return`<div class="rec-card" onclick="playNext(${v.idx})">
+    <div class="rec-thumb">
+      <img src="${thumb}" alt="${v.t}" loading="lazy" onerror="this.src='https://via.placeholder.com/88x52/F4F5F7/9499A0?text=CBA'">
+      <div class="rec-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <span class="rec-cba-badge">CBA</span>
+    </div>
+    <div class="rec-info">
+      <div class="rec-title">${v.t}</div>
+      <div class="rec-meta">${v.creator||'Community'} · ${v.y||''}</div>
+      <div class="rec-views"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/></svg><span style="font-size:.64rem;color:var(--text3);font-family:var(--mono);">${v.views||'—'}</span></div>
+      ${prog}
+    </div>
+  </div>`;
+}
+
+function renderRec(currentIdx){
+  const cbaVids=slimVids.filter(v=>v.c==='cba'&&v.idx!==currentIdx);
+  const countStr=cbaVids.length+' video'+(cbaVids.length!==1?'s':'');
+  const sideList=document.getElementById('sideRecList');
+  const sideCount=document.getElementById('sideRecCount');
+  if(sideCount)sideCount.textContent=countStr;
+  if(sideList){
+    if(!cbaVids.length){sideList.innerHTML='<div style="text-align:center;padding:1.5rem;color:var(--text3);font-size:.78rem;font-family:var(--mono);">No other CBA videos.</div>';}
+    else sideList.innerHTML=cbaVids.slice(0,10).map(buildRecCard).join('');
   }
-
-  list.innerHTML = cbaVids.slice(0,8).map(v=>{
-    const vYtId = extractYTId(v.u||'');
-    const thumb = getThumb(vYtId);
-    return `
-    <div class="up-next-item" onclick="playNext(${v.idx})">
-      <div class="up-next-thumb">
-        <img src="${thumb}" alt="${v.t}" loading="lazy" onerror="this.src='https://via.placeholder.com/90x52/131620/5a6280?text=CBA'">
-        <span class="up-next-cba">CBA</span>
-      </div>
-      <div class="up-next-info">
-        <div class="up-next-title">${v.t}</div>
-        <div class="up-next-meta">${v.creator||'Community'} · ${v.y||''}</div>
-      </div>
-    </div>`;
-  }).join('');
+  const mobileList=document.getElementById('mobileRecList');
+  const mobileCount=document.getElementById('mobileRecCount');
+  const mobileRecs=document.getElementById('mobileRecs');
+  if(mobileCount)mobileCount.textContent=countStr;
+  if(mobileList&&cbaVids.length){
+    mobileList.innerHTML=cbaVids.slice(0,6).map(buildRecCard).join('');
+    if(mobileRecs)mobileRecs.style.display='block';
+  }
 }
 
 function playNext(idx){
   try{
-    const slim = JSON.parse(sessionStorage.getItem('bf-player-slim')||'[]');
-    if(slim[idx]){
-      // Build a minimal vid object from slim
-      const v = slim[idx];
-      sessionStorage.setItem('bf-player-vid', JSON.stringify(v));
-      sessionStorage.setItem('bf-player-idx', String(idx));
-      window.location.reload();
-    }
-  }catch(e){
-    showToast('Unable to load video.');
-  }
+    const slim=JSON.parse(sessionStorage.getItem('bf-player-slim')||'[]');
+    if(slim[idx]){sessionStorage.setItem('bf-player-vid',JSON.stringify(slim[idx]));sessionStorage.setItem('bf-player-idx',String(idx));window.location.reload();}
+  }catch(e){showToast('Unable to load video.');}
 }
 
-// ─── Init Player ────────────────────────
 function initPlayer(){
   try{
-    const raw = sessionStorage.getItem('bf-player-vid');
-    const idx = parseInt(sessionStorage.getItem('bf-player-idx')||'-1');
-    const slimRaw = sessionStorage.getItem('bf-player-slim');
-    if(slimRaw) slimVids = JSON.parse(slimRaw);
+    const raw=sessionStorage.getItem('bf-player-vid');
+    const idx=parseInt(sessionStorage.getItem('bf-player-idx')||'-1');
+    const slimRaw=sessionStorage.getItem('bf-player-slim');
+    if(slimRaw)slimVids=JSON.parse(slimRaw);
+    if(!raw)throw new Error('No video data');
+    vid=JSON.parse(raw);
+    ytId=extractYTId(vid.u||'');
+    if(!ytId)throw new Error('No YouTube ID');
 
-    if(!raw) throw new Error('No video data');
-    vid = JSON.parse(raw);
-    ytId = extractYTId(vid.u || '');
+    document.title=(vid.t||'Community Archive')+' — BloxyFlix CBA';
+    const titleEl=document.getElementById('videoTitle');
+    if(titleEl)titleEl.textContent=vid.t||'Community Archive Video';
+    const titleKrEl=document.getElementById('videoTitleKr');
+    if(titleKrEl){titleKrEl.textContent=vid.tk||'';titleKrEl.style.display=vid.tk?'block':'none';}
 
-    if(!ytId) throw new Error('No YouTube ID found');
+    const mbt=document.getElementById('mobileBarTitle');
+    if(mbt)mbt.textContent=vid.t||'Community Archive Video';
 
-    // ── Populate UI ─────────────────────
-    document.title = (vid.t||'Community Archive') + ' — BloxyFlix CBA';
+    const views=document.getElementById('videoViews');
+    if(views)views.textContent=(vid.views||'0')+' views';
+    const dur=document.getElementById('videoDuration');
+    if(dur)dur.textContent=vid.duration||'—';
+    const dateEl=document.getElementById('videoDateEl');
+    if(dateEl){const d=new Date();dateEl.textContent=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 
-    // Title
-    const titleEl = document.getElementById('videoTitle');
-    const titleKrEl = document.getElementById('videoTitleKr');
-    if(titleEl) titleEl.textContent = vid.t || 'Community Archive Video';
-    if(titleKrEl){ titleKrEl.textContent = vid.tk || ''; titleKrEl.style.display = vid.tk?'block':'none';}
+    const typeTag=document.getElementById('videoTypeTag');
+    if(typeTag&&vid.ty){typeTag.textContent=vid.ty;typeTag.style.display='inline-flex';}
+    else if(typeTag)typeTag.style.display='none';
 
-    // Stats
-    document.getElementById('videoViews').textContent = (vid.views||'0') + ' views';
-    document.getElementById('videoDuration').textContent = vid.duration || 'Unknown';
-    document.getElementById('videoYear').textContent = vid.y || 'Unknown';
+    const creator=vid.creator||'Community';
+    const avatar=document.getElementById('channelAvatar');
+    if(avatar)avatar.textContent=creator.slice(0,3).toUpperCase();
+    const nameEl=document.getElementById('channelName');
+    if(nameEl)nameEl.textContent=creator;
 
-    // Type tag
-    const typeTag = document.getElementById('videoTypeTag');
-    if(typeTag && vid.ty){ typeTag.textContent = vid.ty; typeTag.style.display='inline-flex'; } else if(typeTag){ typeTag.style.display='none'; }
+    if(vid.d){document.getElementById('descBlock').style.display='block';document.getElementById('descText').textContent=vid.d;}
 
-    // Channel
-    const creator = vid.creator || 'Community';
-    const avatar = document.getElementById('channelAvatar');
-    if(avatar) avatar.textContent = creator.slice(0,3).toUpperCase();
-    const channelNameEl = document.getElementById('channelName');
-    if(channelNameEl) channelNameEl.textContent = creator;
+    document.getElementById('infoCategory').textContent='Community Based Archives (CBA)';
+    document.getElementById('infoYear').textContent=vid.y||'—';
+    document.getElementById('infoDuration').textContent=vid.duration||'—';
 
-    // Description
-    if(vid.d){
-      document.getElementById('descBlock').style.display='block';
-      document.getElementById('descText').textContent = vid.d;
+    const cbaTotal=slimVids.filter(v=>v.c==='cba').length;
+    const seriesCountEl=document.getElementById('seriesCount');
+    if(seriesCountEl)seriesCountEl.textContent=cbaTotal>0?cbaTotal+' videos':'—';
+
+    const ytUrl=buildYTUrl(ytId);
+    setAllYTLinks(ytUrl);
+    renderRec(idx);
+
+    /* init Firebase comments keyed by video index */
+    if (typeof window.initComments === 'function') {
+      window.initComments('cba-' + (idx >= 0 ? idx : ytId));
     }
 
-    // Archive details
-    document.getElementById('infoCategory').textContent = 'Community Based Archives (CBA)';
-    document.getElementById('infoYear').textContent = vid.y || '—';
-    document.getElementById('infoDuration').textContent = vid.duration || '—';
-
-    // YouTube links
-    const ytUrl = buildYTUrl(ytId);
-    setAllYTLinks(ytUrl);
-
-    // Up next
-    renderUpNext(idx);
-
-    // ── Initialize Plyr ─────────────────
-    const mount = document.getElementById('playerMount');
-    if(!mount) throw new Error('Player mount missing');
-
-    // Create YouTube embed element for Plyr
-    const div = document.createElement('div');
-    div.id = 'player';
-    div.setAttribute('data-plyr-provider', 'youtube');
-    div.setAttribute('data-plyr-embed-id', ytId);
+    const mount=document.getElementById('playerMount');
+    if(!mount)throw new Error('No mount');
+    const div=document.createElement('div');
+    div.id='player';
+    div.setAttribute('data-plyr-provider','youtube');
+    div.setAttribute('data-plyr-embed-id',ytId);
     mount.appendChild(div);
+    document.getElementById('loadingState').style.display='none';
 
-    // Hide loading
-    document.getElementById('loadingState').style.display = 'none';
-
-    // Init Plyr
-    player = new Plyr('#player', {
-      provider: 'youtube',
-      youtube: {
-        noCookie: false,
-        rel: 0,
-        showinfo: 0,
-        iv_load_policy: 3,
-        modestbranding: 1,
-        playsinline: 1,
-      },
-      controls: [
-        'play-large','play','rewind','fast-forward',
-        'progress','current-time','duration',
-        'mute','volume','captions','settings','pip','airplay','fullscreen'
-      ],
-      ratio: '16:9',
-      storage: { enabled: true, key: 'bf-cba-plyr' },
+    player=new Plyr('#player',{
+      provider:'youtube',
+      youtube:{noCookie:false,rel:0,showinfo:0,iv_load_policy:3,modestbranding:1,playsinline:1},
+      controls:['play-large','play','rewind','fast-forward','progress','current-time','duration','mute','volume','captions','settings','pip','airplay','fullscreen'],
+      ratio:'16:9',
+      storage:{enabled:true,key:'bf-cba-plyr'},
     });
-
-    player.on('error', ()=>{
-      document.getElementById('errorState').style.display = 'flex';
+    player.on('error',()=>{document.getElementById('errorState').style.display='flex';});
+    player.on('timeupdate',()=>{
+      try{const pct=Math.round((player.currentTime/player.duration)*100);if(!isNaN(pct)&&pct>0)localStorage.setItem('bf-progress-'+idx,pct);}catch(e){}
     });
-
-    // Save progress (simulated)
-    player.on('timeupdate', ()=>{
-      try{
-        const pct = Math.round((player.currentTime/player.duration)*100);
-        if(!isNaN(pct) && pct > 0){
-          const key = 'bf-progress-' + idx;
-          localStorage.setItem(key, pct);
-        }
-      }catch(e){}
-    });
-
-  } catch(err){
-    console.error('CBA Player init error:', err);
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('errorState').style.display = 'flex';
-
-    // Fallback YouTube links
-    const titleEl = document.getElementById('videoTitle');
-    if(titleEl) titleEl.textContent = 'Community Archive Video';
+  }catch(err){
+    console.error('CBA Player init error:',err);
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('errorState').style.display='flex';
+    const t=document.getElementById('videoTitle');
+    if(t)t.textContent='Community Archive Video';
   }
 }
 
-// ─── Start ──────────────────────────────
-document.addEventListener('DOMContentLoaded', initPlayer);
+document.addEventListener('DOMContentLoaded',initPlayer);
 </script>
 </body>
 </html>
