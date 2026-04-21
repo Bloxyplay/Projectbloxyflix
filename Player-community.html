@@ -899,6 +899,24 @@ function avatarColor(name) {
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
+
+/* ── Self-init: load comments as soon as module is ready ────────
+   Modules are deferred, so initPlayer() (regular script) may run
+   before window.initComments exists. We read sessionStorage here
+   directly so comments always initialise regardless of timing.    */
+(function moduleAutoInit() {
+  const idx = parseInt(sessionStorage.getItem('bf-player-idx') || '-1');
+  if (idx < 0) return;
+  const videoKey = 'cba-' + idx;
+  currentVideoKey = videoKey;
+  // Wait for DOM to be ready (module scripts are deferred so DOM is
+  // guaranteed ready, but loadComments needs the list element)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => loadComments(videoKey));
+  } else {
+    loadComments(videoKey);
+  }
+})();
 </script>
 
 <script>

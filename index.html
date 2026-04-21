@@ -8327,7 +8327,7 @@ function playVideo(idx){
   sessionStorage.setItem('bf-player-vid', JSON.stringify(vid));
   sessionStorage.setItem('bf-player-idx', String(idx));
   // Store slim vids list (no thumbs) for Up Next
-  const slim = vids.map((v,i)=>({t:v.t,tk:v.tk,c:v.c,ty:v.ty,views:v.views,duration:v.duration,u:v.u,y:v.y,isM3U8:v.isM3U8,isYouTube:v.isYouTube,isPinned:v.isPinned,isGoogleDrive:v.isGoogleDrive,idx:i}));
+  const slim = vids.map((v,i)=>({t:v.t,tk:v.tk,c:v.c,ty:v.ty,views:v.views,duration:v.duration,u:v.u,y:v.y,isM3U8:v.isM3U8,isYouTube:v.isYouTube,isPinned:v.isPinned,isGoogleDrive:v.isGoogleDrive,isEmbed:v.isEmbed||false,isExternal:v.isExternal||false,gdriveFileId:v.gdriveFileId||'',d:v.d||'',creator:v.creator||'',idx:i}));
   sessionStorage.setItem('bf-player-slim', JSON.stringify(slim));
   // Route CBA videos to the community Bilibili-style player
   if(vids[idx].c === 'cba'){
