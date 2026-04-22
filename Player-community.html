@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>BloxyFlix — Community Archive Player</title>
+<title>Juche TV— Community Archive Player</title>
 
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 /* ═══════════════════════════════════════════════════════
-   BLOXYFLIX CBA — BILIBILI STYLE BUT BETTER
+   Juche TV  CBA — BILIBILI STYLE BUT BETTER
 ═══════════════════════════════════════════════════════ */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
@@ -126,19 +126,7 @@ html, body {
 #plyr-container { position: absolute; inset: 0; width: 100%; height: 100%; }
 #plyr-container iframe, #plyr-container .plyr { width: 100% !important; height: 100% !important; }
 
-/* Danmaku */
-.danmu-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; display: none; }
-.danmu-layer.active { display: block; }
-.danmu-item {
-  position: absolute; font-size: .82rem; font-weight: 600; color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,.7), 0 0 8px rgba(0,0,0,.5);
-  white-space: nowrap; right: -100%;
-  animation: danmuScroll linear forwards;
-}
-@keyframes danmuScroll {
-  from { right: -100%; }
-  to   { right: 110%; }
-}
+
 
 /* ── TAB BAR ──────────────────────────────── */
 .tab-bar {
@@ -170,23 +158,13 @@ html, body {
 }
 .tab-btn.active { color: var(--pink); }
 .tab-btn.active::after { width: 60%; }
-.danmu-bar { display: flex; align-items: center; gap: .5rem; padding: .5rem .75rem; flex-shrink: 0; }
-.danmu-input {
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 99px; padding: .4rem 1rem;
-  font-family: var(--font); font-size: .78rem; color: var(--text2);
-  outline: none; width: 130px; transition: border-color .2s, width .25s;
-}
-.danmu-input:focus { border-color: var(--pink); width: 155px; }
-.danmu-send {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: var(--pink-light); border: 1px solid rgba(251,114,153,.2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: background .15s, transform .15s; flex-shrink: 0;
-}
-.danmu-send:hover { background: var(--pink); }
-.danmu-send:hover svg { fill: #fff; }
-.danmu-send svg { width: 15px; height: 15px; fill: var(--pink); transition: fill .15s; }
+
+
+
+
+
+
+
 
 /* ── TAB PANELS ───────────────────────────── */
 .tab-panels { background: var(--card); }
@@ -506,7 +484,7 @@ html, body {
   .vid-title { font-size:.97rem; }
   .action-icon { width:42px; height:42px; }
   .action-icon svg { width:18px; height:18px; }
-  .danmu-input { width:100px; }
+  
 }
 </style>
 </head>
@@ -537,7 +515,6 @@ html, body {
       <div class="player-stripe"></div>
       <div class="player-ratio">
         <div id="plyr-container">
-          <div class="danmu-layer" id="danmuLayer"></div>
           <div id="loadingState"><div class="load-ring"></div><div class="load-text">Loading archive…</div></div>
           <div id="errorState">
             <div class="error-ico"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
@@ -559,13 +536,7 @@ html, body {
         <button class="tab-btn active" onclick="switchTab('about',this)">About</button>
         <button class="tab-btn" onclick="switchTab('comments',this)">Comments</button>
       </div>
-      <div class="danmu-bar">
-        <input class="danmu-input" id="danmuInput" placeholder="Send danmu…" maxlength="60" onkeydown="if(event.key==='Enter')sendDanmu()">
-        <button class="danmu-send" onclick="sendDanmu()">
-          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
-        </button>
       </div>
-    </div>
 
     <!-- Tab Panels -->
     <div class="tab-panels">
@@ -636,7 +607,7 @@ html, body {
             <div class="channel-avatar" id="channelAvatar">CBA</div>
             <div class="channel-info">
               <div class="channel-name" id="channelName">Community Archive</div>
-              <div class="channel-meta">BloxyFlix · Community Based Archive</div>
+              <div class="channel-meta">Juche TV · Community Based Archive</div>
             </div>
             <button class="follow-btn" id="followBtn" onclick="toggleFollow()">
               <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -667,7 +638,7 @@ html, body {
               <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
               <span>About This Community Archive</span>
             </div>
-            <p class="notice-text">This video is an archived copy sourced from a community YouTube channel, presented for educational, historical, and research purposes within the BloxyFlix archive. BloxyFlix does not claim ownership of this content.</p>
+            <p class="notice-text">This video is an archived copy sourced from a community YouTube channel, presented for educational, historical, and research purposes within the Juche TV archive. Juche TV does not claim ownership of this content.</p>
             <a id="noticeYTLink" href="#" target="_blank" rel="noopener" class="yt-pill">
               <svg viewBox="0 0 24 24"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73C19.98 18 18.4 18.07 16 18.1c-2.4.03-4.2.03-5.33.03L9 18.1c-4.19-.03-6.8-.19-7.83-.47-.9-.25-1.48-.83-1.73-1.73C-.13 15.8 0 14.19 0 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73C3.2 5 6.4 5 12 5s8.8 0 9.83.28c.9.25 1.48.83 1.73 1.73z"/></svg>
               View Original on YouTube
@@ -692,7 +663,12 @@ html, body {
             <div class="comment-input-row">
               <div class="comment-input-avatar" id="inputAvatar">YOU</div>
               <div class="comment-input-fields">
-                <input class="comment-name-input" id="commentName" placeholder="Your name (or leave blank for Anonymous)" maxlength="32">
+                <input id="commentName" type="hidden">
+                <div style="display:flex;align-items:center;gap:.42rem;margin-bottom:.38rem;">
+                  <span style="font-size:.71rem;color:var(--text3);font-family:var(--mono);">Commenting as:</span>
+                  <span id="cmtUsernameDisplay" style="font-size:.74rem;font-weight:700;color:var(--text);font-family:var(--mono);">(not set)</span>
+                  <button onclick="window.openUsernameModal?.()" style="font-size:.67rem;color:var(--pink);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0;text-decoration:underline;">Change</button>
+                </div>
                 <textarea class="comment-text-input" id="commentText" placeholder="Share your thoughts about this archive…" maxlength="300" oninput="updateCharCount()"></textarea>
                 <div class="comment-submit-row">
                   <span class="comment-char" id="charCount">0 / 300</span>
@@ -985,33 +961,6 @@ function toggleDesc(){
     :`<svg viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg> Show more`;
 }
 
-const danmuPool=['Great archive! 📼','Classic film 🎬','This is history 🏛️','Amazing preservation','Thank you BloxyFlix! ❤️','CBA rocks','Rare find!','북한 영화 ✨','Incredible content'];
-function spawnDanmu(text,color){
-  const layer=document.getElementById('danmuLayer');
-  if(!layer)return;
-  layer.classList.add('active');
-  const el=document.createElement('div');
-  el.className='danmu-item';
-  el.textContent=text;
-  const dur=8+Math.random()*6;
-  el.style.cssText=`top:${8+Math.random()*75}%;color:${color||'#fff'};animation-duration:${dur}s;`;
-  layer.appendChild(el);
-  setTimeout(()=>el.remove(),(dur+1)*1000);
-}
-function sendDanmu(){
-  const input=document.getElementById('danmuInput');
-  const text=input?input.value.trim():'';
-  if(!text)return;
-  spawnDanmu(text,'#FB7299');
-  input.value='';
-  showToast('Danmaku sent!');
-}
-function ambientDanmu(){
-  spawnDanmu(danmuPool[Math.floor(Math.random()*danmuPool.length)],null);
-  setTimeout(ambientDanmu,10000+Math.random()*15000);
-}
-setTimeout(ambientDanmu,6000);
-
 function showToast(msg){
   const t=document.getElementById('toast');
   if(!t)return;
@@ -1103,7 +1052,7 @@ function initPlayer(){
     ytId=extractYTId(vid.u||'');
     if(!ytId)throw new Error('No YouTube ID');
 
-    document.title=(vid.t||'Community Archive')+' — BloxyFlix CBA';
+    document.title=(vid.t||'Community Archive')+' — Juche TV CBA';
     const titleEl=document.getElementById('videoTitle');
     if(titleEl)titleEl.textContent=vid.t||'Community Archive Video';
     const titleKrEl=document.getElementById('videoTitleKr');
@@ -1179,5 +1128,140 @@ function initPlayer(){
 
 document.addEventListener('DOMContentLoaded',initPlayer);
 </script>
+
+<!-- ═══ USERNAME SETUP MODAL ═══ -->
+<div id="usernameModal" style="display:none;position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:1.2rem;">
+  <div style="background:#fff;border:1px solid rgba(224,49,49,.15);border-radius:20px;width:100%;max-width:400px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.18);">
+    <div style="text-align:center;margin-bottom:1.2rem;">
+      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#E03131,#FB7299);display:flex;align-items:center;justify-content:center;margin:0 auto .8rem;font-size:1.35rem;box-shadow:0 4px 18px rgba(224,49,49,.22);">💬</div>
+      <h2 style="font-size:1rem;font-weight:800;color:#18191C;margin-bottom:.35rem;">Set Your Username</h2>
+      <p style="font-size:.8rem;color:#61666D;line-height:1.6;">Choose a unique username. It will appear on all your comments.</p>
+    </div>
+    <div id="unameError" style="display:none;background:rgba(224,49,49,.07);border:1px solid rgba(224,49,49,.22);border-radius:10px;padding:.55rem .85rem;margin-bottom:.75rem;font-size:.8rem;color:#B91C1C;font-weight:700;"></div>
+    <input id="unameInput" type="text" maxlength="32" placeholder="e.g. KoryoWatcher42"
+      style="width:100%;background:#F4F5F7;border:1px solid #E3E5E7;border-radius:10px;padding:.62rem .88rem;color:#18191C;font-size:.86rem;outline:none;font-family:inherit;margin-bottom:.7rem;transition:border-color .18s;box-sizing:border-box;"
+      onfocus="this.style.borderColor='#FB7299'" onblur="this.style.borderColor='#E3E5E7'"
+      oninput="document.getElementById('unameError').style.display='none'"
+      onkeydown="if(event.key==='Enter')confirmUsername()">
+    <div style="display:flex;gap:.55rem;">
+      <button onclick="document.getElementById('usernameModal').style.display='none'" style="flex:1;padding:.62rem;background:#F4F5F7;border:1px solid #E3E5E7;border-radius:10px;color:#61666D;font-size:.83rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='#E3E5E7'" onmouseout="this.style.background='#F4F5F7'">Cancel</button>
+      <button id="unameConfirmBtn" onclick="confirmUsername()" style="flex:2;padding:.62rem;background:linear-gradient(135deg,#E03131,#FB7299);border:none;border-radius:10px;color:#fff;font-size:.83rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 12px rgba(224,49,49,.22);transition:opacity .15s;" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Set Username</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ USERNAME MODULE (uses existing Firebase app) ═══ -->
+<script type="module">
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+// Re-use same config already in the page
+const firebaseConfig = {
+  apiKey:            "AIzaSyAXXMMQH7lbAARD7KZthb9_jTbNmCKVEU8",
+  authDomain:        "bloxyflix.firebaseapp.com",
+  projectId:         "bloxyflix",
+  storageBucket:     "bloxyflix.firebasestorage.app",
+  messagingSenderId: "882442273352",
+  appId:             "1:882442273352:web:2eefad1b40975279c60e7d"
+};
+
+// Use a separate named instance to avoid duplicate-app error
+const _uApp = getApps().find(a => a.name === 'un-checker') ||
+              initializeApp(firebaseConfig, 'un-checker');
+const _uDb  = getFirestore(_uApp);
+const UN_KEY = 'juchetv-username';
+
+function getSaved() { return localStorage.getItem(UN_KEY) || ''; }
+
+function updateUI() {
+  const un = getSaved();
+  // Update the avatar initials
+  const av = document.getElementById('inputAvatar');
+  if (av) av.textContent = un ? un.slice(0, 3).toUpperCase() : '?';
+  // Show "commenting as" line
+  const disp = document.getElementById('cmtUsernameDisplay');
+  if (disp) disp.textContent = un || '(not set — click Change)';
+  // Pre-fill hidden name field used by submitComment
+  const nameEl = document.getElementById('commentName');
+  if (nameEl && un) nameEl.value = un;
+}
+
+window.openUsernameModal = function () {
+  const modal = document.getElementById('usernameModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  const inp = document.getElementById('unameInput');
+  if (inp) { inp.value = getSaved(); setTimeout(() => inp.focus(), 60); }
+};
+
+window.confirmUsername = async function () {
+  const inp  = document.getElementById('unameInput');
+  const btn  = document.getElementById('unameConfirmBtn');
+  const name = inp ? inp.value.trim() : '';
+  if (!name)          { showErr('Please enter a username.'); return; }
+  if (name.length < 3){ showErr('Username must be at least 3 characters.'); return; }
+  if (!/^[a-zA-Z0-9_\-. ]+$/.test(name)) { showErr('Only letters, numbers, spaces, _, -, . allowed.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Checking…';
+  try {
+    const key      = name.toLowerCase().replace(/\s+/g, '_');
+    const existing = getSaved();
+    // If same username — just close
+    if (existing && existing.toLowerCase().replace(/\s+/g, '_') === key) {
+      closeModal(); updateUI(); return;
+    }
+    const snap = await getDoc(doc(_uDb, 'usernames', key));
+    if (snap.exists()) {
+      showErr('Error: The following username got taken!');
+    } else {
+      await setDoc(doc(_uDb, 'usernames', key),
+        { displayName: name, createdAt: serverTimestamp() });
+      localStorage.setItem(UN_KEY, name);
+      closeModal(); updateUI();
+    }
+  } catch (err) {
+    showErr('Error: ' + (err.message || String(err)));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Set Username';
+  }
+};
+
+function showErr(msg) {
+  const el = document.getElementById('unameError');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function closeModal() {
+  const m = document.getElementById('usernameModal');
+  if (m) m.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  updateUI();
+
+  // When switching to the Comments tab without a username → show modal
+  const _origSwitch = window.switchTab;
+  window.switchTab = function (tab, btn) {
+    if (_origSwitch) _origSwitch(tab, btn);
+    if (tab === 'comments' && !getSaved()) {
+      setTimeout(() => window.openUsernameModal(), 150);
+    }
+  };
+
+  // Wrap the existing submitComment so it:
+  //   a) blocks posting without a username (shows modal instead)
+  //   b) auto-fills the name from localStorage
+  const _origSubmit = window.submitComment;
+  window.submitComment = async function () {
+    const un = getSaved();
+    if (!un) { window.openUsernameModal(); return; }
+    // Inject saved username into the hidden name field before calling original
+    const nameEl = document.getElementById('commentName');
+    if (nameEl) nameEl.value = un;
+    if (_origSubmit) await _origSubmit();
+  };
+});
+</script>
+
 </body>
 </html>

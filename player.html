@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#030810">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>BloxyFlix Player</title>
+<title> Player</title>
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 <style>
 /* ════════════════════════════════════════
@@ -22,20 +22,20 @@
   --bg4:   #18181e;
   --sur:   rgba(16,16,19,0.98);
   --sur2:  rgba(20,20,26,0.98);
-  --b:     rgba(26,127,255,0.13);
-  --b2:    rgba(26,127,255,0.25);
-  --b3:    rgba(26,127,255,0.40);
-  --acc:   #1a7fff;
-  --acc2:  #3b9dff;
-  --acc3:  #7ab8ff;
-  --accg:  rgba(26,127,255,0.20);
-  --accg2: rgba(26,127,255,0.09);
+  --b:     rgba(220,38,38,0.13);
+  --b2:    rgba(220,38,38,0.25);
+  --b3:    rgba(220,38,38,0.40);
+  --acc:   #dc2626;
+  --acc2:  #f87171;
+  --acc3:  #fca5a5;
+  --accg:  rgba(220,38,38,0.20);
+  --accg2: rgba(220,38,38,0.09);
   --gold:  #c8a84b;
   --goldb: rgba(200,168,75,0.15);
   --t1:    #f2f2f4;
   --t2:    #8a8a9a;
   --t3:    #3a3a50;
-  --ok:    #1a7fff;
+  --ok:    #dc2626;
   --warn:  #ffb730;
   --err:   #ff4557;
   --r:     10px;
@@ -45,9 +45,9 @@
   --f:     'Noto Sans SC',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
   --ease:  cubic-bezier(0.25,0.46,0.45,0.94);
   --spring:cubic-bezier(0.34,1.56,0.64,1);
-  --sh:    0 4px 20px rgba(0,0,0,0.55),0 0 0 1px rgba(26,127,255,0.07);
-  --shl:   0 8px 40px rgba(0,0,0,0.75),0 0 0 1px rgba(26,127,255,0.10);
-  --shx:   0 16px 60px rgba(0,0,0,0.88),0 0 0 1px rgba(26,127,255,0.13);
+  --sh:    0 4px 20px rgba(0,0,0,0.55),0 0 0 1px rgba(220,38,38,0.07);
+  --shl:   0 8px 40px rgba(0,0,0,0.75),0 0 0 1px rgba(220,38,38,0.10);
+  --shx:   0 16px 60px rgba(0,0,0,0.88),0 0 0 1px rgba(220,38,38,0.13);
 }
 
 /* ════════ BASE ════════ */
@@ -56,7 +56,7 @@ body::before{
   content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
     radial-gradient(ellipse 70% 45% at 15% 0%,  rgba(13,100,220,0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 35% at 85% 10%,  rgba(26,127,255,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 35% at 85% 10%,  rgba(220,38,38,0.07) 0%, transparent 50%),
     radial-gradient(ellipse 40% 25% at 50% 100%,rgba(10,60,160,0.06) 0%, transparent 50%),
     #0b0b0e;
 }
@@ -74,7 +74,7 @@ body::before{
 @keyframes slideLeft{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
 @keyframes revealW{from{width:0;opacity:0}to{width:100%;opacity:1}}
 @keyframes glow{0%,100%{opacity:.4}50%{opacity:1}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(26,127,255,.5)}70%{box-shadow:0 0 0 8px rgba(26,127,255,0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.5)}70%{box-shadow:0 0 0 8px rgba(220,38,38,0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -87,15 +87,15 @@ body::before{
   position:sticky;top:0;z-index:200;
   display:flex;align-items:center;gap:.7rem;padding:.5rem 1.2rem;
   background:rgba(11,11,14,0.92);
-  border-bottom:1px solid rgba(26,127,255,0.10);
+  border-bottom:1px solid rgba(220,38,38,0.10);
   backdrop-filter:blur(32px) saturate(160%);
   -webkit-backdrop-filter:blur(32px) saturate(160%);
-  box-shadow:0 1px 0 rgba(26,127,255,0.08),0 4px 20px rgba(0,0,0,0.40);
+  box-shadow:0 1px 0 rgba(220,38,38,0.08),0 4px 20px rgba(0,0,0,0.40);
   animation:fadeDown .45s var(--ease) both;
 }
 .pnav::after{
   content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(26,127,255,.18),transparent);
+  background:linear-gradient(90deg,transparent,rgba(220,38,38,.18),transparent);
   pointer-events:none;
 }
 .pnav-back{
@@ -105,7 +105,7 @@ body::before{
   cursor:pointer;padding:.32rem .85rem;border-radius:var(--rp);
   transition:all .20s var(--spring);flex-shrink:0;
 }
-.pnav-back:hover{background:rgba(26,127,255,0.12);border-color:var(--b2);color:var(--acc2);transform:translateX(-2px) scale(1.02);}
+.pnav-back:hover{background:rgba(220,38,38,0.12);border-color:var(--b2);color:var(--acc2);transform:translateX(-2px) scale(1.02);}
 .pnav-back:active{transform:translateX(0) scale(.96);}
 .pnav-back svg{fill:currentColor;width:15px;height:15px;flex-shrink:0;}
 .pnav-brand{
@@ -114,9 +114,9 @@ body::before{
 }
 .pnav-logo{
   width:28px;height:28px;border-radius:8px;
-  background:linear-gradient(135deg,#004aad 0%,#1a7fff 60%,#70b8ff 100%);
+  background:linear-gradient(135deg,#7f1d1d 0%,#dc2626 60%,#fca5a5 100%);
   border:1px solid rgba(255,255,255,.15);
-  box-shadow:0 2px 12px rgba(26,127,255,.50),inset 0 1px 0 rgba(255,255,255,.25);
+  box-shadow:0 2px 12px rgba(220,38,38,.50),inset 0 1px 0 rgba(255,255,255,.25);
   display:flex;align-items:center;justify-content:center;
   font-size:.63rem;font-weight:900;color:#fff;letter-spacing:-.5px;
   animation:pulse 4s ease-in-out infinite;
@@ -130,10 +130,10 @@ body::before{
   color:var(--t2);cursor:pointer;
   transition:all .20s var(--spring);
 }
-.pnav-btn:hover{background:rgba(26,127,255,0.14);border-color:var(--b2);color:var(--acc2);transform:scale(1.10);}
+.pnav-btn:hover{background:rgba(220,38,38,0.14);border-color:var(--b2);color:var(--acc2);transform:scale(1.10);}
 .pnav-btn:active{transform:scale(.93);}
 .pnav-btn svg{width:15px;height:15px;fill:currentColor;}
-.pnav-btn.on{color:var(--acc2);border-color:rgba(26,127,255,.35);background:rgba(26,127,255,.16);box-shadow:0 0 12px rgba(26,127,255,.22);}
+.pnav-btn.on{color:var(--acc2);border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.16);box-shadow:0 0 12px rgba(220,38,38,.22);}
 
 /* ════════════════════════════════════════
    LAYOUT
@@ -155,14 +155,14 @@ body::before{
 .player-shell::before{
   content:'';pointer-events:none;
   position:absolute;inset:-3px;border-radius:calc(var(--rl) + 3px);z-index:-1;
-  box-shadow:0 0 28px rgba(26,127,255,.25),0 0 60px rgba(26,127,255,.07);
+  box-shadow:0 0 28px rgba(220,38,38,.25),0 0 60px rgba(220,38,38,.07);
   opacity:0;will-change:opacity;
   animation:glow 5s 1.2s ease-in-out infinite;
 }
 .player-wrap{
   width:100%;background:#000;
   border-radius:var(--rl);overflow:hidden;
-  box-shadow:0 0 0 1px rgba(26,127,255,.10),0 24px 64px rgba(0,0,0,.90),0 8px 24px rgba(0,0,0,.55);
+  box-shadow:0 0 0 1px rgba(220,38,38,.10),0 24px 64px rgba(0,0,0,.90),0 8px 24px rgba(0,0,0,.55);
   position:relative;
 }
 #playerContainer{position:relative;}
@@ -174,7 +174,7 @@ body::before{
 /* ── Plyr custom green cinema skin ── */
 .plyr--video{aspect-ratio:16/9;}
 .plyr--full-ui input[type=range]{color:var(--acc2);}
-.plyr__control--overlaid{background:rgba(26,127,255,.80)!important;box-shadow:0 4px 20px rgba(26,127,255,.35)!important;}
+.plyr__control--overlaid{background:rgba(220,38,38,.80)!important;box-shadow:0 4px 20px rgba(220,38,38,.35)!important;}
 .plyr__control--overlaid:hover{background:var(--acc2)!important;transform:scale(1.08)!important;}
 .plyr__progress input[type=range]::-webkit-slider-thumb{background:var(--acc2);}
 .plyr__volume input[type=range]{--plyr-range-fill-background:var(--acc2);}
@@ -189,7 +189,7 @@ body::before{
 /* ── Resume banner ── */
 .resume-banner{
   display:none;position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
-  background:rgba(14,14,18,.98);border:1px solid rgba(26,127,255,.22);
+  background:rgba(14,14,18,.98);border:1px solid rgba(220,38,38,.22);
   border-radius:var(--rx);padding:.55rem 1rem;
   box-shadow:var(--shl);z-index:10;
   align-items:center;gap:.65rem;white-space:nowrap;
@@ -216,7 +216,7 @@ body::before{
 }
 .video-title::after{
   content:'';position:absolute;bottom:0;left:0;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,var(--acc2),rgba(26,127,255,.20),transparent);
+  background:linear-gradient(90deg,var(--acc2),rgba(220,38,38,.20),transparent);
   animation:revealW .8s .5s var(--ease) both;
 }
 .video-kr{font-size:.93rem;color:var(--t2);margin-bottom:.7rem;letter-spacing:.02em;animation:fadeUp .45s .22s var(--ease) both;}
@@ -247,17 +247,17 @@ body::before{
   cursor:pointer;font-family:inherit;white-space:nowrap;
   transition:all .20s var(--spring);position:relative;overflow:hidden;
 }
-.abtn:hover{background:rgba(26,127,255,0.12);color:var(--acc2);border-color:var(--b2);transform:scale(1.03) translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.abtn:hover{background:rgba(220,38,38,0.12);color:var(--acc2);border-color:var(--b2);transform:scale(1.03) translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.25);}
 .abtn:active{transform:scale(.96) translateY(0);}
 .abtn svg{width:14px;height:14px;fill:currentColor;flex-shrink:0;}
 .abtn.accent{
-  background:linear-gradient(135deg,rgba(0,120,70,.85),rgba(26,127,255,.78));
+  background:linear-gradient(135deg,rgba(0,120,70,.85),rgba(220,38,38,.78));
   background-size:200% 100%;
-  border-color:rgba(26,127,255,.30);color:#fff;
-  box-shadow:0 3px 16px rgba(26,127,255,.25),inset 0 1px 0 rgba(255,255,255,.12);
+  border-color:rgba(220,38,38,.30);color:#fff;
+  box-shadow:0 3px 16px rgba(220,38,38,.25),inset 0 1px 0 rgba(255,255,255,.12);
   animation:shimmer 5s ease infinite;
 }
-.abtn.accent:hover{box-shadow:0 5px 24px rgba(26,127,255,.45),inset 0 1px 0 rgba(255,255,255,.18);}
+.abtn.accent:hover{box-shadow:0 5px 24px rgba(220,38,38,.45),inset 0 1px 0 rgba(255,255,255,.18);}
 .abtn.liked{color:var(--gold);border-color:rgba(200,168,75,.38);background:var(--goldb);}
 .abtn.inwl{color:var(--err);border-color:rgba(255,69,87,.32);background:rgba(255,69,87,.07);}
 
@@ -281,9 +281,9 @@ body::before{
   cursor:pointer;font-weight:500;white-space:nowrap;font-family:inherit;
   transition:all .18s var(--spring);
 }
-.qbtn:hover{color:var(--acc2);background:rgba(26,127,255,0.10);border-color:var(--b2);transform:scale(1.05) translateY(-1px);}
+.qbtn:hover{color:var(--acc2);background:rgba(220,38,38,0.10);border-color:var(--b2);transform:scale(1.05) translateY(-1px);}
 .qbtn:active{transform:scale(.95);}
-.qbtn.on{color:var(--acc2);border-color:rgba(26,127,255,.30);background:var(--accg2);box-shadow:0 0 8px rgba(26,127,255,.15);}
+.qbtn.on{color:var(--acc2);border-color:rgba(220,38,38,.30);background:var(--accg2);box-shadow:0 0 8px rgba(220,38,38,.15);}
 .qbtn svg{width:12px;height:12px;fill:currentColor;}
 .qsel{
   padding:.26rem .52rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r);color:var(--t2);font-size:.74rem;
@@ -314,9 +314,9 @@ body::before{
 }
 .ch-av{
   width:40px;height:40px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#004aad 0%,#1a7fff 100%);
-  border:1.5px solid rgba(26,127,255,.28);
-  box-shadow:0 3px 14px rgba(26,127,255,.25),inset 0 1px 0 rgba(255,255,255,.18);
+  background:linear-gradient(135deg,#7f1d1d 0%,#dc2626 100%);
+  border:1.5px solid rgba(220,38,38,.28);
+  box-shadow:0 3px 14px rgba(220,38,38,.25),inset 0 1px 0 rgba(255,255,255,.18);
   display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.875rem;
 }
 .ch-info{flex:1;min-width:0;}
@@ -324,16 +324,16 @@ body::before{
 .ch-sub{font-size:.75rem;color:var(--t2);}
 .checkout{
   display:inline-flex;align-items:center;gap:.38rem;padding:.42rem .90rem;
-  background:linear-gradient(135deg,rgba(0,100,55,.85),rgba(26,127,255,.78));
+  background:linear-gradient(135deg,rgba(0,100,55,.85),rgba(220,38,38,.78));
   background-size:200% 100%;
-  border:1px solid rgba(26,127,255,.25);
-  box-shadow:0 4px 16px rgba(26,127,255,.18),inset 0 1px 0 rgba(255,255,255,.14);
+  border:1px solid rgba(220,38,38,.25);
+  box-shadow:0 4px 16px rgba(220,38,38,.18),inset 0 1px 0 rgba(255,255,255,.14);
   border-radius:var(--rp);color:#fff;font-size:.78rem;font-weight:600;
   cursor:pointer;text-decoration:none;
   transition:all .20s var(--spring);white-space:nowrap;flex-shrink:0;
   animation:shimmer 6s ease infinite;
 }
-.checkout:hover{transform:scale(1.05) translateY(-1px);box-shadow:0 6px 24px rgba(26,127,255,.38);}
+.checkout:hover{transform:scale(1.05) translateY(-1px);box-shadow:0 6px 24px rgba(220,38,38,.38);}
 .checkout:active{transform:scale(.96);}
 .checkout svg{width:13px;height:13px;fill:currentColor;}
 
@@ -356,8 +356,8 @@ body::before{
 .cmt-input-row{display:flex;gap:.6rem;margin-bottom:.9rem;}
 .cmt-av{
   width:34px;height:34px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#004aad,#1a7fff);
-  border:1.5px solid rgba(26,127,255,.25);
+  background:linear-gradient(135deg,#7f1d1d,#dc2626);
+  border:1.5px solid rgba(220,38,38,.25);
   display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.78rem;
 }
 .cmt-box{flex:1;display:flex;gap:.5rem;align-items:flex-end;}
@@ -367,14 +367,14 @@ body::before{
   font-family:inherit;resize:none;outline:none;min-height:38px;
   transition:border-color .18s;line-height:1.5;
 }
-.cmt-input:focus{border-color:var(--acc2);box-shadow:0 0 0 2px rgba(26,127,255,.12);}
+.cmt-input:focus{border-color:var(--acc2);box-shadow:0 0 0 2px rgba(220,38,38,.12);}
 .cmt-post{
   padding:.44rem .9rem;background:var(--acc);border:none;
   border-radius:var(--r);color:#fff;font-size:.8rem;font-weight:600;
   cursor:pointer;transition:all .18s var(--spring);flex-shrink:0;font-family:inherit;
 }
 .cmt-post:hover{background:var(--acc2);transform:scale(1.04);}
-.cmt-item{display:flex;gap:.6rem;padding:.72rem 0;border-bottom:1px solid rgba(26,127,255,.07);}
+.cmt-item{display:flex;gap:.6rem;padding:.72rem 0;border-bottom:1px solid rgba(220,38,38,.07);}
 .cmt-item:last-child{border-bottom:none;}
 .cmt-body{flex:1;min-width:0;}
 .cmt-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.28rem;}
@@ -401,14 +401,14 @@ body::before{
   background:rgba(0,0,0,.20);
 }
 .sb-title{display:flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:700;color:var(--t1);letter-spacing:.01em;}
-.sb-title::before{content:'';width:3px;height:14px;border-radius:2px;background:linear-gradient(to bottom,var(--acc2),var(--acc));box-shadow:0 0 8px rgba(26,127,255,.40);flex-shrink:0;}
+.sb-title::before{content:'';width:3px;height:14px;border-radius:2px;background:linear-gradient(to bottom,var(--acc2),var(--acc));box-shadow:0 0 8px rgba(220,38,38,.40);flex-shrink:0;}
 .sb-count{font-size:.72rem;color:var(--t3);background:var(--accg2);border:1px solid var(--b);padding:.14rem .44rem;border-radius:var(--rp);}
 .sb-body{padding:.6rem;}
 .up-item{
   display:flex;gap:.7rem;padding:.55rem;border-radius:var(--r);cursor:pointer;
   transition:all .18s var(--spring);border:1px solid transparent;
 }
-.up-item:hover{background:rgba(26,127,255,.05);border-color:rgba(26,127,255,.10);}
+.up-item:hover{background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.10);}
 .up-thumb{position:relative;width:118px;flex-shrink:0;border-radius:7px;overflow:hidden;background:#000;}
 .up-thumb img{width:100%;aspect-ratio:16/9;display:block;object-fit:cover;}
 .up-dur{position:absolute;bottom:3px;right:4px;background:rgba(0,0,0,.85);color:#fff;font-size:.62rem;font-weight:600;padding:.1rem .3rem;border-radius:3px;}
@@ -448,12 +448,12 @@ body::before{
 /* subtle grid texture */
 .radio-card::before{
   content:'';position:absolute;inset:0;
-  background-image:linear-gradient(rgba(26,127,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,127,255,0.04) 1px,transparent 1px);
+  background-image:linear-gradient(rgba(220,38,38,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(220,38,38,0.04) 1px,transparent 1px);
   background-size:30px 30px;pointer-events:none;
 }
 .radio-card::after{
   content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 75% 65% at 50% 30%,rgba(26,127,255,.10) 0%,transparent 65%);
+  background:radial-gradient(ellipse 75% 65% at 50% 30%,rgba(220,38,38,.10) 0%,transparent 65%);
   pointer-events:none;
 }
 /* ── Spectrum art area ── */
@@ -466,7 +466,7 @@ body::before{
 .radio-ripple{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   width:160px;height:160px;border-radius:50%;
-  border:1.5px solid rgba(26,127,255,.35);
+  border:1.5px solid rgba(220,38,38,.35);
   pointer-events:none;animation:ripple 2.8s ease-out infinite;z-index:2;
 }
 .radio-ripple:nth-child(2){animation-delay:.93s;}
@@ -475,13 +475,13 @@ body::before{
 .radio-disc-wrap{position:relative;z-index:3;}
 .radio-disc{
   width:100px;height:100px;border-radius:50%;
-  background:conic-gradient(from 0deg,#004d2e,#1a7fff,#70b8ff,#004aad,#004d2e);
+  background:conic-gradient(from 0deg,#004d2e,#dc2626,#fca5a5,#7f1d1d,#004d2e);
   border:3px solid rgba(255,255,255,.12);
-  box-shadow:0 0 36px rgba(26,127,255,.45),0 8px 28px rgba(0,0,0,.65),inset 0 0 16px rgba(0,0,0,.50);
+  box-shadow:0 0 36px rgba(220,38,38,.45),0 8px 28px rgba(0,0,0,.65),inset 0 0 16px rgba(0,0,0,.50);
   display:flex;align-items:center;justify-content:center;
   transition:box-shadow .35s;
 }
-.radio-disc.on{animation:spin 4s linear infinite;box-shadow:0 0 56px rgba(26,127,255,.70),0 8px 36px rgba(0,0,0,.70),inset 0 0 20px rgba(0,0,0,.55);}
+.radio-disc.on{animation:spin 4s linear infinite;box-shadow:0 0 56px rgba(220,38,38,.70),0 8px 36px rgba(0,0,0,.70),inset 0 0 20px rgba(0,0,0,.55);}
 .radio-inner{
   width:32px;height:32px;border-radius:50%;
   background:rgba(0,0,0,.85);border:2.5px solid rgba(255,255,255,.18);
@@ -492,7 +492,7 @@ body::before{
 .radio-fm-badge{
   position:absolute;top:12px;right:14px;z-index:4;
   font-size:.60rem;font-weight:800;letter-spacing:.12em;
-  color:var(--acc2);background:rgba(26,127,255,.12);border:1px solid rgba(26,127,255,.25);
+  color:var(--acc2);background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.25);
   padding:.2rem .55rem;border-radius:5px;
 }
 /* signal bars */
@@ -521,13 +521,13 @@ body::before{
 }
 .radio-play{
   width:48px;height:48px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#004aad,#1a7fff);
+  background:linear-gradient(135deg,#7f1d1d,#dc2626);
   border:none;color:#fff;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 20px rgba(26,127,255,.50);
+  box-shadow:0 4px 20px rgba(220,38,38,.50);
   transition:all .22s var(--spring);
 }
-.radio-play:hover{transform:scale(1.12);box-shadow:0 6px 28px rgba(26,127,255,.72);}
+.radio-play:hover{transform:scale(1.12);box-shadow:0 6px 28px rgba(220,38,38,.72);}
 .radio-play:active{transform:scale(.93);}
 .radio-play svg{width:22px;height:22px;}
 .radio-vol-row{flex:1;display:flex;align-items:center;gap:.5rem;}
@@ -536,11 +536,11 @@ body::before{
   background:linear-gradient(to right,var(--acc2) var(--vp,100%),rgba(255,255,255,.12) var(--vp,100%));
   outline:none;cursor:pointer;--vp:100%;
 }
-.radio-vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 8px rgba(26,127,255,.55);cursor:pointer;}
+.radio-vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 8px rgba(220,38,38,.55);cursor:pointer;}
 /* ── Ticker ── */
-.radio-ticker-wrap{overflow:hidden;padding:.4rem .9rem .5rem;border-top:1px solid rgba(26,127,255,.10);position:relative;z-index:3;background:rgba(26,127,255,.03);}
+.radio-ticker-wrap{overflow:hidden;padding:.4rem .9rem .5rem;border-top:1px solid rgba(220,38,38,.10);position:relative;z-index:3;background:rgba(220,38,38,.03);}
 .radio-ticker{display:flex;gap:2rem;white-space:nowrap;animation:ticker 24s linear infinite;}
-.radio-ticker span{font-size:.68rem;color:rgba(26,127,255,.60);flex-shrink:0;letter-spacing:.02em;}
+.radio-ticker span{font-size:.68rem;color:rgba(220,38,38,.60);flex-shrink:0;letter-spacing:.02em;}
 .radio-ticker:hover{animation-play-state:paused;}
 
 /* ════════════════════════════════════════
@@ -557,7 +557,7 @@ body::before{
   background:rgba(14,14,18,.99);border:1px solid rgba(255,255,255,.10);
   border-radius:var(--rx) var(--rx) 0 0;padding:1.4rem 1.2rem;
   width:100%;max-width:520px;
-  box-shadow:0 0 0 1px rgba(26,127,255,.07),0 24px 70px rgba(0,0,0,.95);
+  box-shadow:0 0 0 1px rgba(220,38,38,.07),0 24px 70px rgba(0,0,0,.95);
   position:relative;max-height:90vh;overflow-y:auto;
 }
 @media(min-width:600px){.modal-box{border-radius:var(--rx);}}
@@ -568,7 +568,7 @@ body::before{
   border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;
   color:var(--t2);cursor:pointer;transition:all .18s;font-size:.9rem;
 }
-.m-x:hover{background:rgba(26,127,255,.18);color:var(--t1);}
+.m-x:hover{background:rgba(220,38,38,.18);color:var(--t1);}
 .share-link-row{display:flex;gap:.5rem;margin-bottom:1.1rem;}
 .share-input{
   flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
@@ -588,7 +588,7 @@ body::before{
   padding:.6rem .3rem;border-radius:var(--r);cursor:pointer;
   transition:background .18s,transform .18s var(--spring);
 }
-.share-opt:hover{background:rgba(26,127,255,.08);transform:scale(1.04);}
+.share-opt:hover{background:rgba(220,38,38,.08);transform:scale(1.04);}
 .share-opt:active{transform:scale(.95);}
 .share-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,.35);}
 .share-lbl{font-size:.65rem;color:var(--t3);text-align:center;line-height:1.3;}
@@ -631,7 +631,7 @@ body::before{
   border-radius:var(--r);color:var(--t2);font-size:.82rem;font-weight:500;
   cursor:pointer;transition:all .18s var(--spring);font-family:inherit;
 }
-.sleep-opt:hover{background:rgba(26,127,255,.12);border-color:var(--b2);color:var(--acc2);transform:scale(1.04);}
+.sleep-opt:hover{background:rgba(220,38,38,.12);border-color:var(--b2);color:var(--acc2);transform:scale(1.04);}
 .sleep-opt.cancel{grid-column:1/-1;background:rgba(255,69,87,.08);border-color:rgba(255,69,87,.20);color:#ff4557;}
 .sleep-opt.cancel:hover{background:rgba(255,69,87,.15);}
 
@@ -662,7 +662,7 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
 ════════════════════════════════════════ */
 .toast{
   position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
-  background:rgba(14,14,18,.99);border:1px solid rgba(26,127,255,.22);
+  background:rgba(14,14,18,.99);border:1px solid rgba(220,38,38,.22);
   border-radius:var(--rx);padding:.55rem 1.1rem;
   font-size:.82rem;color:var(--t1);font-weight:500;
   box-shadow:var(--shl);z-index:9999;pointer-events:none;
@@ -700,8 +700,8 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
     <span id="lblBack">Back</span>
   </button>
   <div class="pnav-brand">
-    <div class="pnav-logo">B</div>
-    BloxyFlix
+    <div class="pnav-logo">J</div>
+    Juche TV 
   </div>
   <div class="pnav-title" id="navTitle"></div>
   <div class="pnav-acts">
@@ -776,8 +776,8 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
           </div>
           <div class="radio-ticker-wrap">
             <div class="radio-ticker" id="radioTicker">
-              <span id="radioTickerText">🎵 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
-              <span aria-hidden="true">🎵 Now streaming live · BloxyFlix Radio · Tune in and enjoy</span>
+              <span id="radioTickerText">🎵 Now streaming live · Korean Radio · Tune in and enjoy</span>
+              <span aria-hidden="true">🎵 Now streaming live · Korean Radio · Tune in and enjoy</span>
             </div>
           </div>
         </div>
@@ -880,7 +880,7 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
       <div class="ch-row">
         <div class="ch-av" id="chAv">B</div>
         <div class="ch-info">
-          <div class="ch-name">BloxyFlix</div>
+          <div class="ch-name">Juche TV</div>
           <div class="ch-sub">Official Channel</div>
         </div>
         <a href="index.html" class="checkout">
@@ -1197,7 +1197,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   if(!loaded){try{const vf=getVidFromURL();if(vf){curVid=vf;curIdx=-1;loaded=true;}}catch(e){}}
   if(!loaded||!curVid){
-    curVid={u:'https://listen7.myradio24.com/69366',t:'Pyongyang FM (Test page)',tk:'평양 FM',ty:'Radio',views:0,isPinned:true,duration:'LIVE',d:'Demo stream — open this page from BloxyFlix for the real experience!'};
+    curVid={u:'https://listen7.myradio24.com/69366',t:'Pyongyang FM (Test page)',tk:'평양 FM',ty:'Radio',views:0,isPinned:true,duration:'LIVE',d:'Demo stream — open this page from Juche TV for the real experience!'};
     curIdx=-1;loaded=true;
   }
 
@@ -1482,7 +1482,7 @@ function reqFullscreen(){
 // ══════════════════════════════════════════
 function renderInfo(){
   const v=curVid;if(!v)return;
-  document.title=v.t+' — BloxyFlix';
+  document.title=v.t+' — Juche TV';
   document.getElementById('navTitle').textContent=v.t;
   document.getElementById('pTitle').textContent=v.t;
   document.getElementById('pKr').textContent=v.tk||'';
@@ -1497,13 +1497,12 @@ function renderInfo(){
   updateStars(v.userRating||0);
   if(curIdx>=0&&slimVids.length>0){renderUpNext();renderCmts(curIdx);}
   else{document.getElementById('upNextList').innerHTML=`<div class="no-c">${s('noVids')}</div>`;document.getElementById('commentsList').innerHTML=`<div class="no-c">${s('noCmts')}</div>`;document.getElementById('commentCount').textContent='0';}
-  const uname=localStorage.getItem('bf-username')||'Guest';
-  document.getElementById('commentAvatar').textContent=uname.charAt(0).toUpperCase();
+  try{const _un=localStorage.getItem('juchetv-username')||'?';document.getElementById('commentAvatar').textContent=_un.slice(0,2).toUpperCase();}catch(e){}
   if(curIdx>=0&&inWL(curIdx))document.getElementById('watchlistBtn').classList.add('inwl');
   if(curIdx>=0&&isLiked(curIdx)){document.getElementById('likeBtn').classList.add('liked');document.getElementById('lblLike').textContent=s('liked');}
   if(slimVids.length>0)document.getElementById('upNextCount').textContent=Math.min(6,slimVids.length-1);
 }
-function thumb(v){if(v.thumb)return v.thumb;if(v.isYouTube&&v.u&&!v.u.startsWith('http'))return`https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;return`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%23090f1e'/><text x='160' y='95' font-family='Arial' font-size='11' fill='%23354b6b' text-anchor='middle'>BloxyFlix</text></svg>`;}
+function thumb(v){if(v.thumb)return v.thumb;if(v.isYouTube&&v.u&&!v.u.startsWith('http'))return`https://img.youtube.com/vi/${v.u}/hqdefault.jpg`;return`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 180'><rect width='320' height='180' fill='%23090f1e'/><text x='160' y='95' font-family='Arial' font-size='11' fill='%23354b6b' text-anchor='middle'>Juche TV</text></svg>`;}
 function renderUpNext(){
   const list=document.getElementById('upNextList');
   if(slimVids.length<2){list.innerHTML=`<div class="no-c">${s('noVids')}</div>`;return;}
@@ -1663,35 +1662,11 @@ function rateVideo(n){
 }
 
 // ══════════════════════════════════════════
-//  COMMENTS
+//  COMMENTS — Firebase module handles postComment() & renderCmts()
 // ══════════════════════════════════════════
-function getCmts(idx){try{return JSON.parse(localStorage.getItem(`bf-cmts-${idx}`)||'[]');}catch(e){return[];}}
-function postComment(){
-  const inp=document.getElementById('commentInput');const txt=inp.value.trim();if(!txt)return;
-  const uname=localStorage.getItem('bf-username')||(()=>{const n='Guest'+Math.floor(Math.random()*9000+1000);localStorage.setItem('bf-username',n);return n;})();
-  const cs=getCmts(curIdx);const id=Date.now();
-  cs.push({id,name:uname,text:txt,time:id,likes:0});
-  try{localStorage.setItem(`bf-cmts-${curIdx}`,JSON.stringify(cs));}catch(e){}
-  inp.value='';inp.style.height='auto';renderCmts(curIdx);
-}
-function likeCmt(id){
-  const cs=getCmts(curIdx);const c=cs.find(x=>x.id===id);if(!c)return;
-  if(c.liked){c.likes=Math.max(0,(c.likes||1)-1);c.liked=false;}else{c.likes=(c.likes||0)+1;c.liked=true;}
-  try{localStorage.setItem(`bf-cmts-${curIdx}`,JSON.stringify(cs));}catch(e){}
-  renderCmts(curIdx);
-}
-function delCmt(id){
-  let cs=getCmts(curIdx);cs=cs.filter(x=>x.id!==id);
-  try{localStorage.setItem(`bf-cmts-${curIdx}`,JSON.stringify(cs));}catch(e){}
-  renderCmts(curIdx);
-}
-function ago(ts){const sec=(Date.now()-ts)/1000;if(sec<60)return'just now';const m=Math.floor(sec/60);if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
-function renderCmts(id){
-  const list=document.getElementById('commentsList');const cnt=document.getElementById('commentCount');const uname=localStorage.getItem('bf-username')||'Guest';const cs=getCmts(id);cnt.textContent=cs.length;
-  if(!cs.length){list.innerHTML=`<div class="no-c">${s('noCmts')}</div>`;return;}
-  function col(str){let h=0;for(const c of str)h=c.charCodeAt(0)+((h<<5)-h);return['#00a367','#7c3aed','#059669','#d97706','#e63950','#0891b2'][Math.abs(h)%6];}
-  list.innerHTML=cs.map(c=>`<div class="cmt-item"><div class="cmt-av" style="background:${col(c.name)};flex-shrink:0;">${c.name.charAt(0).toUpperCase()}</div><div class="cmt-body"><div class="cmt-head"><span class="cmt-author">${esc(c.name)}</span><span class="cmt-time">${ago(c.time)}</span></div><div class="cmt-text">${esc(c.text)}</div><div class="cmt-btns"><span onclick="likeCmt(${c.id})" style="${c.liked?'color:var(--acc3)':''}">♥ ${c.likes||'Like'}</span><span onclick="document.getElementById('commentInput').value='@${esc(c.name)} ';document.getElementById('commentInput').focus()">↩ Reply</span>${c.name===uname?`<span onclick="delCmt(${c.id})" style="color:var(--t3)">✕ Delete</span>`:''}</div></div></div>`).join('');
-}
+// Placeholder stubs (overridden by module script below)
+function postComment() { if(typeof openUsernameModal==='function'&&!localStorage.getItem('juchetv-username')) openUsernameModal(); }
+function renderCmts(id) {}
 
 // ══════════════════════════════════════════
 //  SHARE
@@ -1705,24 +1680,24 @@ function openShareModal(){
   const et=document.getElementById('embedToggle'),eb=document.getElementById('embedBody');
   if(et)et.classList.remove('open');if(eb)eb.classList.remove('open');
 }
-function nativeShare(){const u=getShareURL();if(navigator.share)navigator.share({title:curVid?.t||'BloxyFlix',text:'Watch on BloxyFlix',url:u}).catch(()=>{});}
+function nativeShare(){const u=getShareURL();if(navigator.share)navigator.share({title:curVid?.t||'Juche TV',text:'Watch on Juche TV',url:u}).catch(()=>{});}
 function toggleEmbed(){const et=document.getElementById('embedToggle'),eb=document.getElementById('embedBody');if(et&&eb){et.classList.toggle('open');eb.classList.toggle('open');}}
 function closeShareModal(e){if(!e||e.target===document.getElementById('shareModal'))document.getElementById('shareModal').classList.remove('open');}
 function shareTo(t){
-  const u=encodeURIComponent(getShareURL());const rawU=getShareURL();const title=curVid?.t||'BloxyFlix';
-  const enMsg=encodeURIComponent(`🌏 "${title}" — Explore North Korean cinema & culture on BloxyFlix\n${rawU}`);
-  const zhMsg=encodeURIComponent(`🌏「${title}」——通过BloxyFlix探索朝鲜电影与文化。\n${rawU}`);
-  const tx=encodeURIComponent(`🌏 "${title}" — Explore North Korean cinema & culture on BloxyFlix`);
+  const u=encodeURIComponent(getShareURL());const rawU=getShareURL();const title=curVid?.t||'Juche TV';
+  const enMsg=encodeURIComponent(`🌏 "${title}" — Explore North Korean cinema & culture on Juche TV\n${rawU}`);
+  const zhMsg=encodeURIComponent(`🌏「${title}」——通过Juche TV探索朝鲜电影与文化。\n${rawU}`);
+  const tx=encodeURIComponent(`🌏 "${title}" — Explore North Korean cinema & culture on Juche TV`);
   if(t==='copy'){copyShareLink();return;}
   if(t==='whatsapp'){window.open(`https://api.whatsapp.com/send?text=${enMsg}`,'_blank','noopener');return;}
-  if(t==='telegram'){window.open(`https://t.me/share/url?url=${u}&text=${encodeURIComponent('🌏 "'+title+'" — BloxyFlix')}`,'_blank','noopener');return;}
-  if(t==='qq'){window.open(`https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=${u}&title=${encodeURIComponent('BloxyFlix｜'+title)}&desc=${zhMsg}`,'_blank','noopener');return;}
+  if(t==='telegram'){window.open(`https://t.me/share/url?url=${u}&text=${encodeURIComponent('🌏 "'+title+'" — Juche TV')}`,'_blank','noopener');return;}
+  if(t==='qq'){window.open(`https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=${u}&title=${encodeURIComponent('Juche TV｜'+title)}&desc=${zhMsg}`,'_blank','noopener');return;}
   if(t==='wechat'){showWeChatQR(rawU,title);return;}
   if(t==='weibo'){window.open(`https://service.weibo.com/share/share.php?url=${u}&title=${zhMsg}`,'_blank','noopener');return;}
   if(t==='bilibili'){window.open(`https://www.bilibili.com/dynamic?text=${zhMsg}`,'_blank','noopener');return;}
   if(t==='instagram'){toast('📸 Link copied! Paste in your Instagram bio or story.');copyShareLink();return;}
   if(t==='tiktok'){toast('🎵 Link copied! Paste in your TikTok bio or caption.');copyShareLink();return;}
-  const urls={twitter:`https://twitter.com/intent/tweet?url=${u}&text=${tx}`,facebook:`https://www.facebook.com/sharer/sharer.php?u=${u}`,reddit:`https://reddit.com/submit?url=${u}&title=${encodeURIComponent('"'+title+'" | BloxyFlix')}`,linkedin:`https://www.linkedin.com/sharing/share-offsite/?url=${u}`,email:`mailto:?subject=${encodeURIComponent('Explore "'+title+'" on BloxyFlix')}&body=${enMsg}`};
+  const urls={twitter:`https://twitter.com/intent/tweet?url=${u}&text=${tx}`,facebook:`https://www.facebook.com/sharer/sharer.php?u=${u}`,reddit:`https://reddit.com/submit?url=${u}&title=${encodeURIComponent('"'+title+'" | Juche TV')}`,linkedin:`https://www.linkedin.com/sharing/share-offsite/?url=${u}`,email:`mailto:?subject=${encodeURIComponent('Explore "'+title+'" on Juche TV')}&body=${enMsg}`};
   if(urls[t])window.open(urls[t],'_blank','noopener,noreferrer');
 }
 function showWeChatQR(url,title){const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;document.getElementById('wechatQRImg').src=qrUrl;document.getElementById('wechatTitle').textContent=`「${title}」`;document.getElementById('wechatModal').classList.add('open');}
@@ -1776,7 +1751,7 @@ function toggleRadio(){
 function setRadioVol(v){if(radioAudio)radioAudio.volume=parseFloat(v);}
 function updateVolTrack(el){el.style.setProperty('--vp',(el.value*100)+'%');}
 function showRipples(on){['radioRipple1','radioRipple2','radioRipple3'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=on?'block':'none';});}
-function updateTickerText(){if(!curVid)return;const txt=`🎵 Now playing: ${curVid.t||'Live Stream'} · BloxyFlix Radio · 24/7 Live Broadcast`;const t1=document.getElementById('radioTickerText');const t2=document.querySelector('#radioTicker span[aria-hidden]');if(t1)t1.textContent=txt;if(t2)t2.textContent=txt;}
+function updateTickerText(){if(!curVid)return;const txt=`🎵 Now playing: ${curVid.t||'Live Stream'} · Juche TV Radio · 24/7 Live Broadcast`;const t1=document.getElementById('radioTickerText');const t2=document.querySelector('#radioTicker span[aria-hidden]');if(t1)t1.textContent=txt;if(t2)t2.textContent=txt;}
 function animSignal(){
   const bars=[1,2,3,4,5].map(i=>document.getElementById('sb'+i));
   function tick(){
@@ -1835,7 +1810,7 @@ function drawVis(){
       const alpha=0.38+val*0.62;
       const grad=ctx.createLinearGradient(0,y,0,H);
       grad.addColorStop(0,`rgba(80,180,255,${alpha})`);
-      grad.addColorStop(0.55,`rgba(26,127,255,${alpha*0.75})`);
+      grad.addColorStop(0.55,`rgba(220,38,38,${alpha*0.75})`);
       grad.addColorStop(1,`rgba(10,40,130,${alpha*0.25})`);
       ctx.fillStyle=grad;
       ctx.beginPath();
@@ -1870,7 +1845,7 @@ function drawVisFallback(){
       const x=i*(BW+GAP);const y=H-barH;
       const alpha=0.28+val*0.55;
       const grad=ctx.createLinearGradient(0,y,0,H);
-      grad.addColorStop(0,`rgba(26,127,255,${alpha})`);
+      grad.addColorStop(0,`rgba(220,38,38,${alpha})`);
       grad.addColorStop(1,`rgba(10,40,130,${alpha*0.25})`);
       ctx.fillStyle=grad;
       ctx.beginPath();
@@ -1923,7 +1898,7 @@ function show404(){
   document.querySelectorAll('.pnav,.player-main').forEach(el=>{if(el)el.style.display='none';});
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:#030810;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,sans-serif;padding:2rem;text-align:center;';
-  overlay.innerHTML=`<div style="max-width:520px;width:100%;"><div style="font-size:5rem;margin-bottom:.5rem;">📼</div><h1 style="font-size:2.8rem;font-weight:700;color:#f2f2f4;margin-bottom:.5rem;letter-spacing:-.5px;">404</h1><h2 style="font-size:1.2rem;font-weight:600;color:#8a8a9a;margin-bottom:1rem;">Video Not Found</h2><p style="font-size:.9rem;color:#3a3a50;line-height:1.7;margin-bottom:2rem;">The player couldn't find any video here.</p><div style="background:rgba(26,127,255,.07);border:1px solid rgba(26,127,255,.18);border-radius:12px;padding:.9rem 1.2rem;margin-bottom:1.5rem;display:inline-block;"><span style="color:#3a3a50;font-size:.82rem;">Redirecting in </span><span id="bf-404-count" style="color:#3b9dff;font-weight:700;">5</span><span style="color:#3a3a50;font-size:.82rem;"> seconds…</span></div><br><a href="https://bloxyflix.netlify.app" style="display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#004aad,#1a7fff);color:#fff;font-size:.9rem;font-weight:600;padding:.7rem 1.6rem;border-radius:999px;text-decoration:none;box-shadow:0 4px 20px rgba(26,127,255,.35);">← Take me to BloxyFlix</a></div>`;
+  overlay.innerHTML=`<div style="max-width:520px;width:100%;"><div style="font-size:5rem;margin-bottom:.5rem;">📼</div><h1 style="font-size:2.8rem;font-weight:700;color:#f2f2f4;margin-bottom:.5rem;letter-spacing:-.5px;">404</h1><h2 style="font-size:1.2rem;font-weight:600;color:#8a8a9a;margin-bottom:1rem;">Video Not Found</h2><p style="font-size:.9rem;color:#3a3a50;line-height:1.7;margin-bottom:2rem;">The player couldn't find any video here.</p><div style="background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.18);border-radius:12px;padding:.9rem 1.2rem;margin-bottom:1.5rem;display:inline-block;"><span style="color:#3a3a50;font-size:.82rem;">Redirecting in </span><span id="bf-404-count" style="color:#f87171;font-weight:700;">5</span><span style="color:#3a3a50;font-size:.82rem;"> seconds…</span></div><br><a href="https://bloxyflix.netlify.app" style="display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-size:.9rem;font-weight:600;padding:.7rem 1.6rem;border-radius:999px;text-decoration:none;box-shadow:0 4px 20px rgba(220,38,38,.35);">← Take me to Juche TV</a></div>`;
   document.body.appendChild(overlay);
   let secs=5;const cnt=document.getElementById('bf-404-count');
   const timer=setInterval(()=>{secs--;if(cnt)cnt.textContent=secs;if(secs<=0){clearInterval(timer);window.location.href='https://bloxyflix.netlify.app';}},1000);
@@ -1944,5 +1919,207 @@ window.addEventListener('message',e=>{
   else if(action==='getStatus')e.source.postMessage({type:'playerStatus',data:{playing:bfPlayer?!bfPlayer.paused:radioPlaying,currentTime:getPlayerCurrentTime(),duration:getPlayerDuration(),volume:getPlayerVolume(),muted:getActivePlayer()?.muted||false,title:curVid?.t||'',videoId:curIdx}},e.origin);
 });
 </script>
+
+<!-- ═══ USERNAME SETUP MODAL ═══ -->
+<div id="usernameModal" style="display:none;position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:1.2rem;">
+  <div style="background:#0f0f14;border:1px solid rgba(220,38,38,.22);border-radius:20px;width:100%;max-width:420px;padding:1.75rem;position:relative;box-shadow:0 20px 70px rgba(0,0,0,.95);">
+    <div style="text-align:center;margin-bottom:1.2rem;">
+      <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#7f1d1d,#dc2626);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;font-size:1.4rem;box-shadow:0 4px 20px rgba(220,38,38,.35);">💬</div>
+      <h2 style="font-size:1.05rem;font-weight:700;color:#f2f2f4;margin-bottom:.4rem;">Set Your Username</h2>
+      <p style="font-size:.82rem;color:#6b7280;line-height:1.6;">Choose a unique username to join the conversation. It will appear on all your comments.</p>
+    </div>
+    <div id="unameError" style="display:none;background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:.6rem .9rem;margin-bottom:.8rem;font-size:.82rem;color:#f87171;font-weight:600;"></div>
+    <input id="unameInput" type="text" maxlength="32" placeholder="e.g. KoryoWatcher42"
+      style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:.65rem .9rem;color:#f2f2f4;font-size:.88rem;outline:none;font-family:inherit;margin-bottom:.75rem;transition:border-color .18s;box-sizing:border-box;"
+      onfocus="this.style.borderColor='rgba(220,38,38,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.10)'"
+      oninput="document.getElementById('unameError').style.display='none'"
+      onkeydown="if(event.key==='Enter')confirmUsername()">
+    <div style="display:flex;gap:.6rem;">
+      <button onclick="document.getElementById('usernameModal').style.display='none'" style="flex:1;padding:.65rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#9ca3af;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+      <button id="unameConfirmBtn" onclick="confirmUsername()" style="flex:2;padding:.65rem;background:linear-gradient(135deg,#7f1d1d,#dc2626);border:none;border-radius:10px;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 14px rgba(220,38,38,.3);">Set Username</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FIREBASE COMMENTS + USERNAME ═══ -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, collection, doc, addDoc, getDoc, setDoc, query, where, orderBy, onSnapshot, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyAXXMMQH7lbAARD7KZthb9_jTbNmCKVEU8",
+  authDomain:        "bloxyflix.firebaseapp.com",
+  projectId:         "bloxyflix",
+  storageBucket:     "bloxyflix.firebasestorage.app",
+  messagingSenderId: "882442273352",
+  appId:             "1:882442273352:web:2eefad1b40975279c60e7d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+let fbVideoKey = null;
+let fbUnsub    = null;
+const UN_KEY   = 'juchetv-username';
+
+function getSavedUsername() { return localStorage.getItem(UN_KEY) || ''; }
+
+function fbEsc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fbTimeAgo(date) {
+  const s = Math.floor((Date.now() - date) / 1000);
+  if (s < 60)    return s + 's ago';
+  if (s < 3600)  return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+const FB_COLS = ['#dc2626','#7c3aed','#059669','#d97706','#0891b2','#db2777','#2563eb'];
+function fbColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return FB_COLS[Math.abs(h) % FB_COLS.length];
+}
+
+function updateAvatar() {
+  const name = getSavedUsername();
+  const av = document.getElementById('commentAvatar');
+  if (av) av.textContent = name ? name.slice(0,2).toUpperCase() : '?';
+}
+
+/* ── Username modal ── */
+window.openUsernameModal = function() {
+  const modal = document.getElementById('usernameModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  const inp = document.getElementById('unameInput');
+  if (inp) { inp.value = getSavedUsername(); setTimeout(() => inp.focus(), 60); }
+};
+
+window.confirmUsername = async function() {
+  const inp  = document.getElementById('unameInput');
+  const btn  = document.getElementById('unameConfirmBtn');
+  const name = (inp ? inp.value.trim() : '');
+  if (!name) { showUErr('Please enter a username.'); return; }
+  if (name.length < 3) { showUErr('Username must be at least 3 characters.'); return; }
+  if (!/^[a-zA-Z0-9_\-. ]+$/.test(name)) { showUErr('Only letters, numbers, spaces, _, -, . allowed.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Checking…';
+  try {
+    const key = name.toLowerCase().replace(/\s+/g, '_');
+    const existing = getSavedUsername();
+    if (existing && existing.toLowerCase().replace(/\s+/g, '_') === key) {
+      closeUModal(); updateAvatar();
+      if (fbVideoKey) loadFbComments(fbVideoKey);
+      return;
+    }
+    const snap = await getDoc(doc(db, 'usernames', key));
+    if (snap.exists()) {
+      showUErr('Error: The following username got taken!');
+    } else {
+      await setDoc(doc(db, 'usernames', key), { displayName: name, createdAt: serverTimestamp() });
+      localStorage.setItem(UN_KEY, name);
+      closeUModal(); updateAvatar();
+      if (fbVideoKey) loadFbComments(fbVideoKey);
+    }
+  } catch(err) {
+    showUErr('Error: ' + (err.message || String(err)));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Set Username';
+  }
+};
+
+function showUErr(msg) {
+  const el = document.getElementById('unameError');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function closeUModal() {
+  const m = document.getElementById('usernameModal');
+  if (m) m.style.display = 'none';
+}
+
+/* ── Comment loading ── */
+function loadFbComments(videoKey) {
+  const list  = document.getElementById('commentsList');
+  const count = document.getElementById('commentCount');
+  if (!list) return;
+
+  list.innerHTML = '<div class="no-c" style="display:flex;align-items:center;gap:.5rem;justify-content:center;"><div style="width:14px;height:14px;border:2px solid rgba(220,38,38,.3);border-top-color:#dc2626;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;"></div> Loading…</div>';
+
+  if (fbUnsub) fbUnsub();
+  const q = query(collection(db, 'comments'), where('videoKey', '==', videoKey), orderBy('createdAt', 'asc'));
+  fbUnsub = onSnapshot(q, snap => {
+    const docs = snap.docs;
+    if (count) count.textContent = docs.length;
+    if (!docs.length) {
+      list.innerHTML = '<div class="no-c">No comments yet — be the first!</div>';
+      return;
+    }
+    list.innerHTML = docs.map(d => buildComment(d.data())).join('');
+  }, () => {
+    list.innerHTML = '<div class="no-c">Failed to load comments.</div>';
+  });
+}
+
+function buildComment(d) {
+  const name = (d.name || 'Anonymous').slice(0, 32);
+  const color = fbColor(name);
+  const text  = fbEsc(d.text || '');
+  const time  = d.createdAt ? fbTimeAgo(d.createdAt.toDate()) : 'just now';
+  return '<div class="cmt-item">' +
+    '<div class="cmt-av" style="background:' + color + ';flex-shrink:0;">' + name.slice(0,2).toUpperCase() + '</div>' +
+    '<div class="cmt-body">' +
+      '<div class="cmt-head"><span class="cmt-author">' + fbEsc(name) + '</span><span class="cmt-time">' + time + '</span></div>' +
+      '<div class="cmt-text">' + text + '</div>' +
+    '</div></div>';
+}
+
+/* ── Post comment ── */
+window.postComment = async function() {
+  const inp = document.getElementById('commentInput');
+  const txt = inp ? inp.value.trim() : '';
+  if (!txt) return;
+
+  const username = getSavedUsername();
+  if (!username) { openUsernameModal(); return; }
+  if (!fbVideoKey) return;
+
+  const btn = document.getElementById('lblPost');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  try {
+    await addDoc(collection(db, 'comments'), {
+      videoKey:  fbVideoKey,
+      name:      username,
+      text:      txt.slice(0, 300),
+      createdAt: serverTimestamp()
+    });
+    if (inp) { inp.value = ''; inp.style.height = 'auto'; }
+  } catch(e) {
+    const t = document.getElementById('toast');
+    if (t) { t.textContent = 'Error: ' + (e.code || e.message); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800); }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Post'; }
+  }
+};
+
+/* ── Override renderCmts called from renderInfo ── */
+window.renderCmts = function(idx) {
+  fbVideoKey = 'jt-' + idx;
+  updateAvatar();
+  const username = getSavedUsername();
+  if (!username) {
+    const list  = document.getElementById('commentsList');
+    const count = document.getElementById('commentCount');
+    if (list)  list.innerHTML = '<div class="no-c" style="cursor:pointer;text-decoration:underline;" onclick="openUsernameModal()">&#128172; Set up a username to view and post comments &rarr;</div>';
+    if (count) count.textContent = '0';
+    return;
+  }
+  loadFbComments(fbVideoKey);
+};
+
+document.addEventListener('DOMContentLoaded', () => { updateAvatar(); });
+</script>
+
 </body>
 </html>
