@@ -1359,7 +1359,39 @@ function getVJSVideo(){
   const el=document.getElementById('vjs-video');
   return el;
 }
-function initVJSSkin(){const sb=document.getElementById('vjsSkinBtn');if(sb)sb.style.display='none';}
+function initVJSSkin(){
+  const sb=document.getElementById('vjsSkinBtn');if(sb)sb.style.display='none';
+  // Fix: controls fade out and don't reappear on click/tap.
+  // The video-minimal-skin only re-shows controls on pointermove/pointerenter.
+  // Intercept any pointer/touch interaction on the VJS wrapper and re-signal the skin.
+  const wrap=document.getElementById('vjsPlayerWrap');
+  if(!wrap)return;
+  function _revealVJSControls(e){
+    // Only act when VJS player is active
+    if(!isVJSActive())return;
+    const skinSelectors=['video-minimal-skin','media-container','video-player'];
+    for(const sel of skinSelectors){
+      const el=wrap.querySelector(sel);
+      if(el){
+        el.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,composed:true,cancelable:false,clientX:e.clientX||0,clientY:e.clientY||0}));
+        break;
+      }
+    }
+  }
+  wrap.addEventListener('pointerdown',_revealVJSControls,{passive:true});
+  wrap.addEventListener('touchstart',function(e){
+    if(!isVJSActive())return;
+    const t=e.touches[0];
+    const skinSelectors=['video-minimal-skin','media-container','video-player'];
+    for(const sel of skinSelectors){
+      const el=wrap.querySelector(sel);
+      if(el){
+        el.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,composed:true,cancelable:false,clientX:t?t.clientX:0,clientY:t?t.clientY:0}));
+        break;
+      }
+    }
+  },{passive:true});
+}
 function toggleVJSSkin(){toast('🎬 Using full player skin');}
 function copyVidSrc(){
   const el=document.getElementById('vjs-video');
