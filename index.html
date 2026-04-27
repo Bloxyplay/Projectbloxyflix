@@ -4354,6 +4354,11 @@ body.theme-whiteorange #bf-offline button:hover { background: #f4a261 !important
       <span>KoryoTV Video On Demand Collection!</span>
       <span class="sidebar-badge" style="background:linear-gradient(135deg,#dc2626,#f87171);font-size:.6rem;">NEW</span>
     </a>
+    <a class="sidebar-item" onclick="showPage('koryoapi');toggleSidebar();">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      <span>KoryoTV API Archive</span>
+      <span class="sidebar-badge" style="background:linear-gradient(135deg,#e8263a,#c9a84c);font-size:.6rem;">API</span>
+    </a>
     <a class="sidebar-item" onclick="showPage('mybloxyflix');toggleSidebar();" style="margin-top:.25rem;">
       <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
       <span style="font-weight:700;">My Juche TV</span>
@@ -8039,6 +8044,9 @@ try{
   renderKctvNews();
   loadContinueWatching();
 
+  // Fetch Koryo TV API videos from April 25, 2026 onwards and merge into vids
+  fetchKoryoApiAndMerge();
+
   // Save slim vids to localStorage so player.html can resolve ?v=INDEX for any visitor
   try{
     const slim=vids.map((v,i)=>({t:v.t,tk:v.tk||'',c:v.c,ty:v.ty||'',views:v.views,duration:v.duration||'',u:v.u,y:v.y||'',isM3U8:!!v.isM3U8,isYouTube:!!v.isYouTube,isPinned:!!v.isPinned,isGoogleDrive:!!v.isGoogleDrive,isEmbed:!!v.isEmbed,isExternal:!!v.isExternal,thumb:v.thumb||'',gdriveFileId:v.gdriveFileId||'',d:v.d||'',creator:v.creator||''}));
@@ -8754,6 +8762,13 @@ document.addEventListener('keydown', function(e){
 function playVideo(idx){
   if(!vids[idx]) return;
   if(vids[idx].comingSoon){showToast('⏳ Coming Soon!');return;}
+
+  // If this is a Koryo TV view URL, extract MP4 first
+  if(_isKoryoViewUrl(vids[idx].u)) {
+    _extractAndPlayKoryoForRedirect(idx);
+    return;
+  }
+
   // Store current video (without base64 thumb to save space) + slim vids list
   const vid = {...vids[idx]};
   delete vid.thumb; // remove heavy base64 data
@@ -8767,6 +8782,37 @@ function playVideo(idx){
     window.location.href = 'Player-community.html';
   } else {
     window.location.href = 'player.html';
+  }
+}
+
+async function _extractAndPlayKoryoForRedirect(idx) {
+  const v = vids[idx];
+  if(!v || !v.u) return;
+
+  const mediaId = _extractMediaId(v.u);
+  if(!mediaId) {
+    showToast('Invalid Koryo TV URL');
+    return;
+  }
+
+  showToast('Loading....');
+  try {
+    const mp4Url = await resolveKoryoMedia(mediaId);
+    // Update the video entry with the resolved MP4 URL
+    vids[idx].u = mp4Url;
+    vids[idx].resolved = true;
+    vids[idx].koryoViewUrl = v.u;
+    // Now proceed with normal redirect
+    const vid = {...vids[idx]};
+    delete vid.thumb;
+    sessionStorage.setItem('bf-player-vid', JSON.stringify(vid));
+    sessionStorage.setItem('bf-player-idx', String(idx));
+    const slim = vids.map((v,i)=>({t:v.t,tk:v.tk,c:v.c,ty:v.ty,views:v.views,duration:v.duration,u:v.u,y:v.y,isM3U8:v.isM3U8,isYouTube:v.isYouTube,isPinned:v.isPinned,isGoogleDrive:v.isGoogleDrive,isEmbed:v.isEmbed||false,isExternal:v.isExternal||false,gdriveFileId:v.gdriveFileId||'',d:v.d||'',creator:v.creator||'',idx:i}));
+    sessionStorage.setItem('bf-player-slim', JSON.stringify(slim));
+    window.location.href = 'player.html';
+  } catch(e) {
+    showToast('Extraction failed: ' + e.message);
+    console.error('Koryo extraction error:', e);
   }
 }
 
@@ -8835,6 +8881,11 @@ function _playVideoInternal(idx){
     const letter=(curVid.tk||curVid.t).charAt(0).toUpperCase();
     document.getElementById('radioDiscLetter').textContent=letter;
     startRadio(curVid.u);
+  }else if(_isKoryoViewUrl(curVid.u)){
+    // Koryo TV view URL — extract MP4 first, then play
+    const _idx = vids.indexOf(curVid);
+    _extractAndPlayKoryo(_idx);
+    return;
   }else{
     // Video player (Video.js)
     playerContainer.style.display='block';
@@ -9072,6 +9123,7 @@ function showPage(page){
     const rmc = document.getElementById('page-randomcard');
     if(rmc){ rmc.style.top = topOffset + 'px'; }
   }
+  if(page==='koryoapi') loadKoryoApiVideos();
   window.scrollTo(0,0);
 }
 
@@ -11813,6 +11865,456 @@ function devLoadAll(){
   const fs=localStorage.getItem('dev_fontScale');
   if(fs&&fs!=='100') document.documentElement.style.fontSize=(fs/100)*16+'px';
 })();
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KORYO TV API INTEGRATION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const KORYO_BASE_URL = 'https://vod.koryo.tv';
+const KORYO_API_BASE = KORYO_BASE_URL + '/api/v1/media/';
+
+/* ── CORS-safe fetch for Koryo API ──────────────────────────────────────────
+   Tries the URL directly first. If the browser blocks it (CORS / network
+   error), automatically retries through a public CORS proxy so the page
+   works even when vod.koryo.tv doesn't send Access-Control-Allow-Origin.
+   ─────────────────────────────────────────────────────────────────────────── */
+const CORS_PROXY = 'https://corsproxy.io/?';
+
+async function koryoFetch(url) {
+  // 1️⃣  Direct attempt
+  try {
+    const r = await fetch(url, { method: 'GET' });
+    if (r.ok) return r;
+    throw new Error('HTTP ' + r.status);
+  } catch (directErr) {
+    console.warn('Koryo direct fetch failed (' + directErr.message + '), retrying via CORS proxy…');
+  }
+  // 2️⃣  CORS proxy fallback
+  const proxied = await fetch(CORS_PROXY + encodeURIComponent(url), { method: 'GET' });
+  if (!proxied.ok) throw new Error('Proxy fetch failed: HTTP ' + proxied.status);
+  return proxied;
+}
+
+async function resolveKoryoMedia(mediaId) {
+  const r = await koryoFetch(KORYO_API_BASE + mediaId);
+  const data = await r.json();
+  const videoUrl = _resolveVideoUrl(data);
+  if(!videoUrl) throw new Error('No playable URL found in API response');
+  return videoUrl;
+}
+
+/* ── Video URL resolver (ported from Extract.html) ── */
+function _resolveVideoUrl(data) {
+  if(!data) return null;
+  // Fast path: top-level common fields
+  if(data.video_url && typeof data.video_url === 'string') return _resolveUrl(data.video_url);
+  if(data.original_media_url && typeof data.original_media_url === 'string') return _resolveUrl(data.original_media_url);
+  if(data.source && typeof data.source === 'string') return _resolveUrl(data.source);
+  if(data.src && typeof data.src === 'string') return _resolveUrl(data.src);
+  if(data.url && typeof data.url === 'string') return _resolveUrl(data.url);
+  if(data.media_url && typeof data.media_url === 'string') return _resolveUrl(data.media_url);
+  if(data.stream_url && typeof data.stream_url === 'string') return _resolveUrl(data.stream_url);
+  if(data.mp4_url && typeof data.mp4_url === 'string') return _resolveUrl(data.mp4_url);
+  if(data.download_url && typeof data.download_url === 'string') return _resolveUrl(data.download_url);
+  if(data.direct_url && typeof data.direct_url === 'string') return _resolveUrl(data.direct_url);
+  if(data.file_url && typeof data.file_url === 'string') return _resolveUrl(data.file_url);
+  if(data.cdn_url && typeof data.cdn_url === 'string') return _resolveUrl(data.cdn_url);
+  if(data.video_src && typeof data.video_src === 'string') return _resolveUrl(data.video_src);
+  if(data.videoUrl && typeof data.videoUrl === 'string') return _resolveUrl(data.videoUrl);
+  if(data.sourceUrl && typeof data.sourceUrl === 'string') return _resolveUrl(data.sourceUrl);
+  if(data.mediaUrl && typeof data.mediaUrl === 'string') return _resolveUrl(data.mediaUrl);
+  if(data.content_url && typeof data.content_url === 'string') return _resolveUrl(data.content_url);
+  if(data.asset_url && typeof data.asset_url === 'string') return _resolveUrl(data.asset_url);
+  if(data.file && typeof data.file === 'string') return _resolveUrl(data.file);
+  if(data.hls_url && typeof data.hls_url === 'string') return _resolveUrl(data.hls_url);
+
+  // Nested media object fast path
+  if(data.media) {
+    if(typeof data.media === 'string') return _resolveUrl(data.media);
+    const m = data.media;
+    if(m.video_url) return _resolveUrl(m.video_url);
+    if(m.url) return _resolveUrl(m.url);
+    if(m.src) return _resolveUrl(m.src);
+    if(m.source) return _resolveUrl(m.source);
+    if(m.media_url) return _resolveUrl(m.media_url);
+    if(m.mp4_url) return _resolveUrl(m.mp4_url);
+    if(m.file_url) return _resolveUrl(m.file_url);
+    if(m.stream_url) return _resolveUrl(m.stream_url);
+    if(m.download_url) return _resolveUrl(m.download_url);
+    if(m.direct_url) return _resolveUrl(m.direct_url);
+  }
+
+  // Nested video object fast path
+  if(data.video) {
+    if(typeof data.video === 'string') return _resolveUrl(data.video);
+    const v = data.video;
+    if(v.url) return _resolveUrl(v.url);
+    if(v.src) return _resolveUrl(v.src);
+    if(v.source) return _resolveUrl(v.source);
+    if(v.video_url) return _resolveUrl(v.video_url);
+    if(v.mp4_url) return _resolveUrl(v.mp4_url);
+  }
+
+  // Array sources
+  if(Array.isArray(data.sources) && data.sources.length) {
+    const s = data.sources[0];
+    return _resolveUrl(s.src || s.url || s.file || (typeof s === 'string' ? s : null));
+  }
+  if(Array.isArray(data.files) && data.files.length) {
+    const f = data.files[0];
+    return _resolveUrl(f.url || f.src || f.file || f.path || (typeof f === 'string' ? f : null));
+  }
+
+  // Last resort: deep scan all string values for video URLs
+  for(const val of Object.values(data)) {
+    if(typeof val === 'string') {
+      if(/https?:\/\/.+\.(mp4|m3u8|webm|mov)/i.test(val)) return val;
+      if(/^\/.+\.(mp4|m3u8|webm|mov)/i.test(val)) return KORYO_BASE_URL + val;
+    }
+  }
+  return null;
+}
+
+function _resolveUrl(u) {
+  if(!u) return null;
+  if(u.startsWith('http')) return u;
+  if(u.startsWith('/')) return KORYO_BASE_URL + u;
+  return KORYO_BASE_URL + '/' + u;
+}
+
+function _extractMediaId(url) {
+  const m = url.match(/[?&]m=([A-Za-z0-9]+)/);
+  return m ? m[1] : null;
+}
+
+function _isKoryoViewUrl(url) {
+  if(!url || typeof url !== 'string') return false;
+  return url.includes('vod.koryo.tv/view?m=');
+}
+
+async function _extractAndPlayKoryo(idx) {
+  const v = vids[idx];
+  if(!v || !v.u) return;
+
+  const mediaId = _extractMediaId(v.u);
+  if(!mediaId) {
+    showToast('Error: Video cannot be loaded!');
+    return;
+  }
+
+  showToast('Loading~');
+  try {
+    const mp4Url = await resolveKoryoMedia(mediaId);
+    // Update the video entry with the resolved MP4 URL so future plays are instant
+    vids[idx].u = mp4Url;
+    vids[idx].resolved = true;
+    // Also preserve original Koryo view URL
+    vids[idx].koryoViewUrl = v.u;
+    // Now play normally
+    _playVideoInternal(idx);
+  } catch(e) {
+    showToast('Extraction failed: ' + e.message);
+    console.error('Koryo extraction error:', e);
+  }
+}
+
+/* ── Fetch Koryo API videos and merge into vids ── */
+async function fetchKoryoApiAndMerge() {
+  try {
+    console.log('[KoryoAPI] Starting fetch from', KORYO_API_BASE);
+    let all = [];
+    let nextUrl = KORYO_API_BASE + '?limit=50';
+    let pages = 0;
+    while(nextUrl) {  // paginate through ALL pages until API says done
+      console.log('[KoryoAPI] Fetching page', pages + 1, '→', nextUrl);
+      const r = await koryoFetch(nextUrl);
+      const data = await r.json();
+      // Support different API response shapes
+      const results = Array.isArray(data) ? data : (data.results || data.data || data.videos || []);
+      console.log('[KoryoAPI] Page', pages + 1, '→', results.length, 'items. next:', data.next || null);
+      all = all.concat(results);
+      // Only follow pagination if next is a real HTTP URL
+      nextUrl = (typeof data.next === 'string' && data.next.startsWith('http')) ? data.next : null;
+      pages++;
+    }
+
+    console.log('[KoryoAPI] Total fetched:', all.length, 'videos');
+    if(all.length === 0) {
+      console.warn('[KoryoAPI] API returned 0 results — nothing to add');
+      return;
+    }
+
+    // Keep only videos added on or after April 25, 2026
+    const cutoff = new Date('2026-04-25T00:00:00Z');
+    const newVideos = all.filter(v => {
+      if(!(v.title || v.t) || !(v.friendly_token || v.u)) return false;
+      if(!v.add_date) return false;
+      return new Date(v.add_date) >= cutoff;
+    });
+    console.log('[KoryoAPI] Videos from April 25 2026 onwards:', newVideos.length);
+    if(newVideos.length === 0) return;
+
+    // Avoid duplicates: skip any video whose token is already in vids
+    const existingTokens = new Set(
+      vids.filter(v => v.koryoToken).map(v => v.koryoToken)
+    );
+
+    const converted = newVideos
+      .filter(v => !existingTokens.has(v.friendly_token || v.token))
+      .map(v => {
+        const token = v.friendly_token || v.token || '';
+        const addedYear = v.add_date ? new Date(v.add_date).getFullYear() : new Date().getFullYear();
+        return {
+          t: v.title || v.t || 'Untitled',
+          tk: '',
+          d: v.description || v.summary || '',
+          u: KORYO_BASE_URL + '/view?m=' + token,
+          y: String(addedYear),
+          c: 'news',
+          ty: 'Video',
+          views: String(v.views || v.view_count || '0'),
+          duration: v.duration ? _fmtDuration(v.duration) : '',
+          badge: 'new',
+          thumb: v.thumbnail_url || v.thumbnail || v.poster || '',
+          creator: 'KoryoTV',
+          koryoToken: token,
+          isYouTube: false,
+          isEmbed: false,
+          isExternal: false,
+          isGoogleDrive: false,
+          isM3U8: false
+        };
+      });
+
+    if(converted.length === 0) {
+      console.log('[KoryoAPI] All fetched videos already exist in vids — nothing new to add');
+      return;
+    }
+
+    console.log('[KoryoAPI] Adding', converted.length, 'new videos to grid');
+
+    // Push (not unshift) so new videos get the highest indices and sort to
+    // the TOP in newest-first order
+    vids.push(...converted);
+
+    // Re-render grid & news row
+    renderVideos(curFilter);
+    renderKctvNews();
+
+    // Update counts
+    const videoCountEl = document.getElementById('videoCount');
+    const contentCountEl = document.getElementById('contentCount');
+    if(videoCountEl) videoCountEl.textContent = vids.length;
+    if(contentCountEl) contentCountEl.textContent = '(' + vids.length + ')';
+
+    console.log('[KoryoAPI] Merge complete —', converted.length, 'videos added, total:', vids.length);
+
+    // Re-save slim vids so player.html can resolve these videos too
+    try {
+      const slim = vids.map(v => ({t:v.t,tk:v.tk||'',c:v.c,ty:v.ty||'',views:v.views,duration:v.duration||'',u:v.u,y:v.y||'',isM3U8:!!v.isM3U8,isYouTube:!!v.isYouTube,isPinned:!!v.isPinned,isGoogleDrive:!!v.isGoogleDrive,isEmbed:!!v.isEmbed,isExternal:!!v.isExternal,thumb:v.thumb||'',gdriveFileId:v.gdriveFileId||'',d:v.d||'',creator:v.creator||'',koryoToken:v.koryoToken||''}));
+      localStorage.setItem('bf-slim-vids', JSON.stringify(slim));
+    } catch(e) {}
+
+  } catch(e) {
+    // Log as warn, not error — fetch fails in sandboxed/preview environments
+    console.warn('[KoryoAPI] Fetch failed (normal in preview mode):', e.message);
+  }
+}
+
+function _fmtDuration(sec) {
+  if(!sec) return '';
+  const h = Math.floor(sec/3600);
+  const m = Math.floor((sec%3600)/60);
+  const s = Math.floor(sec%60);
+  if(h > 0) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  return m + ':' + String(s).padStart(2,'0');
+}
+
+let koryoApiVideos = [];
+
+async function loadKoryoApiVideos() {
+  const grid = document.getElementById('koryoapiGrid');
+  const loading = document.getElementById('koryoapiLoading');
+  const empty = document.getElementById('koryoapiEmpty');
+
+  if(!grid) return;
+
+  grid.style.display = 'none';
+  empty.style.display = 'none';
+  loading.style.display = 'block';
+
+  try {
+    let all = [];
+    let nextUrl = KORYO_API_BASE + '?limit=50';
+    let pages = 0;
+    while(nextUrl) {  // paginate through ALL pages
+      const r = await koryoFetch(nextUrl);
+      const data = await r.json();
+      const results = Array.isArray(data) ? data : (data.results || data.data || data.videos || []);
+      all = all.concat(results);
+      nextUrl = (typeof data.next === 'string' && data.next.startsWith('http')) ? data.next : null;
+      pages++;
+    }
+
+    // Only show videos added on or after April 25, 2026
+    const cutoff = new Date('2026-04-25T00:00:00Z');
+    koryoApiVideos = all.filter(v => {
+      if(!(v.title || v.t)) return false;
+      if(!v.add_date) return false;
+      return new Date(v.add_date) >= cutoff;
+    });
+
+    loading.style.display = 'none';
+
+    if(koryoApiVideos.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    grid.innerHTML = '';
+    koryoApiVideos.forEach((v, idx) => {
+      const card = document.createElement('div');
+      card.className = 'recommend-card';
+      card.style.cursor = 'pointer';
+
+      const thumb = v.thumbnail_url || makePlaceholderSVG(v.title, 'news');
+      const duration = v.duration ? formatDuration(v.duration) : '';
+      const views = v.views ? formatNumber(v.views) + ' views' : '';
+      const dateStr = v.add_date ? new Date(v.add_date).toLocaleDateString() : '';
+
+      card.innerHTML = `
+        <div class="recommend-thumb">
+          <img src="${thumb}" alt="${escapeHtml(v.title)}" loading="lazy">
+          <div class="card-meta">
+            <span class="card-views">${views}</span>
+            <span class="card-duration">${duration}</span>
+          </div>
+          <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <div class="recommend-info">
+          <div class="recommend-title">${escapeHtml(v.title)}</div>
+          <div class="recommend-meta">${dateStr}</div>
+        </div>
+      `;
+      card.addEventListener('click', () => playKoryoVideo(idx));
+      grid.appendChild(card);
+    });
+
+    grid.style.display = 'grid';
+  } catch(e) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    const isPreview = e.message === 'Failed to fetch' || e.message.includes('NetworkError') || e.message.includes('blocked');
+    empty.innerHTML = isPreview
+      ? '<p style="color:var(--text-secondary);">📡 Juche TV API is not reachable in this preview environment.<br><span style="font-size:.8rem;opacity:.6;">Open the file in a real browser to load live videos.</span></p>'
+      : '<p>Error loading videos: ' + escapeHtml(e.message) + '</p>';
+    console.info('KoryoAPI load skipped:', e.message);
+  }
+}
+
+async function playKoryoVideo(idx) {
+  const v = koryoApiVideos[idx];
+  if(!v) return;
+
+  showToast('Loading using the video database!');
+
+  try {
+    const mp4Url = await resolveKoryoMedia(v.friendly_token);
+
+    const vid = {
+      t: v.title,
+      u: mp4Url,
+      y: new Date(v.add_date).getFullYear(),
+      c: 'news',
+      ty: 'Video',
+      views: v.views || 0,
+      duration: v.duration ? formatDuration(v.duration) : '',
+      thumb: v.thumbnail_url || '',
+      d: v.description || '',
+      isYouTube: false,
+      isEmbed: false,
+      isExternal: false,
+      isGoogleDrive: false,
+      isM3U8: false,
+      creator: 'Juche TV'
+    };
+
+    sessionStorage.setItem('bf-player-vid', JSON.stringify(vid));
+    sessionStorage.setItem('bf-player-idx', String(idx));
+
+    const slim = koryoApiVideos.map((vv, i) => ({
+      t: vv.title,
+      u: '', // will be resolved on click
+      y: new Date(vv.add_date).getFullYear(),
+      c: 'news',
+      ty: 'Video',
+      views: vv.views || 0,
+      duration: vv.duration ? formatDuration(vv.duration) : '',
+      thumb: vv.thumbnail_url || '',
+      d: vv.description || '',
+      isYouTube: false,
+      isEmbed: false,
+      isExternal: false,
+      isGoogleDrive: false,
+      isM3U8: false,
+      creator: 'Juche TV',
+      koryoId: vv.friendly_token,
+      idx: i
+    }));
+    sessionStorage.setItem('bf-player-slim', JSON.stringify(slim));
+    sessionStorage.setItem('bf-player-koryo', 'true');
+
+    window.location.href = 'player.html';
+  } catch(e) {
+    showToast('Failed to resolve video: ' + e.message);
+    console.error('Koryo play error:', e);
+  }
+}
+
+function formatDuration(sec) {
+  if(!sec) return '';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function formatNumber(n) {
+  if(n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if(n >= 1e3) return (n/1e3).toFixed(1) + 'k';
+  return String(n);
+}
+
+function escapeHtml(text) {
+  if(!text) return '';
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       KORYO TV API ARCHIVE PAGE
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div id="page-koryoapi" class="page info-page">
+    <div class="info-backdrop"></div>
+    <div class="hero">
+      <div class="hero-bg" style="background-image:url('https://koryo.tv/static/images/hero.webp');"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title" style="font-size:2rem;">Juche TV API Archive</h1>
+        <p class="hero-subtitle">On-demand videos from the Juche TVmedia library — April 25, 2026 onwards.</p>
+      </div>
+    </div>
+    <div class="info-main" style="padding-top:2rem;">
+      <div id="koryoapiLoading" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
+        <div style="width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem;"></div>
+        <p>Loading videos from Juche TV database…</p>
+      </div>
+      <div id="koryoapiGrid" class="recommend-grid" style="display:none;"></div>
+      <div id="koryoapiEmpty" style="display:none;text-align:center;padding:3rem 1rem;color:var(--muted);">
+        <p>No videos found from April 25, 2026 onwards.</p>
+      </div>
+    </div>
+  </div>
 
 </html>

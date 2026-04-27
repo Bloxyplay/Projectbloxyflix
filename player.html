@@ -1605,8 +1605,131 @@ function enrichSlim(v){
   if(o.isGoogleDrive&&!o.gdriveFileId&&typeof o.u==='string'){const m=o.u.match(/([A-Za-z0-9_-]{20,})/);if(m)o.gdriveFileId=m[1];}
   return o;
 }
+/* ═══════════════════════════════════════════════════════════════════════════
+   KORYO TV API INTEGRATION
+   ═══════════════════════════════════════════════════════════════════════════ */
+const KORYO_BASE_URL = 'https://vod.koryo.tv';
+const KORYO_API_BASE = KORYO_BASE_URL + '/api/v1/media/';
+
+async function resolveKoryoMedia(mediaId) {
+  const r = await fetch(KORYO_API_BASE + mediaId, { method:'GET' });
+  if(!r.ok) throw new Error('API error ' + r.status);
+  const data = await r.json();
+  const videoUrl = _resolveVideoUrl(data);
+  if(!videoUrl) throw new Error('No playable URL found in API response');
+  return videoUrl;
+}
+
+/* ── Video URL resolver (ported from Extract.html) ── */
+function _resolveVideoUrl(data) {
+  if(!data) return null;
+  if(data.video_url && typeof data.video_url === 'string') return _resolveUrl(data.video_url);
+  if(data.original_media_url && typeof data.original_media_url === 'string') return _resolveUrl(data.original_media_url);
+  if(data.source && typeof data.source === 'string') return _resolveUrl(data.source);
+  if(data.src && typeof data.src === 'string') return _resolveUrl(data.src);
+  if(data.url && typeof data.url === 'string') return _resolveUrl(data.url);
+  if(data.media_url && typeof data.media_url === 'string') return _resolveUrl(data.media_url);
+  if(data.stream_url && typeof data.stream_url === 'string') return _resolveUrl(data.stream_url);
+  if(data.mp4_url && typeof data.mp4_url === 'string') return _resolveUrl(data.mp4_url);
+  if(data.download_url && typeof data.download_url === 'string') return _resolveUrl(data.download_url);
+  if(data.direct_url && typeof data.direct_url === 'string') return _resolveUrl(data.direct_url);
+  if(data.file_url && typeof data.file_url === 'string') return _resolveUrl(data.file_url);
+  if(data.cdn_url && typeof data.cdn_url === 'string') return _resolveUrl(data.cdn_url);
+  if(data.video_src && typeof data.video_src === 'string') return _resolveUrl(data.video_src);
+  if(data.videoUrl && typeof data.videoUrl === 'string') return _resolveUrl(data.videoUrl);
+  if(data.sourceUrl && typeof data.sourceUrl === 'string') return _resolveUrl(data.sourceUrl);
+  if(data.mediaUrl && typeof data.mediaUrl === 'string') return _resolveUrl(data.mediaUrl);
+  if(data.content_url && typeof data.content_url === 'string') return _resolveUrl(data.content_url);
+  if(data.asset_url && typeof data.asset_url === 'string') return _resolveUrl(data.asset_url);
+  if(data.file && typeof data.file === 'string') return _resolveUrl(data.file);
+  if(data.hls_url && typeof data.hls_url === 'string') return _resolveUrl(data.hls_url);
+
+  if(data.media) {
+    if(typeof data.media === 'string') return _resolveUrl(data.media);
+    const m = data.media;
+    if(m.video_url) return _resolveUrl(m.video_url);
+    if(m.url) return _resolveUrl(m.url);
+    if(m.src) return _resolveUrl(m.src);
+    if(m.source) return _resolveUrl(m.source);
+    if(m.media_url) return _resolveUrl(m.media_url);
+    if(m.mp4_url) return _resolveUrl(m.mp4_url);
+    if(m.file_url) return _resolveUrl(m.file_url);
+    if(m.stream_url) return _resolveUrl(m.stream_url);
+    if(m.download_url) return _resolveUrl(m.download_url);
+    if(m.direct_url) return _resolveUrl(m.direct_url);
+  }
+
+  if(data.video) {
+    if(typeof data.video === 'string') return _resolveUrl(data.video);
+    const v = data.video;
+    if(v.url) return _resolveUrl(v.url);
+    if(v.src) return _resolveUrl(v.src);
+    if(v.source) return _resolveUrl(v.source);
+    if(v.video_url) return _resolveUrl(v.video_url);
+    if(v.mp4_url) return _resolveUrl(v.mp4_url);
+  }
+
+  if(Array.isArray(data.sources) && data.sources.length) {
+    const s = data.sources[0];
+    return _resolveUrl(s.src || s.url || s.file || (typeof s === 'string' ? s : null));
+  }
+  if(Array.isArray(data.files) && data.files.length) {
+    const f = data.files[0];
+    return _resolveUrl(f.url || f.src || f.file || f.path || (typeof f === 'string' ? f : null));
+  }
+
+  for(const val of Object.values(data)) {
+    if(typeof val === 'string') {
+      if(/https?:\/\/.+\.(mp4|m3u8|webm|mov)/i.test(val)) return val;
+      if(/^\/.+\.(mp4|m3u8|webm|mov)/i.test(val)) return KORYO_BASE_URL + val;
+    }
+  }
+  return null;
+}
+
+function _resolveUrl(u) {
+  if(!u) return null;
+  if(u.startsWith('http')) return u;
+  if(u.startsWith('/')) return KORYO_BASE_URL + u;
+  return KORYO_BASE_URL + '/' + u;
+}
+
+function _extractMediaId(url) {
+  const m = url.match(/[?&]m=([A-Za-z0-9]+)/);
+  return m ? m[1] : null;
+}
+
+function _isKoryoViewUrl(url) {
+  if(!url || typeof url !== 'string') return false;
+  return url.includes('vod.koryo.tv/view?m=');
+}
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if(!t){ t = document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('active');
+  setTimeout(()=>t.classList.remove('active'), 3000);
+}
+
 function loadVid(idx){
   const raw=slimVids[idx];if(!raw)return;
+  
+  // Handle KoryoTV API videos - resolve MP4 URL on demand
+  if(raw.koryoId){
+    showToast('Resolving video via KoryoTV API…');
+    resolveKoryoMedia(raw.koryoId).then(mp4Url => {
+      const vid = enrichSlim({...raw, u: mp4Url}); delete vid.thumb;
+      const enrichedSlim = slimVids.map(enrichSlim);
+      sessionStorage.setItem('bf-player-vid', JSON.stringify(vid));
+      sessionStorage.setItem('bf-player-idx', String(idx));
+      sessionStorage.setItem('bf-player-slim', JSON.stringify(enrichedSlim));
+      window.location.href = 'player.html';
+    }).catch(e => {
+      showToast('Failed to resolve video: ' + e.message);
+      console.error('Koryo resolve error:', e);
+    });
+    return;
+  }
+  
   const vid=enrichSlim({...raw});delete vid.thumb;
   const enrichedSlim=slimVids.map(enrichSlim);
   sessionStorage.setItem('bf-player-vid',JSON.stringify(vid));
