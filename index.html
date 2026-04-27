@@ -10181,7 +10181,7 @@ window.addEventListener('scroll', () => {
         <svg viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
       </div>
       <div>
-        <div style="font-family:'Bebas Neue',Impact,sans-serif;font-size:1.3rem;color:#fff;letter-spacing:2px;line-height:1;">Juche TV</div>
+        <div id="devUnlockTrigger" style="font-family:'Bebas Neue',Impact,sans-serif;font-size:1.3rem;color:#fff;letter-spacing:2px;line-height:1;cursor:default;user-select:none;" onclick="devPanelTap()">Juche TV</div>
         <div style="font-size:.65rem;color:#f87171;letter-spacing:1.5px;text-transform:uppercase;line-height:1.2;">Historical &amp; Cultural Media Archive</div>
       </div>
     </div>
@@ -10375,4 +10375,1444 @@ function showSourceModal(){
 function copySourceLink(){
   const btn=document.getElementById('srcCopyBtn');
   if(navigator.clipboard){
-    navigator.clipboard.writeText('
+    navigator.clipboard.writeText('');
+  }
+}
+</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     JUCHE TV — DEVELOPER PANEL (Local-only · 10-tap unlock)
+══════════════════════════════════════════════════════════ -->
+<style>
+/* ── Dev Panel Overlay ── */
+#devPanel{
+  display:none;position:fixed;inset:0;z-index:999999;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  align-items:flex-end;justify-content:center;
+  padding:0;
+}
+#devPanel.open{display:flex;}
+#devPanelSheet{
+  width:100%;max-width:540px;
+  max-height:92dvh;
+  background:#0d0f14;
+  border-radius:24px 24px 0 0;
+  border:1px solid rgba(220,38,38,0.22);
+  border-bottom:none;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 -8px 60px rgba(0,0,0,.9);
+  animation:devSlideUp .32s cubic-bezier(.22,1,.36,1);
+}
+@keyframes devSlideUp{from{transform:translateY(100%);}to{transform:none;}}
+#devPanelHandle{
+  width:40px;height:4px;border-radius:4px;
+  background:rgba(255,255,255,.18);
+  margin:10px auto 0;flex-shrink:0;
+}
+#devPanelHeader{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.25rem .6rem;flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.dev-header-left{display:flex;align-items:center;gap:.6rem;}
+.dev-badge{
+  font-size:.6rem;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;padding:.2rem .55rem;
+  border-radius:6px;background:rgba(220,38,38,.15);
+  color:#f87171;border:1px solid rgba(220,38,38,.3);
+}
+#devPanelTitle{font-size:1rem;font-weight:700;color:#fff;margin:0;}
+#devCloseBtn{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:none;
+  color:#aaa;font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+#devCloseBtn:hover{background:rgba(255,255,255,.16);}
+/* Tabs */
+#devTabs{
+  display:flex;gap:0;padding:.6rem .9rem .0rem;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  flex-shrink:0;overflow-x:auto;scrollbar-width:none;
+}
+#devTabs::-webkit-scrollbar{display:none;}
+.dev-tab{
+  padding:.42rem .85rem;font-size:.75rem;font-weight:600;
+  border:none;background:none;cursor:pointer;
+  color:#6b7280;border-bottom:2px solid transparent;
+  white-space:nowrap;transition:color .15s;
+  margin-bottom:-1px;
+}
+.dev-tab.active{color:#f87171;border-bottom-color:#dc2626;}
+.dev-tab:hover:not(.active){color:#d1d5db;}
+/* Body */
+#devPanelBody{overflow-y:auto;flex:1;padding:.9rem 1rem 1.5rem;}
+#devPanelBody::-webkit-scrollbar{width:4px;}
+#devPanelBody::-webkit-scrollbar-track{background:transparent;}
+#devPanelBody::-webkit-scrollbar-thumb{background:#2a2b35;border-radius:4px;}
+
+/* Tab panes */
+.dev-pane{display:none;}
+.dev-pane.active{display:block;}
+
+/* Section */
+.dev-section{margin-bottom:1.25rem;}
+.dev-section-title{
+  font-size:.65rem;font-weight:700;letter-spacing:1.6px;
+  text-transform:uppercase;color:#6b7280;
+  padding:0 .25rem;margin-bottom:.55rem;
+}
+/* Row */
+.dev-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:.75rem;padding:.7rem .9rem;
+  background:#13141a;border-radius:12px;
+  margin-bottom:.4rem;border:1px solid rgba(255,255,255,.05);
+  min-height:48px;
+}
+.dev-row-info{flex:1;min-width:0;}
+.dev-row-label{font-size:.82rem;font-weight:600;color:#d1d5db;margin-bottom:.05rem;}
+.dev-row-desc{font-size:.7rem;color:#6b7280;line-height:1.4;}
+/* Controls */
+.dev-input{
+  background:#0a0b10;border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;color:#fff;padding:.35rem .65rem;
+  font-size:.8rem;min-width:0;width:140px;
+  outline:none;transition:border-color .15s;
+}
+.dev-input:focus{border-color:#dc2626;}
+.dev-input-wide{width:100%;margin-top:.5rem;display:block;}
+.dev-select{
+  background:#0a0b10;border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;color:#fff;padding:.35rem .55rem;
+  font-size:.78rem;width:140px;outline:none;cursor:pointer;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .4rem center;
+  background-size:20px;padding-right:1.8rem;
+}
+.dev-select:focus{border-color:#dc2626;outline:none;}
+.dev-btn{
+  padding:.38rem .85rem;border-radius:8px;border:none;cursor:pointer;
+  font-size:.75rem;font-weight:700;transition:opacity .15s;
+  white-space:nowrap;
+}
+.dev-btn:hover{opacity:.82;}
+.dev-btn-danger{background:#7f1d1d;color:#fca5a5;}
+.dev-btn-accent{background:linear-gradient(135deg,#dc2626,#7f1d1d);color:#fff;}
+.dev-btn-ghost{background:rgba(255,255,255,.07);color:#d1d5db;border:1px solid rgba(255,255,255,.1);}
+.dev-btn-success{background:#14532d;color:#86efac;}
+.dev-btn-warn{background:#78350f;color:#fcd34d;}
+/* Toggle */
+.dev-toggle{
+  position:relative;width:44px;height:24px;flex-shrink:0;cursor:pointer;
+}
+.dev-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.dev-toggle-track{
+  position:absolute;inset:0;border-radius:24px;
+  background:#2a2b35;transition:background .2s;border:1px solid rgba(255,255,255,.08);
+}
+.dev-toggle input:checked + .dev-toggle-track{background:#dc2626;}
+.dev-toggle-thumb{
+  position:absolute;top:2px;left:2px;
+  width:18px;height:18px;border-radius:50%;
+  background:#fff;transition:transform .2s;
+  box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.dev-toggle input:checked ~ .dev-toggle-thumb{transform:translateX(20px);}
+/* Color swatch */
+.dev-color{
+  width:36px;height:28px;border-radius:7px;
+  border:1px solid rgba(255,255,255,.15);cursor:pointer;
+  background:transparent;padding:0;overflow:hidden;
+}
+.dev-color input[type=color]{width:150%;height:150%;margin:-25%;border:none;cursor:pointer;opacity:1;}
+/* Slider */
+.dev-slider{
+  -webkit-appearance:none;appearance:none;
+  width:120px;height:4px;border-radius:4px;
+  background:rgba(255,255,255,.1);outline:none;cursor:pointer;
+}
+.dev-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:#dc2626;cursor:pointer;
+  box-shadow:0 0 0 2px rgba(220,38,38,.3);
+}
+/* Textarea */
+.dev-textarea{
+  width:100%;background:#0a0b10;border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;color:#fff;padding:.5rem .7rem;
+  font-size:.75rem;resize:vertical;min-height:64px;
+  font-family:monospace;outline:none;
+}
+.dev-textarea:focus{border-color:#dc2626;}
+/* Value display */
+.dev-val{font-size:.75rem;color:#f87171;font-family:monospace;min-width:32px;text-align:right;}
+/* Info card */
+.dev-info-card{
+  background:#13141a;border:1px solid rgba(255,255,255,.05);
+  border-radius:10px;padding:.65rem .9rem;margin-bottom:.4rem;
+  font-size:.72rem;color:#9ca3af;line-height:1.6;
+}
+.dev-info-card strong{color:#d1d5db;}
+.dev-info-card code{
+  background:rgba(220,38,38,.08);color:#f87171;
+  padding:.05rem .3rem;border-radius:4px;font-family:monospace;font-size:.7rem;
+}
+/* Toast for dev panel */
+.dev-toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  background:#1e1f28;border:1px solid rgba(220,38,38,.3);
+  border-radius:10px;padding:.5rem 1.2rem;
+  font-size:.8rem;color:#fff;font-weight:600;
+  pointer-events:none;z-index:9999999;
+  opacity:0;transition:opacity .2s;
+}
+.dev-toast.show{opacity:1;}
+/* Reset btn inside section */
+.dev-section-action{display:flex;justify-content:flex-end;margin-top:.5rem;}
+/* Color grid for theme */
+.dev-color-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.dev-theme-swatch{
+  width:44px;height:28px;border-radius:7px;cursor:pointer;
+  border:2px solid transparent;transition:border-color .15s;
+}
+.dev-theme-swatch.selected{border-color:#dc2626;}
+/* Stat badge */
+.dev-stat-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem;}
+.dev-stat{
+  flex:1;min-width:80px;
+  background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.15);
+  border-radius:10px;padding:.55rem .7rem;text-align:center;
+}
+.dev-stat-num{font-size:1.05rem;font-weight:800;color:#f87171;}
+.dev-stat-lbl{font-size:.62rem;color:#6b7280;margin-top:.1rem;}
+/* Bottom reset all */
+#devResetAll{
+  width:100%;padding:.65rem;margin-top:1rem;
+  background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
+  border-radius:10px;color:#f87171;font-weight:700;font-size:.82rem;
+  cursor:pointer;transition:background .15s;
+}
+#devResetAll:hover{background:rgba(239,68,68,.22);}
+</style>
+
+<!-- Dev Panel HTML -->
+<div id="devPanel" onclick="if(event.target===this)closeDev()">
+  <div id="devPanelSheet">
+    <div id="devPanelHandle"></div>
+    <div id="devPanelHeader">
+      <div class="dev-header-left">
+        <span class="dev-badge">🛠 Dev</span>
+        <p id="devPanelTitle">Juche TV — Developer Panel (Only you can see!)</p>
+      </div>
+      <button id="devCloseBtn" onclick="closeDev()">✕</button>
+    </div>
+    <div id="devTabs">
+      <button class="dev-tab active" onclick="switchDevTab('branding')">🎨 Branding</button>
+      <button class="dev-tab" onclick="switchDevTab('ui')">🖥 UI</button>
+      <button class="dev-tab" onclick="switchDevTab('player')">▶ Player</button>
+      <button class="dev-tab" onclick="switchDevTab('content')">📺 Content</button>
+      <button class="dev-tab" onclick="switchDevTab('data')">💾 Data</button>
+      <button class="dev-tab" onclick="switchDevTab('debug')">🐛 Debug</button>
+    </div>
+    <div id="devPanelBody">
+
+      <!-- ══ BRANDING ══ -->
+      <div class="dev-pane active" id="devPane-branding">
+
+        <div class="dev-section">
+          <div class="dev-section-title">Site Title</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Website Title</div>
+            <div class="dev-row-desc">Shown in browser tab. Inappropriate words are replaced with *** TV.</div>
+            <input class="dev-input dev-input-wide" id="devSiteTitle" placeholder="Juche TV — Television Archive" oninput="previewTitle(this.value)">
+            <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+              <button class="dev-btn dev-btn-accent" onclick="applyTitle()">Apply</button>
+              <button class="dev-btn dev-btn-ghost" onclick="resetTitle()">Reset</button>
+            </div>
+            <div style="font-size:.68rem;color:#6b7280;margin-top:.35rem;" id="devTitlePreview"></div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Nav Logo Text</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Logo Label <span style="color:#f87171;font-size:.68rem;">(nav bar)</span></div>
+            <div style="display:flex;gap:.5rem;margin-top:.4rem;">
+              <input class="dev-input" style="flex:1;" id="devLogoMain" placeholder="Juche">
+              <input class="dev-input" style="width:80px;" id="devLogoSub" placeholder="TV">
+            </div>
+            <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+              <button class="dev-btn dev-btn-accent" onclick="applyLogo()">Apply</button>
+              <button class="dev-btn dev-btn-ghost" onclick="resetLogo()">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Accent Colour</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Primary Accent</div>
+              <div class="dev-row-desc">Buttons, badges, highlights</div>
+            </div>
+            <label class="dev-color"><input type="color" id="devAccentColor" value="#dc2626" oninput="applyAccent(this.value)"></label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Accent Hover</div>
+              <div class="dev-row-desc">Hover state colour</div>
+            </div>
+            <label class="dev-color"><input type="color" id="devAccentHover" value="#b91c1c" oninput="applyAccentHover(this.value)"></label>
+          </div>
+          <div class="dev-section-action">
+            <button class="dev-btn dev-btn-ghost" onclick="resetAccent()">Reset Accent</button>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Theme</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Active Theme</div>
+            <div class="dev-color-grid" id="devThemeGrid">
+              <div class="dev-theme-swatch" style="background:#0a0a0a;border-color:#dc2626;" title="Classic" onclick="applyTheme('classic')"></div>
+              <div class="dev-theme-swatch" style="background:#050a1a;" title="Midnight" onclick="applyTheme('midnight')"></div>
+              <div class="dev-theme-swatch" style="background:#060e08;" title="Forest" onclick="applyTheme('forest')"></div>
+              <div class="dev-theme-swatch" style="background:#120608;" title="Sunset" onclick="applyTheme('sunset')"></div>
+              <div class="dev-theme-swatch" style="background:#000;" title="Pure Black" onclick="applyTheme('pureblack')"></div>
+              <div class="dev-theme-swatch" style="background:#fff;border-color:#ccc;" title="White / Orange" onclick="applyTheme('whiteorange')"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Liquid Glass Effect</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Glass UI</div>
+              <div class="dev-row-desc">Blur & transparency on nav/cards</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devGlass" onchange="applyGlass(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Footer Tagline</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Tagline text</div>
+            <input class="dev-input dev-input-wide" id="devTagline" placeholder="Historical & Cultural Media Archive">
+            <div style="margin-top:.5rem;display:flex;gap:.5rem;">
+              <button class="dev-btn dev-btn-accent" onclick="applyTagline()">Apply</button>
+              <button class="dev-btn dev-btn-ghost" onclick="resetTagline()">Reset</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ UI ══ -->
+      <div class="dev-pane" id="devPane-ui">
+
+        <div class="dev-section">
+          <div class="dev-section-title">Layout</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Border Radius</div>
+              <div class="dev-row-desc">Card corner roundness</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <input type="range" class="dev-slider" id="devRadius" min="0" max="24" value="4" oninput="applyRadius(this.value);document.getElementById('devRadiusVal').textContent=this.value+'px'">
+              <span class="dev-val" id="devRadiusVal">4px</span>
+            </div>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Nav Blur Amount</div>
+              <div class="dev-row-desc">Backdrop blur on navigation</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <input type="range" class="dev-slider" id="devNavBlur" min="0" max="40" value="28" oninput="applyNavBlur(this.value);document.getElementById('devNavBlurVal').textContent=this.value+'px'">
+              <span class="dev-val" id="devNavBlurVal">28px</span>
+            </div>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Font Scale</div>
+              <div class="dev-row-desc">Global font size multiplier</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <input type="range" class="dev-slider" id="devFontScale" min="80" max="120" value="100" oninput="applyFontScale(this.value);document.getElementById('devFontScaleVal').textContent=this.value+'%'">
+              <span class="dev-val" id="devFontScaleVal">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Visibility</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Show Footer</div>
+              <div class="dev-row-desc">Toggle site footer visibility</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devShowFooter" checked onchange="applyFooterVis(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Show Nav Bar</div>
+              <div class="dev-row-desc">Toggle top navigation</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devShowNav" checked onchange="applyNavVis(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Compact Mode</div>
+              <div class="dev-row-desc">Reduce card/padding sizes</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devCompact" onchange="applyCompact(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Hide Sidebar</div>
+              <div class="dev-row-desc">Permanently collapse sidebar</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devHideSidebar" onchange="applyHideSidebar(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Animation</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Disable Animations</div>
+              <div class="dev-row-desc">Turns off CSS transitions & keyframes</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devNoAnim" onchange="applyNoAnim(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Card Hover Scale</div>
+              <div class="dev-row-desc">Scale factor on card hover</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <input type="range" class="dev-slider" id="devHoverScale" min="100" max="115" value="105" oninput="applyHoverScale(this.value);document.getElementById('devHoverScaleVal').textContent=(this.value/100).toFixed(2)+'×'">
+              <span class="dev-val" id="devHoverScaleVal">1.05×</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Custom CSS Injection</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Inject CSS</div>
+            <div class="dev-row-desc" style="margin-bottom:.4rem;">Added as a &lt;style&gt; tag — cleared on reset.</div>
+            <textarea class="dev-textarea" id="devCustomCSS" placeholder="/* e.g. body { letter-spacing: 1px; } */"></textarea>
+            <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+              <button class="dev-btn dev-btn-accent" onclick="applyCustomCSS()">Inject</button>
+              <button class="dev-btn dev-btn-ghost" onclick="clearCustomCSS()">Clear</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ PLAYER ══ -->
+      <div class="dev-pane" id="devPane-player">
+
+        <div class="dev-section">
+          <div class="dev-section-title">Default Playback</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Default Speed</div>
+              <div class="dev-row-desc">Playback rate for new videos</div>
+            </div>
+            <select class="dev-select" id="devDefaultSpeed" onchange="saveDevSetting('devDefaultSpeed',this.value)">
+              <option value="0.5">0.5×</option>
+              <option value="0.75">0.75×</option>
+              <option value="1" selected>1× (Normal)</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="2">2×</option>
+            </select>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Autoplay</div>
+              <div class="dev-row-desc">Start playing on page load</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devAutoplay" onchange="saveDevSetting('devAutoplay',this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Loop Videos</div>
+              <div class="dev-row-desc">Auto-loop current video</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devLoop" onchange="saveDevSetting('devLoop',this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Mute on Start</div>
+              <div class="dev-row-desc">Always start muted</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devMuteStart" onchange="saveDevSetting('devMuteStart',this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Player UI</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Force Dark Controls</div>
+              <div class="dev-row-desc">Dark video.js control bar always</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devDarkControls" onchange="applyDarkControls(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Player Aspect Ratio</div>
+              <div class="dev-row-desc">Forced container ratio</div>
+            </div>
+            <select class="dev-select" id="devAspect" onchange="applyAspect(this.value)">
+              <option value="">Auto</option>
+              <option value="16/9">16 : 9</option>
+              <option value="4/3">4 : 3</option>
+              <option value="21/9">21 : 9</option>
+              <option value="1/1">1 : 1</option>
+            </select>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Player Border</div>
+              <div class="dev-row-desc">Accent border around player</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devPlayerBorder" onchange="applyPlayerBorder(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Volume</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Default Volume</div>
+              <div class="dev-row-desc">0 = mute, 100 = max</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <input type="range" class="dev-slider" id="devVolume" min="0" max="100" value="100" oninput="saveDevSetting('devVolume',this.value);document.getElementById('devVolumeVal').textContent=this.value+'%'">
+              <span class="dev-val" id="devVolumeVal">100%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ CONTENT ══ -->
+      <div class="dev-pane" id="devPane-content">
+
+        <div class="dev-section">
+          <div class="dev-section-title">Homepage Banner</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Show Hero Banner</div>
+              <div class="dev-row-desc">Top featured content strip</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devShowHero" checked onchange="applyHeroVis(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Show Notice Bar</div>
+              <div class="dev-row-desc">BloxyFlix → Juche TV notice</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devShowNotice" checked onchange="applyNoticeVis(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Grid Settings</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Cards Per Row (Desktop)</div>
+              <div class="dev-row-desc">Min card width in grid</div>
+            </div>
+            <select class="dev-select" id="devGridCols" onchange="applyGridCols(this.value)">
+              <option value="200px">3–4 cards</option>
+              <option value="160px" selected>4–5 cards</option>
+              <option value="130px">5–6 cards</option>
+              <option value="100px">6–8 cards</option>
+            </select>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Card Gap</div>
+              <div class="dev-row-desc">Space between video cards</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <input type="range" class="dev-slider" id="devCardGap" min="4" max="24" value="12" oninput="applyCardGap(this.value);document.getElementById('devCardGapVal').textContent=this.value+'px'">
+              <span class="dev-val" id="devCardGapVal">12px</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Fake View Count Offset</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Add to all view counts</div>
+            <div class="dev-row-desc" style="margin-bottom:.4rem;">Visual offset only — stored locally.</div>
+            <div style="display:flex;gap:.5rem;">
+              <input class="dev-input" type="number" id="devViewOffset" placeholder="0" min="0" style="flex:1;">
+              <button class="dev-btn dev-btn-accent" onclick="applyViewOffset()">Apply</button>
+              <button class="dev-btn dev-btn-ghost" onclick="resetViewOffset()">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Subscriber Count Display</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Override Subscriber Text</div>
+            <div class="dev-row-desc" style="margin-bottom:.4rem;">Shows in channel info block. Visual only.</div>
+            <div style="display:flex;gap:.5rem;">
+              <input class="dev-input" id="devSubsText" placeholder="5 Subscribers" style="flex:1;">
+              <button class="dev-btn dev-btn-accent" onclick="applySubsText()">Apply</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ DATA ══ -->
+      <div class="dev-pane" id="devPane-data">
+
+        <div class="dev-section">
+          <div class="dev-section-title">Storage Overview</div>
+          <div class="dev-stat-row" id="devStorageStats">
+            <div class="dev-stat"><div class="dev-stat-num" id="devStatKeys">—</div><div class="dev-stat-lbl">LS Keys</div></div>
+            <div class="dev-stat"><div class="dev-stat-num" id="devStatSize">—</div><div class="dev-stat-lbl">LS Size</div></div>
+            <div class="dev-stat"><div class="dev-stat-num" id="devStatHistory">—</div><div class="dev-stat-lbl">History</div></div>
+            <div class="dev-stat"><div class="dev-stat-num" id="devStatWatchlist">—</div><div class="dev-stat-lbl">Watchlist</div></div>
+          </div>
+          <button class="dev-btn dev-btn-ghost" style="width:100%;margin-top:.6rem;" onclick="refreshDataStats()">↻ Refresh Stats</button>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Selective Clear</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Watch History</div>
+              <div class="dev-row-desc">Remove all viewed records</div>
+            </div>
+            <button class="dev-btn dev-btn-danger" onclick="devClearHistory()">Clear</button>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Watchlist</div>
+              <div class="dev-row-desc">Remove saved videos</div>
+            </div>
+            <button class="dev-btn dev-btn-danger" onclick="devClearWatchlist()">Clear</button>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Search History</div>
+              <div class="dev-row-desc">Remove recent searches</div>
+            </div>
+            <button class="dev-btn dev-btn-danger" onclick="devClearSearch()">Clear</button>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Dev Panel Overrides</div>
+              <div class="dev-row-desc">Reset all dev-panel local storage keys</div>
+            </div>
+            <button class="dev-btn dev-btn-warn" onclick="devResetDevKeys()">Reset</button>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Comments (Local)</div>
+              <div class="dev-row-desc">Clear locally stored comments</div>
+            </div>
+            <button class="dev-btn dev-btn-danger" onclick="devClearComments()">Clear</button>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Unlock Dev Panel lock</div>
+              <div class="dev-row-desc">Clear the 10-tap unlock flag</div>
+            </div>
+            <button class="dev-btn dev-btn-ghost" onclick="localStorage.removeItem('devUnlocked');devToast('Lock reset — tap logo 10× again')">Reset Lock</button>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Export / Import</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Export LS as JSON</div>
+              <div class="dev-row-desc">Download all localStorage data</div>
+            </div>
+            <button class="dev-btn dev-btn-success" onclick="devExportLS()">Export</button>
+          </div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Import JSON</div>
+            <div class="dev-row-desc" style="margin-bottom:.4rem;">Merges keys into localStorage.</div>
+            <textarea class="dev-textarea" id="devImportJSON" placeholder='{"key":"value"}'></textarea>
+            <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+              <button class="dev-btn dev-btn-accent" onclick="devImportLS()">Import</button>
+            </div>
+          </div>
+        </div>
+
+        <button id="devResetAll" onclick="devResetEverything()">⚠ Reset ALL localStorage (Full Wipe)</button>
+
+      </div>
+
+      <!-- ══ DEBUG ══ -->
+      <div class="dev-pane" id="devPane-debug">
+
+        <div class="dev-section">
+          <div class="dev-section-title">Environment</div>
+          <div class="dev-info-card" id="devEnvInfo"></div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Feature Flags</div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Force Offline Mode</div>
+              <div class="dev-row-desc">Simulate navigator.onLine = false</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devFakeOffline" onchange="applyFakeOffline(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Console Verbose</div>
+              <div class="dev-row-desc">Log all localStorage reads/writes</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devVerbose" onchange="saveDevSetting('devVerbose',this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Show Grid Overlay</div>
+              <div class="dev-row-desc">Debug layout grid lines</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devGridOverlay" onchange="applyGridOverlay(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+          <div class="dev-row">
+            <div class="dev-row-info">
+              <div class="dev-row-label">Highlight Clickables</div>
+              <div class="dev-row-desc">Outline all interactive elements</div>
+            </div>
+            <label class="dev-toggle">
+              <input type="checkbox" id="devHighlightClick" onchange="applyHighlightClick(this.checked)">
+              <div class="dev-toggle-track"></div>
+              <div class="dev-toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">JS Console</div>
+          <div class="dev-row" style="flex-direction:column;align-items:stretch;">
+            <div class="dev-row-label">Evaluate JS</div>
+            <div class="dev-row-desc" style="margin-bottom:.4rem;">Runs in page context. Use with care.</div>
+            <textarea class="dev-textarea" id="devConsoleInput" placeholder="document.title"></textarea>
+            <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+              <button class="dev-btn dev-btn-accent" onclick="devEval()">Run</button>
+              <button class="dev-btn dev-btn-ghost" onclick="document.getElementById('devConsoleOutput').textContent=''">Clear</button>
+            </div>
+            <div style="background:#050708;border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:.5rem .7rem;margin-top:.5rem;font-size:.72rem;font-family:monospace;color:#86efac;min-height:36px;word-break:break-all;white-space:pre-wrap;" id="devConsoleOutput">// output appears here</div>
+          </div>
+        </div>
+
+        <div class="dev-section">
+          <div class="dev-section-title">Quick Actions</div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+            <button class="dev-btn dev-btn-ghost" onclick="location.reload()">↺ Reload</button>
+            <button class="dev-btn dev-btn-ghost" onclick="devToast('Cache cleared (SW)');navigator.serviceWorker&&navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()))">Clear SW</button>
+            <button class="dev-btn dev-btn-ghost" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Scroll Top</button>
+            <button class="dev-btn dev-btn-ghost" onclick="document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()">⛶ Fullscreen</button>
+            <button class="dev-btn dev-btn-ghost" onclick="devCopyDevInfo()">📋 Copy Info</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /devPanelBody -->
+  </div>
+</div>
+
+<!-- Dev Toast -->
+<div class="dev-toast" id="devToastEl"></div>
+
+<style>
+/* ── Compact mode injection ── */
+body.dev-compact .video-card{transform:scale(.92);transform-origin:top left;}
+body.dev-compact .section-title{font-size:.85rem!important;}
+/* ── Grid overlay ── */
+body.dev-grid-overlay *{outline:1px dashed rgba(220,38,38,.2)!important;}
+/* ── Highlight clickable ── */
+body.dev-highlight-click [onclick],[style*="cursor:pointer"]{outline:2px solid #f59e0b!important;}
+/* ── No anim ── */
+body.dev-no-anim *{animation:none!important;transition:none!important;}
+/* ── Player border ── */
+body.dev-player-border #playerContainer{box-shadow:0 0 0 2px var(--accent)!important;}
+/* ── Dark controls ── */
+body.dev-dark-controls .vjs-control-bar{background:rgba(0,0,0,.95)!important;}
+</style>
+
+<script>
+/* ══════════════════════════════════════════════════
+   DEVELOPER PANEL — Juche TV
+   All settings saved to localStorage with prefix 'dev_'
+   Only affects this browser / this device
+══════════════════════════════════════════════════ */
+
+/* ── 10-tap unlock ── */
+let _devTaps = 0, _devTapTimer = null;
+function devPanelTap(){
+  _devTaps++;
+  clearTimeout(_devTapTimer);
+  _devTapTimer = setTimeout(()=>{ _devTaps = 0; }, 2000);
+  if(_devTaps >= 10){
+    _devTaps = 0;
+    localStorage.setItem('devUnlocked','1');
+    openDev();
+  } else {
+    const rem = 10 - _devTaps;
+    if(_devTaps > 4){
+      const el = document.getElementById('devUnlockTrigger');
+      el.style.color = `hsl(${(_devTaps-4)*12},90%,70%)`;
+      setTimeout(()=>{ el.style.color=''; }, 400);
+    }
+  }
+}
+
+function openDev(){
+  const panel = document.getElementById('devPanel');
+  panel.classList.add('open');
+  devLoadAll();
+  refreshDataStats();
+  devBuildEnvInfo();
+}
+function closeDev(){
+  document.getElementById('devPanel').classList.remove('open');
+}
+
+/* ── Tab switching ── */
+function switchDevTab(name){
+  document.querySelectorAll('.dev-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.dev-pane').forEach(p=>p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('devPane-'+name).classList.add('active');
+  if(name==='data') refreshDataStats();
+  if(name==='debug') devBuildEnvInfo();
+}
+
+/* ── Toast ── */
+let _devToastTimer;
+function devToast(msg){
+  const el = document.getElementById('devToastEl');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_devToastTimer);
+  _devToastTimer = setTimeout(()=>el.classList.remove('show'), 2000);
+}
+
+/* ── Generic save/load ── */
+function saveDevSetting(key, val){
+  localStorage.setItem('dev_'+key, typeof val === 'boolean' ? (val?'1':'0') : String(val));
+}
+function loadDevSetting(key, fallback=''){
+  const v = localStorage.getItem('dev_'+key);
+  return v === null ? fallback : v;
+}
+function loadDevBool(key, fallback=false){
+  const v = localStorage.getItem('dev_'+key);
+  if(v===null) return fallback;
+  return v==='1';
+}
+
+/* ── Inappropriate word filter for titles ── */
+const _badWords = [
+  'fuck','shit','ass','bitch','cunt','dick','cock','pussy','bastard',
+  'whore','slut','piss','damn','crap','hell','sex','porn','nude',
+  'naked','rape','kill','murder','hate','nigger','nigga','faggot','retard',
+  'idiot','stupid','dumb','nazi','terrorist','bomb','drug'
+];
+function filterTitle(raw){
+  let out = raw;
+  _badWords.forEach(w=>{
+    const re = new RegExp('\\b'+w+'\\b','gi');
+    if(re.test(out)) out = out.replace(re, '***');
+  });
+  // If the entire thing (after TV suffix removal) is bad, enforce *** TV
+  const stripped = out.replace(/\s*tv\s*$/i,'').trim();
+  if(!stripped || stripped==='***') return '*** TV';
+  return out;
+}
+function previewTitle(raw){
+  const clean = filterTitle(raw);
+  const el = document.getElementById('devTitlePreview');
+  el.textContent = clean !== raw ? '⚠ Filtered: "'+clean+'"' : '';
+  el.style.color = clean !== raw ? '#f87171' : '#6b7280';
+}
+
+/* ══ BRANDING ══ */
+function applyTitle(){
+  let raw = document.getElementById('devSiteTitle').value.trim();
+  if(!raw) return resetTitle();
+  const clean = filterTitle(raw);
+  document.title = clean;
+  saveDevSetting('siteTitle', clean);
+  devToast('Title updated');
+}
+function resetTitle(){
+  document.title = 'Juche TV — Television Archive';
+  localStorage.removeItem('dev_siteTitle');
+  document.getElementById('devSiteTitle').value='';
+  document.getElementById('devTitlePreview').textContent='';
+  devToast('Title reset');
+}
+function applyLogo(){
+  const main = document.getElementById('devLogoMain').value || 'Juche';
+  const sub  = document.getElementById('devLogoSub').value || ' TV';
+  const logo = document.querySelector('.logo');
+  if(logo){
+    logo.innerHTML = main + '<span> '+sub+'</span>';
+    saveDevSetting('logoMain', main);
+    saveDevSetting('logoSub', sub);
+    devToast('Logo updated');
+  }
+}
+function resetLogo(){
+  const logo = document.querySelector('.logo');
+  if(logo) logo.innerHTML = 'Juche<span> TV</span>';
+  localStorage.removeItem('dev_logoMain');
+  localStorage.removeItem('dev_logoSub');
+  document.getElementById('devLogoMain').value='';
+  document.getElementById('devLogoSub').value='';
+  devToast('Logo reset');
+}
+function applyAccent(val){
+  document.documentElement.style.setProperty('--accent', val);
+  document.documentElement.style.setProperty('--gradient-accent', `linear-gradient(135deg,${val} 0%,${shadeColor(val,-40)} 100%)`);
+  saveDevSetting('accentColor', val);
+}
+function applyAccentHover(val){
+  document.documentElement.style.setProperty('--accent-hover', val);
+  saveDevSetting('accentHover', val);
+}
+function resetAccent(){
+  document.documentElement.style.removeProperty('--accent');
+  document.documentElement.style.removeProperty('--accent-hover');
+  document.documentElement.style.removeProperty('--gradient-accent');
+  localStorage.removeItem('dev_accentColor');
+  localStorage.removeItem('dev_accentHover');
+  document.getElementById('devAccentColor').value='#dc2626';
+  document.getElementById('devAccentHover').value='#b91c1c';
+  devToast('Accent reset');
+}
+function shadeColor(hex, pct){
+  const n=parseInt(hex.slice(1),16);
+  const r=Math.max(0,Math.min(255,(n>>16)+(pct*255/100)));
+  const g=Math.max(0,Math.min(255,((n>>8)&0xFF)+(pct*255/100)));
+  const b=Math.max(0,Math.min(255,(n&0xFF)+(pct*255/100)));
+  return '#'+[r,g,b].map(x=>Math.round(x).toString(16).padStart(2,'0')).join('');
+}
+function applyTheme(name){
+  const body = document.body;
+  body.classList.remove('theme-classic','theme-midnight','theme-forest','theme-sunset','theme-pureblack','theme-whiteorange');
+  if(name!=='default') body.classList.add('theme-'+name);
+  saveDevSetting('theme', name);
+  document.querySelectorAll('.dev-theme-swatch').forEach((s,i)=>{
+    const names=['classic','midnight','forest','sunset','pureblack','whiteorange'];
+    s.classList.toggle('selected', names[i]===name);
+  });
+  devToast('Theme: '+name);
+}
+function applyGlass(on){
+  document.body.classList.toggle('glass-on', on);
+  saveDevSetting('glass', on);
+  devToast('Glass '+(on?'on':'off'));
+}
+function applyTagline(){
+  const txt = document.getElementById('devTagline').value.trim();
+  const el = document.querySelector('[style*="Historical"]');
+  if(el){ el.textContent = txt || 'Historical & Cultural Media Archive'; }
+  saveDevSetting('tagline', txt);
+  devToast('Tagline updated');
+}
+function resetTagline(){
+  const el = document.querySelector('[style*="Historical"]');
+  if(el) el.textContent='Historical & Cultural Media Archive';
+  localStorage.removeItem('dev_tagline');
+  document.getElementById('devTagline').value='';
+  devToast('Tagline reset');
+}
+
+/* ══ UI ══ */
+function applyRadius(val){
+  document.documentElement.style.setProperty('--radius', val+'px');
+  document.documentElement.style.setProperty('--radius-lg', (parseInt(val)+4)+'px');
+  saveDevSetting('radius', val);
+}
+function applyNavBlur(val){
+  const styleId='dev-nav-blur-style';
+  let s=document.getElementById(styleId);
+  if(!s){s=document.createElement('style');s.id=styleId;document.head.appendChild(s);}
+  s.textContent=`.nav{backdrop-filter:blur(${val}px) saturate(180%)!important;-webkit-backdrop-filter:blur(${val}px) saturate(180%)!important;}`;
+  saveDevSetting('navBlur', val);
+}
+function applyFontScale(val){
+  document.documentElement.style.fontSize = (val/100)*16+'px';
+  saveDevSetting('fontScale', val);
+}
+function applyFooterVis(on){
+  const f=document.querySelector('footer');
+  if(f) f.style.display=on?'':'none';
+  saveDevSetting('showFooter', on);
+}
+function applyNavVis(on){
+  const n=document.querySelector('.nav');
+  if(n) n.style.display=on?'':'none';
+  saveDevSetting('showNav', on);
+}
+function applyCompact(on){
+  document.body.classList.toggle('dev-compact', on);
+  saveDevSetting('compact', on);
+  devToast('Compact '+(on?'on':'off'));
+}
+function applyHideSidebar(on){
+  const s=document.querySelector('.sidebar');
+  if(s) s.style.display=on?'none':'';
+  saveDevSetting('hideSidebar', on);
+}
+function applyNoAnim(on){
+  document.body.classList.toggle('dev-no-anim', on);
+  saveDevSetting('noAnim', on);
+  devToast('Animations '+(on?'disabled':'enabled'));
+}
+function applyHoverScale(val){
+  const styleId='dev-hover-scale';
+  let s=document.getElementById(styleId);
+  if(!s){s=document.createElement('style');s.id=styleId;document.head.appendChild(s);}
+  s.textContent=`.video-card:hover{transform:scale(${val/100})!important;}`;
+  saveDevSetting('hoverScale', val);
+}
+function applyCustomCSS(){
+  const css=document.getElementById('devCustomCSS').value;
+  const id='dev-custom-inject';
+  let s=document.getElementById(id);
+  if(!s){s=document.createElement('style');s.id=id;document.head.appendChild(s);}
+  s.textContent=css;
+  saveDevSetting('customCSS', css);
+  devToast('CSS injected');
+}
+function clearCustomCSS(){
+  const s=document.getElementById('dev-custom-inject');
+  if(s) s.textContent='';
+  document.getElementById('devCustomCSS').value='';
+  localStorage.removeItem('dev_customCSS');
+  devToast('CSS cleared');
+}
+
+/* ══ PLAYER ══ */
+function applyDarkControls(on){
+  document.body.classList.toggle('dev-dark-controls', on);
+  saveDevSetting('darkControls', on);
+}
+function applyAspect(val){
+  const el=document.getElementById('playerContainer');
+  if(el) el.style.aspectRatio=val;
+  saveDevSetting('aspect', val);
+}
+function applyPlayerBorder(on){
+  document.body.classList.toggle('dev-player-border', on);
+  saveDevSetting('playerBorder', on);
+}
+
+/* ══ CONTENT ══ */
+function applyHeroVis(on){
+  document.querySelectorAll('.hero,.hero-section,.featured').forEach(el=>el.style.display=on?'':'none');
+  saveDevSetting('showHero', on);
+}
+function applyNoticeVis(on){
+  document.querySelectorAll('.notice-bar,.scrolling-notice').forEach(el=>el.style.display=on?'':'none');
+  saveDevSetting('showNotice', on);
+}
+function applyGridCols(val){
+  const styleId='dev-grid-cols';
+  let s=document.getElementById(styleId);
+  if(!s){s=document.createElement('style');s.id=styleId;document.head.appendChild(s);}
+  s.textContent=`#videoGrid,.video-grid{grid-template-columns:repeat(auto-fill,minmax(${val},1fr))!important;}`;
+  saveDevSetting('gridCols', val);
+}
+function applyCardGap(val){
+  const styleId='dev-card-gap';
+  let s=document.getElementById(styleId);
+  if(!s){s=document.createElement('style');s.id=styleId;document.head.appendChild(s);}
+  s.textContent=`#videoGrid,.video-grid{gap:${val}px!important;}`;
+  saveDevSetting('cardGap', val);
+}
+function applyViewOffset(){
+  const off=parseInt(document.getElementById('devViewOffset').value)||0;
+  saveDevSetting('viewOffset', off);
+  document.querySelectorAll('.video-views,.view-count').forEach(el=>{
+    const base=parseInt(el.dataset.baseViews||el.textContent)||0;
+    if(!el.dataset.baseViews) el.dataset.baseViews=base;
+    el.textContent=(base+off).toLocaleString()+' views';
+  });
+  devToast('View offset applied: +'+off);
+}
+function resetViewOffset(){
+  localStorage.removeItem('dev_viewOffset');
+  document.querySelectorAll('.video-views,.view-count').forEach(el=>{
+    if(el.dataset.baseViews) el.textContent=parseInt(el.dataset.baseViews).toLocaleString()+' views';
+  });
+  document.getElementById('devViewOffset').value='0';
+  devToast('View offset reset');
+}
+function applySubsText(){
+  const txt=document.getElementById('devSubsText').value.trim();
+  document.querySelectorAll('.channel-subs,.bptv-stat-pill').forEach(el=>{
+    if(/subscriber/i.test(el.textContent)){ el.textContent=txt||'5 Subscribers'; }
+  });
+  saveDevSetting('subsText', txt);
+  devToast('Subscriber text updated');
+}
+
+/* ══ DATA ══ */
+function refreshDataStats(){
+  const keys=Object.keys(localStorage);
+  let size=0;
+  keys.forEach(k=>{ size+=localStorage.getItem(k).length; });
+  document.getElementById('devStatKeys').textContent=keys.length;
+  document.getElementById('devStatSize').textContent=size>1024?(size/1024).toFixed(1)+'KB':size+'B';
+  const hist=localStorage.getItem('watchHistory');
+  document.getElementById('devStatHistory').textContent=hist?JSON.parse(hist).length:0;
+  const wl=localStorage.getItem('watchlist');
+  document.getElementById('devStatWatchlist').textContent=wl?JSON.parse(wl).length:0;
+}
+function devClearHistory(){
+  if(!confirm('Clear watch history?'))return;
+  localStorage.removeItem('watchHistory');
+  devToast('Watch history cleared');refreshDataStats();
+}
+function devClearWatchlist(){
+  if(!confirm('Clear watchlist?'))return;
+  localStorage.removeItem('watchlist');
+  devToast('Watchlist cleared');refreshDataStats();
+}
+function devClearSearch(){
+  localStorage.removeItem('searchHistory');
+  devToast('Search history cleared');refreshDataStats();
+}
+function devResetDevKeys(){
+  Object.keys(localStorage).filter(k=>k.startsWith('dev_')).forEach(k=>localStorage.removeItem(k));
+  devToast('Dev keys cleared');refreshDataStats();
+  setTimeout(()=>location.reload(),900);
+}
+function devClearComments(){
+  if(!confirm('Clear local comments?'))return;
+  Object.keys(localStorage).filter(k=>k.startsWith('comments-')||k.startsWith('videoComments')).forEach(k=>localStorage.removeItem(k));
+  devToast('Local comments cleared');refreshDataStats();
+}
+function devExportLS(){
+  const data={};
+  Object.keys(localStorage).forEach(k=>data[k]=localStorage.getItem(k));
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='juchetv-localstorage-'+Date.now()+'.json';
+  a.click();
+  devToast('Exported!');
+}
+function devImportLS(){
+  try{
+    const data=JSON.parse(document.getElementById('devImportJSON').value);
+    Object.keys(data).forEach(k=>localStorage.setItem(k,data[k]));
+    devToast('Imported '+Object.keys(data).length+' keys');
+    refreshDataStats();
+  }catch(e){devToast('⚠ Invalid JSON');}
+}
+function devResetEverything(){
+  if(!confirm('⚠ This will wipe ALL localStorage — are you sure?'))return;
+  localStorage.clear();
+  devToast('All data wiped — reloading…');
+  setTimeout(()=>location.reload(),800);
+}
+
+/* ══ DEBUG ══ */
+function applyFakeOffline(on){
+  if(on){
+    Object.defineProperty(navigator,'onLine',{get:()=>false,configurable:true});
+    devToast('Fake offline ON');
+  } else {
+    Object.defineProperty(navigator,'onLine',{get:()=>true,configurable:true});
+    devToast('Fake offline OFF');
+  }
+}
+function applyGridOverlay(on){
+  document.body.classList.toggle('dev-grid-overlay', on);
+  saveDevSetting('gridOverlay', on);
+}
+function applyHighlightClick(on){
+  document.body.classList.toggle('dev-highlight-click', on);
+  saveDevSetting('highlightClick', on);
+}
+function devEval(){
+  const code=document.getElementById('devConsoleInput').value;
+  const out=document.getElementById('devConsoleOutput');
+  try{
+    const result=eval(code);
+    out.textContent=result===undefined?'(undefined)':JSON.stringify(result,null,2);
+    out.style.color='#86efac';
+  }catch(e){
+    out.textContent='Error: '+e.message;
+    out.style.color='#f87171';
+  }
+}
+function devBuildEnvInfo(){
+  const el=document.getElementById('devEnvInfo');
+  if(!el)return;
+  el.innerHTML=`
+    <strong>User Agent:</strong> <code>${navigator.userAgent.substring(0,80)}…</code><br>
+    <strong>Screen:</strong> <code>${screen.width}×${screen.height} @ ${window.devicePixelRatio}dpr</code><br>
+    <strong>Viewport:</strong> <code>${window.innerWidth}×${window.innerHeight}</code><br>
+    <strong>Online:</strong> <code>${navigator.onLine}</code><br>
+    <strong>URL:</strong> <code>${location.href.substring(0,60)}</code><br>
+    <strong>LS Keys:</strong> <code>${Object.keys(localStorage).length}</code><br>
+    <strong>Theme:</strong> <code>${loadDevSetting('theme','(default)')}</code>
+  `;
+}
+function devCopyDevInfo(){
+  const info=`Juche TV Debug\nUA: ${navigator.userAgent}\nScreen: ${screen.width}x${screen.height}\nViewport: ${window.innerWidth}x${window.innerHeight}\nOnline: ${navigator.onLine}\nLS Keys: ${Object.keys(localStorage).length}`;
+  navigator.clipboard&&navigator.clipboard.writeText(info);
+  devToast('Info copied!');
+}
+
+/* ══ LOAD ALL SETTINGS ON OPEN ══ */
+function devLoadAll(){
+  /* Title */
+  const t=loadDevSetting('siteTitle','');
+  if(t){document.title=t;document.getElementById('devSiteTitle').value=t;}
+
+  /* Logo */
+  const lm=loadDevSetting('logoMain','');
+  const ls=loadDevSetting('logoSub','');
+  if(lm){
+    const logo=document.querySelector('.logo');
+    if(logo) logo.innerHTML=lm+'<span> '+ls+'</span>';
+    document.getElementById('devLogoMain').value=lm;
+    document.getElementById('devLogoSub').value=ls;
+  }
+
+  /* Accent */
+  const ac=loadDevSetting('accentColor','#dc2626');
+  document.getElementById('devAccentColor').value=ac;
+  if(ac!=='#dc2626') applyAccent(ac);
+  const ah=loadDevSetting('accentHover','#b91c1c');
+  document.getElementById('devAccentHover').value=ah;
+
+  /* Theme */
+  const th=loadDevSetting('theme','');
+  if(th) applyTheme(th);
+
+  /* Glass */
+  const gl=loadDevBool('glass',false);
+  document.getElementById('devGlass').checked=gl;
+  applyGlass(gl);
+
+  /* Tagline */
+  const tg=loadDevSetting('tagline','');
+  if(tg){document.getElementById('devTagline').value=tg;}
+
+  /* Radius */
+  const r=loadDevSetting('radius','4');
+  document.getElementById('devRadius').value=r;
+  document.getElementById('devRadiusVal').textContent=r+'px';
+  applyRadius(r);
+
+  /* Nav blur */
+  const nb=loadDevSetting('navBlur','28');
+  document.getElementById('devNavBlur').value=nb;
+  document.getElementById('devNavBlurVal').textContent=nb+'px';
+
+  /* Font scale */
+  const fs=loadDevSetting('fontScale','100');
+  document.getElementById('devFontScale').value=fs;
+  document.getElementById('devFontScaleVal').textContent=fs+'%';
+  if(fs!=='100') applyFontScale(fs);
+
+  /* Footer/nav vis */
+  const sf=loadDevBool('showFooter',true);
+  document.getElementById('devShowFooter').checked=sf;
+  if(!sf) applyFooterVis(false);
+
+  const sn=loadDevBool('showNav',true);
+  document.getElementById('devShowNav').checked=sn;
+  if(!sn) applyNavVis(false);
+
+  /* Compact */
+  const cm=loadDevBool('compact',false);
+  document.getElementById('devCompact').checked=cm;
+  if(cm) applyCompact(true);
+
+  /* Sidebar */
+  const hs=loadDevBool('hideSidebar',false);
+  document.getElementById('devHideSidebar').checked=hs;
+  if(hs) applyHideSidebar(true);
+
+  /* No anim */
+  const na=loadDevBool('noAnim',false);
+  document.getElementById('devNoAnim').checked=na;
+  if(na) applyNoAnim(true);
+
+  /* Hover scale */
+  const hvs=loadDevSetting('hoverScale','105');
+  document.getElementById('devHoverScale').value=hvs;
+  document.getElementById('devHoverScaleVal').textContent=(hvs/100).toFixed(2)+'×';
+  if(hvs!=='105') applyHoverScale(hvs);
+
+  /* Custom CSS */
+  const cc=loadDevSetting('customCSS','');
+  if(cc){document.getElementById('devCustomCSS').value=cc;applyCustomCSS();}
+
+  /* Player */
+  document.getElementById('devDefaultSpeed').value=loadDevSetting('devDefaultSpeed','1');
+  document.getElementById('devAutoplay').checked=loadDevBool('devAutoplay',false);
+  document.getElementById('devLoop').checked=loadDevBool('devLoop',false);
+  document.getElementById('devMuteStart').checked=loadDevBool('devMuteStart',false);
+
+  const dc=loadDevBool('darkControls',false);
+  document.getElementById('devDarkControls').checked=dc;
+  if(dc) applyDarkControls(true);
+
+  const asp=loadDevSetting('aspect','');
+  document.getElementById('devAspect').value=asp;
+
+  const pb=loadDevBool('playerBorder',false);
+  document.getElementById('devPlayerBorder').checked=pb;
+  if(pb) applyPlayerBorder(true);
+
+  const vol=loadDevSetting('devVolume','100');
+  document.getElementById('devVolume').value=vol;
+  document.getElementById('devVolumeVal').textContent=vol+'%';
+
+  /* Content */
+  document.getElementById('devShowHero').checked=loadDevBool('showHero',true);
+  document.getElementById('devShowNotice').checked=loadDevBool('showNotice',true);
+
+  const gc=loadDevSetting('gridCols','160px');
+  document.getElementById('devGridCols').value=gc;
+
+  const cg=loadDevSetting('cardGap','12');
+  document.getElementById('devCardGap').value=cg;
+  document.getElementById('devCardGapVal').textContent=cg+'px';
+
+  const vo=loadDevSetting('viewOffset','0');
+  document.getElementById('devViewOffset').value=vo;
+
+  const st=loadDevSetting('subsText','');
+  document.getElementById('devSubsText').value=st;
+
+  /* Debug */
+  document.getElementById('devVerbose').checked=loadDevBool('devVerbose',false);
+  const go=loadDevBool('gridOverlay',false);
+  document.getElementById('devGridOverlay').checked=go;
+  if(go) applyGridOverlay(true);
+  const hc=loadDevBool('highlightClick',false);
+  document.getElementById('devHighlightClick').checked=hc;
+  if(hc) applyHighlightClick(true);
+}
+
+/* ── Auto-restore on page load (persistent settings) ── */
+(function devAutoRestore(){
+  /* Only restore visual settings — not panel open state */
+  const ac=localStorage.getItem('dev_accentColor');
+  if(ac) { document.documentElement.style.setProperty('--accent',ac); }
+  const th=localStorage.getItem('dev_theme');
+  if(th) {
+    document.body.classList.remove('theme-classic','theme-midnight','theme-forest','theme-sunset','theme-pureblack','theme-whiteorange');
+    if(th!=='default') document.body.classList.add('theme-'+th);
+  }
+  const gl=localStorage.getItem('dev_glass');
+  if(gl==='1') document.body.classList.add('glass-on');
+  const na=localStorage.getItem('dev_noAnim');
+  if(na==='1') document.body.classList.add('dev-no-anim');
+  const cm=localStorage.getItem('dev_compact');
+  if(cm==='1') document.body.classList.add('dev-compact');
+  const t=localStorage.getItem('dev_siteTitle');
+  if(t) document.title=t;
+  const cc=localStorage.getItem('dev_customCSS');
+  if(cc){const s=document.createElement('style');s.id='dev-custom-inject';s.textContent=cc;document.head.appendChild(s);}
+  const r=localStorage.getItem('dev_radius');
+  if(r){document.documentElement.style.setProperty('--radius',r+'px');document.documentElement.style.setProperty('--radius-lg',(parseInt(r)+4)+'px');}
+  const fs=localStorage.getItem('dev_fontScale');
+  if(fs&&fs!=='100') document.documentElement.style.fontSize=(fs/100)*16+'px';
+})();
+</script>
+
+</html>
