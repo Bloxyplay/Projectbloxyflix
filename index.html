@@ -8463,25 +8463,27 @@ function renderVideos(filter='all'){
   const pinned=filtered.filter(v=>v.isPinned);
   const others=filtered.filter(v=>!v.isPinned);
 
-  // Sort non-pinned: when newest-first, array position (= order added) is the primary
-  // key so newly added videos always surface at the top regardless of release year.
-  // When oldest-first, sort by year ascending instead.
-  const sortedOthers=[...others].sort((a,b)=>{
-    const ia = vids.indexOf(a);
-    const ib = vids.indexOf(b);
-    const ya = parseInt(a.y)||0;
-    const yb = parseInt(b.y)||0;
-    if(curSortOrder === 'newest'){
-      // Most recently added (highest index) comes first
-      return ib - ia;
+  // Koryo API videos (April 25+ live content) always float to the top, right
+  // after pinned streams, sorted newest-first by their actual add_date
+  const koryoNew=others.filter(v=>v.koryoApi);
+  const rest=others.filter(v=>!v.koryoApi);
+  koryoNew.sort((a,b)=>new Date(b.addDate||0)-new Date(a.addDate||0));
+
+  // Sort remaining videos by user's chosen order
+  const sortedRest=[...rest].sort((a,b)=>{
+    const ia=vids.indexOf(a);
+    const ib=vids.indexOf(b);
+    const ya=parseInt(a.y)||0;
+    const yb=parseInt(b.y)||0;
+    if(curSortOrder==='newest'){
+      return ib-ia;
     } else {
-      // Oldest year first, tiebreak by array index
-      if(ya !== yb) return ya - yb;
-      return ia - ib;
+      if(ya!==yb) return ya-yb;
+      return ia-ib;
     }
   });
 
-  const sorted=[...pinned,...sortedOthers];
+  const sorted=[...pinned,...koryoNew,...sortedRest];
   
   grid.innerHTML=sorted.map((v,i)=>{
     const idx=vids.indexOf(v);
@@ -8795,7 +8797,7 @@ async function _extractAndPlayKoryoForRedirect(idx) {
     return;
   }
 
-  showToast('Loading....');
+  showToast('Extracting MP4 from Koryo TV…');
   try {
     const mp4Url = await resolveKoryoMedia(mediaId);
     // Update the video entry with the resolved MP4 URL
@@ -11999,11 +12001,11 @@ async function _extractAndPlayKoryo(idx) {
 
   const mediaId = _extractMediaId(v.u);
   if(!mediaId) {
-    showToast('Error: Video cannot be loaded!');
+    showToast('Invalid Koryo TV URL');
     return;
   }
 
-  showToast('Loading~');
+  showToast('Extracting MP4 from Koryo TV…');
   try {
     const mp4Url = await resolveKoryoMedia(mediaId);
     // Update the video entry with the resolved MP4 URL so future plays are instant
@@ -12079,6 +12081,8 @@ async function fetchKoryoApiAndMerge() {
           thumb: v.thumbnail_url || v.thumbnail || v.poster || '',
           creator: 'KoryoTV',
           koryoToken: token,
+          koryoApi: true,
+          addDate: v.add_date || '',
           isYouTube: false,
           isEmbed: false,
           isExternal: false,
@@ -12207,7 +12211,7 @@ async function loadKoryoApiVideos() {
     empty.style.display = 'block';
     const isPreview = e.message === 'Failed to fetch' || e.message.includes('NetworkError') || e.message.includes('blocked');
     empty.innerHTML = isPreview
-      ? '<p style="color:var(--text-secondary);">📡 Juche TV API is not reachable in this preview environment.<br><span style="font-size:.8rem;opacity:.6;">Open the file in a real browser to load live videos.</span></p>'
+      ? '<p style="color:var(--text-secondary);">📡 KoryoTV API is not reachable in this preview environment.<br><span style="font-size:.8rem;opacity:.6;">Open the file in a real browser to load live videos.</span></p>'
       : '<p>Error loading videos: ' + escapeHtml(e.message) + '</p>';
     console.info('KoryoAPI load skipped:', e.message);
   }
@@ -12217,7 +12221,7 @@ async function playKoryoVideo(idx) {
   const v = koryoApiVideos[idx];
   if(!v) return;
 
-  showToast('Loading using the video database!');
+  showToast('Resolving video via KoryoTV API…');
 
   try {
     const mp4Url = await resolveKoryoMedia(v.friendly_token);
@@ -12237,7 +12241,7 @@ async function playKoryoVideo(idx) {
       isExternal: false,
       isGoogleDrive: false,
       isM3U8: false,
-      creator: 'Juche TV'
+      creator: 'KoryoTV'
     };
 
     sessionStorage.setItem('bf-player-vid', JSON.stringify(vid));
@@ -12258,7 +12262,7 @@ async function playKoryoVideo(idx) {
       isExternal: false,
       isGoogleDrive: false,
       isM3U8: false,
-      creator: 'Juche TV',
+      creator: 'KoryoTV',
       koryoId: vv.friendly_token,
       idx: i
     }));
@@ -12301,14 +12305,14 @@ function escapeHtml(text) {
       <div class="hero-bg" style="background-image:url('https://koryo.tv/static/images/hero.webp');"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <h1 class="hero-title" style="font-size:2rem;">Juche TV API Archive</h1>
-        <p class="hero-subtitle">On-demand videos from the Juche TVmedia library — April 25, 2026 onwards.</p>
+        <h1 class="hero-title" style="font-size:2rem;">KoryoTV API Archive</h1>
+        <p class="hero-subtitle">On-demand videos from the KoryoTV media library — April 25, 2026 onwards.</p>
       </div>
     </div>
     <div class="info-main" style="padding-top:2rem;">
       <div id="koryoapiLoading" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
         <div style="width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem;"></div>
-        <p>Loading videos from Juche TV database…</p>
+        <p>Loading videos from KoryoTV API…</p>
       </div>
       <div id="koryoapiGrid" class="recommend-grid" style="display:none;"></div>
       <div id="koryoapiEmpty" style="display:none;text-align:center;padding:3rem 1rem;color:var(--muted);">
