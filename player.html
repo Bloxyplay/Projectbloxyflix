@@ -732,47 +732,7 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ════════════════════════════════════════
-   DOWNLOAD BUTTON IN VJS / ACTION AREA
-════════════════════════════════════════ */
-.vjs-download-btn{
-  cursor:pointer;display:flex!important;align-items:center;justify-content:center;
-  width:36px!important;height:40px!important;padding:0!important;
-  color:rgba(255,255,255,.70);transition:color .14s,background .14s,transform .15s var(--spring);
-  text-decoration:none;position:relative;flex-shrink:0;border-radius:8px;
-}
-.vjs-download-btn:hover{color:var(--gold2);background:rgba(201,168,76,.12);transform:scale(1.08);}
-.vjs-download-btn svg{width:17px;height:17px;fill:currentColor;display:block;}
-.vjs-download-btn::after{
-  content:'Download';position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.92);color:var(--gold2);font-size:.68rem;font-weight:600;
-  padding:.22rem .55rem;border-radius:6px;white-space:nowrap;
-  border:1px solid rgba(201,168,76,.18);opacity:0;pointer-events:none;transition:opacity .15s;
-  font-family:var(--f);
-}
-.vjs-download-btn:hover::after{opacity:1;}
 
-/* Download strip below video player */
-#downloadStrip{
-  display:none;
-  align-items:center;gap:.55rem;flex-wrap:wrap;
-  padding:.55rem .85rem;
-  background:rgba(201,168,76,0.04);
-  border-top:1px solid rgba(201,168,76,0.10);
-}
-#downloadStrip.show{display:flex;}
-.dl-label{font-size:.70rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0;}
-.dl-btn{
-  display:inline-flex;align-items:center;gap:.35rem;
-  padding:.30rem .80rem;
-  background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.18);
-  border-radius:var(--rp);color:var(--t2);font-size:.76rem;font-weight:600;
-  cursor:pointer;text-decoration:none;font-family:inherit;white-space:nowrap;
-  transition:all .20s var(--spring);
-}
-.dl-btn:hover{background:rgba(201,168,76,0.16);border-color:var(--b2);color:var(--gold2);transform:scale(1.05) translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.25);}
-.dl-btn:active{transform:scale(.96);}
-.dl-btn svg{width:13px;height:13px;fill:currentColor;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -816,21 +776,7 @@ body.embedded .youtube-player iframe,body.embedded #youtubeFrame{position:absolu
             </video-minimal-skin>
           </video-player>
 
-          <!-- Download strip -->
-          <div id="downloadStrip">
-            <span class="dl-label">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="11" height="11" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:.25rem;"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v5h5.66V9h3.84L12 2z"/></svg>
-              Download
-            </span>
-            <a id="dlBtnDirect" class="dl-btn" href="#" download>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
-              MP4
-            </a>
-            <button class="dl-btn" onclick="copyVidSrc()" title="Copy direct video URL">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-              Copy URL
-            </button>
-          </div>
+
         </div>
         <!-- Native browser player for HLS on Safari -->
         <div id="nativePlayerWrap" style="display:none;width:100%;position:relative;background:#000;border-radius:var(--rl);overflow:hidden;">
@@ -1393,27 +1339,6 @@ function initVJSSkin(){
   },{passive:true});
 }
 function toggleVJSSkin(){toast('🎬 Using full player skin');}
-function copyVidSrc(){
-  const el=document.getElementById('vjs-video');
-  const src=el?el.src||el.currentSrc:'';
-  if(!src){toast('⚠ No video source found');return;}
-  if(navigator.clipboard)navigator.clipboard.writeText(src).then(()=>toast('🔗 Video URL copied!')).catch(()=>fallbackCopy(src));
-  else fallbackCopy(src);
-}
-function updateDownloadStrip(url){
-  const strip=document.getElementById('downloadStrip');
-  const dlBtn=document.getElementById('dlBtnDirect');
-  if(!strip||!dlBtn)return;
-  if(url&&!url.includes('.m3u8')){
-    dlBtn.href=url;
-    const filename=(url.split('/').pop()||'video').replace(/\?.*$/,'');
-    dlBtn.setAttribute('download',filename||'video.mp4');
-    strip.classList.add('show');
-  }else{
-    strip.classList.remove('show');
-  }
-}
-
 // ══════════════════════════════════════════
 //  PLAYBACK ROUTING
 // ══════════════════════════════════════════
@@ -1563,7 +1488,6 @@ async function playWithPlyrHLS(v){
 // ── @videojs/html / native video element playback (MP4 / non-HLS) ─
 async function playWithVJS(v){
   showVJS();
-  updateDownloadStrip(v.u||'');
   const videoEl=getVJSVideo();
   if(!videoEl)return;
   if(videoEl._mp4StallCleanup){videoEl._mp4StallCleanup();}
